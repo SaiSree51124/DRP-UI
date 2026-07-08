@@ -217,17 +217,20 @@ const ActiveProjects = () => {
       <Button
         variant="contained"
         disableElevation
-        startIcon={<AddOutlined sx={{ fontSize: 15 }} />}
         sx={{
           position: "fixed", bottom: "32px", right: "32px",
-          borderRadius: "20px", bgcolor: DARK, color: "#fff",
-          fontFamily: FONT, fontSize: "13px", fontWeight: 500,
-          textTransform: "none", px: "20px", py: "8px",
-          "&:hover": { bgcolor: "#1E293B" },
-          boxShadow: "0 4px 16px rgba(0,0,0,0.2)",
+          width: "104px", height: "43px",
+          borderRadius: "24px", bgcolor: "#0D1B2A",
+          border: "1px solid rgba(10, 191, 188, 0.5)",
+          boxShadow: "0px 8px 24px rgba(124, 58, 237, 0.302)",
+          color: "#0ABFBC", fontFamily: FONT, fontSize: "16px",
+          fontWeight: 700, lineHeight: "19px", textTransform: "none",
+          whiteSpace: "nowrap",
+          px: "20px", py: "12px", minWidth: "auto", zIndex: 2,
+          "&:hover": { bgcolor: "#1A2C3D" },
         }}
       >
-        Genie
+        ✦ Genie
       </Button>
 
       <NewProjectModal open={modalOpen} onClose={() => setModalOpen(false)} />

@@ -192,15 +192,19 @@ const Overview = () => {
       </Box>
 
       {/* Genie FAB */}
-      <Box sx={{ position: "fixed", bottom: "32px", right: "32px", zIndex: 10 }}>
-        <Button variant="contained" disableElevation startIcon={<AddOutlined sx={{ fontSize: 15 }} />}
-          sx={{ height: "40px", borderRadius: "20px", bgcolor: DARK, color: "#fff",
-            fontFamily: FONT, fontSize: "13px", fontWeight: 600, textTransform: "none",
-            px: "18px", boxShadow: "0 4px 14px rgba(0,0,0,0.18)",
-            "&:hover": { bgcolor: "#1E293B" } }}>
-          Genie
-        </Button>
-      </Box>
+      <Button variant="contained" disableElevation
+        sx={{ position: "fixed", bottom: "32px", right: "32px",
+          width: "104px", height: "43px",
+          borderRadius: "24px", bgcolor: "#0D1B2A",
+          border: "1px solid rgba(10, 191, 188, 0.5)",
+          boxShadow: "0px 8px 24px rgba(124, 58, 237, 0.302)",
+          color: "#0ABFBC", fontFamily: FONT, fontSize: "16px",
+          fontWeight: 700, lineHeight: "19px", textTransform: "none",
+          whiteSpace: "nowrap",
+          px: "20px", py: "12px", minWidth: "auto", zIndex: 2,
+          "&:hover": { bgcolor: "#1A2C3D" } }}>
+        ✦ Genie
+      </Button>
 
       <NewProjectModal open={modalOpen} onClose={() => setModalOpen(false)} />
     </Box>
