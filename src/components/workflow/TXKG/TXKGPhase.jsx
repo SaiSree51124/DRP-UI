@@ -1,0 +1,608 @@
+import React from 'react';
+import {
+  Box, Typography, Button, Tabs, Tab, Checkbox,
+  TextField, Accordion, AccordionSummary, AccordionDetails, Chip, IconButton
+} from '@mui/material';
+import { ExpandMoreOutlined, AddOutlined } from '@mui/icons-material';
+import {
+  FONT, TEAL, USER_MSG_BG, GRAY_BG, BORDER, BORDER_LIGHT,
+  TEXT_DARK, TEXT_MUTED, INSIGHTS_HEADER, ACTIVE_TAB, MOCK_TARGETS,
+} from '../workflowConstants';
+
+const SparkleIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+    <path d="M7 0L8.5 5.5L14 7L8.5 8.5L7 14L5.5 8.5L0 7L5.5 5.5L7 0Z" fill="#00BCD4"/>
+  </svg>
+);
+
+const SectionAccordionSummary = ({ label }) => (
+  <Box sx={{ display: "flex", alignItems: "center", gap: "10px", width: "100%" }}>
+    <Box sx={{ width: 32, height: 32, borderRadius: "8px", bgcolor: "#F0FDF9", border: "1px solid #00BCD4", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+      <SparkleIcon />
+    </Box>
+    <Typography sx={{ flex: 1, fontFamily: FONT, fontSize: "12px", fontWeight: 700, color: "#00BCD4", textTransform: "uppercase" }}>
+      {label}
+    </Typography>
+  </Box>
+);
+
+const TXKGPhase = ({
+  workflowPhase,
+  query,
+  expandedAccordion,
+  setExpandedAccordion,
+  insightTab,
+  setInsightTab,
+  selectedTargets,
+  setSelectedTargets,
+  setWorkflowPhase,
+  setActiveStep,
+}) => {
+  const mockTargets = MOCK_TARGETS;
+
+  // ─── Loading ────────────────────────────────────────────────────────────
+  if (workflowPhase === 'txkg-loading') {
+    return (
+      <Box sx={{ p: "24px 16px 16px 16px", bgcolor: GRAY_BG }}>
+        <div className="user-message-row">
+          <div className="user-message-bubble">
+            <div className="user-bubble-header">
+              <span className="user-name">DR. PRIYA (YOU)</span>
+            </div>
+            <div className="user-message-text">{query}</div>
+          </div>
+        </div>
+        <div className="agent-thinking-row">
+          <div className="thinking-bubble">
+            <div className="bubble-header">
+              <div className="agent-avatar">
+                <svg className="icon" width="14" height="14" viewBox="0 0 14 14" fill="none">
+                  <path d="M7 0L8.5 5.5L14 7L8.5 8.5L7 14L5.5 8.5L0 7L5.5 5.5L7 0Z" fill="#00BCD4"/>
+                </svg>
+              </div>
+              <span className="agent-name">INOVAPATH TXKG AGENT</span>
+            </div>
+            <div className="status-processing">
+              <div className="spinner-container">
+                <div className="spinner-dot"></div>
+                <div className="spinner-dot"></div>
+                <div className="spinner-dot"></div>
+              </div>
+              <span className="processing-text">Searching biomedical databases (NCBI, UniProt, TxKG relations)...</span>
+            </div>
+          </div>
+        </div>
+      </Box>
+    );
+  }
+
+  // ─── Results ─────────────────────────────────────────────────────────────
+  if (workflowPhase === 'txkg-results') {
+    return (
+      <Box sx={{ p: "24px 40px 40px 40px", bgcolor: GRAY_BG }}>
+        {/* User message */}
+        <div className="user-message-row">
+          <div className="user-message-bubble">
+            <div className="user-bubble-header">
+              <span className="user-name">DR. PRIYA (YOU)</span>
+            </div>
+            <div className="user-message-text">{query}</div>
+          </div>
+        </div>
+
+        {/* TXKG Accordion */}
+        <Box sx={{ p: "4px 0" }}>
+          <Accordion
+            expanded={expandedAccordion === "txkg"}
+            onChange={() => setExpandedAccordion(expandedAccordion === "txkg" ? "" : "txkg")}
+            sx={{ border: `1px solid ${BORDER}`, borderRadius: "10px !important", "&:before": { display: "none" }, boxShadow: "none", bgcolor: "#FFFFFF" }}
+          >
+            <AccordionSummary
+              expandIcon={<ExpandMoreOutlined sx={{ color: "#94A3B8", width: 20, height: 20 }} />}
+              sx={{ minHeight: "48px", p: "8px 16px", "&.Mui-expanded": { minHeight: "48px" }, "& .MuiAccordionSummary-content": { margin: 0, alignItems: "center" } }}
+            >
+              <SectionAccordionSummary label="TXKG" />
+            </AccordionSummary>
+            <AccordionDetails sx={{ p: "16px", bgcolor: "#FFFFFF" }}>
+              <Typography sx={{ fontFamily: FONT, fontSize: "15px", fontWeight: 400, color: TEXT_DARK, lineHeight: "22px", mb: "12px" }}>
+                I found 10 protein targets strongly associated with Type 2 Diabetes pathways. Here are the top candidates ranked by therapeutic relevance:
+              </Typography>
+              <Box sx={{ display: "flex", gap: "12px" }}>
+                {/* Target Table */}
+                <Box sx={{ flex: "0 0 52%", minWidth: 0 }}>
+                  <Box sx={{ border: `1px solid ${BORDER}`, borderRadius: "8px", overflow: "hidden" }}>
+                    <Box sx={{ display: "flex", bgcolor: GRAY_BG, p: "10px 12px", borderBottom: `1px solid ${BORDER_LIGHT}`, gap: "8px" }}>
+                      <Typography sx={{ flex: "0 0 100px", fontFamily: FONT, fontSize: "11px", fontWeight: 700, color: TEXT_MUTED, textTransform: "uppercase", letterSpacing: "0.5px" }}>UNIPROT ID</Typography>
+                      <Typography sx={{ flex: 1, fontFamily: FONT, fontSize: "11px", fontWeight: 700, color: TEXT_MUTED, textTransform: "uppercase", letterSpacing: "0.5px" }}>TARGET</Typography>
+                      <Typography sx={{ flex: "0 0 80px", fontFamily: FONT, fontSize: "11px", fontWeight: 700, color: TEXT_MUTED, textTransform: "uppercase", textAlign: "right", letterSpacing: "0.5px" }}>SCORE</Typography>
+                    </Box>
+                    {mockTargets.map((target, i) => (
+                      <Box key={target.id} sx={{ display: "flex", p: "12px 16px", borderBottom: i < mockTargets.length - 1 ? `1px solid ${BORDER}` : "none", bgcolor: i === 0 ? "rgba(0,188,212,0.08)" : "transparent", "&:hover": { bgcolor: i === 0 ? "rgba(0,188,212,0.12)" : "#F8FAFC" } }}>
+                        <Typography sx={{ flex: "0 0 100px", fontFamily: FONT, fontSize: "13px", fontWeight: 600, color: TEAL }}>{target.id}</Typography>
+                        <Typography sx={{ flex: 1, fontFamily: FONT, fontSize: "13px", color: TEXT_DARK }}>{target.name}</Typography>
+                        <Typography sx={{ flex: "0 0 80px", fontFamily: FONT, fontSize: "13px", fontWeight: 600, color: TEXT_DARK, textAlign: "right" }}>{target.score}</Typography>
+                      </Box>
+                    ))}
+                  </Box>
+                </Box>
+                {/* Insights Panel */}
+                <Box sx={{ flex: 1, minWidth: 0, border: `1px solid ${BORDER}`, borderRadius: "8px", overflow: "hidden" }}>
+                  <Box sx={{ bgcolor: GRAY_BG, p: "10px 12px", borderBottom: `1px solid ${BORDER_LIGHT}` }}>
+                    <Typography sx={{ fontFamily: FONT, fontSize: "13px", fontWeight: 700, color: INSIGHTS_HEADER, lineHeight: "100%" }}>Insights</Typography>
+                    <Typography sx={{ fontFamily: FONT, fontSize: "10px", fontWeight: 400, color: TEXT_MUTED, lineHeight: "100%", mt: "4px" }}>AI-powered target recommendations and Q&A</Typography>
+                  </Box>
+                  <Box sx={{ borderBottom: `1px solid ${BORDER}`, p: "4px" }}>
+                    <Tabs value={insightTab} onChange={(e, val) => setInsightTab(val)} TabIndicatorProps={{ style: { display: "none" } }}
+                      sx={{ minHeight: "32px", "& .MuiTab-root": { minHeight: "23px", p: "4px 10px", textTransform: "none", fontFamily: FONT, fontSize: "10px", fontWeight: 600, lineHeight: "100%", color: TEXT_MUTED, "&.Mui-selected": { color: ACTIVE_TAB } } }}>
+                      <Tab label="Interpretation" />
+                      <Tab label="Recommendations" />
+                      <Tab label="Sources" />
+                    </Tabs>
+                  </Box>
+                  <Box sx={{ p: "16px", overflowY: "auto", maxHeight: "340px" }}>
+                    {insightTab === 0 && (
+                      <Typography sx={{ fontFamily: FONT, fontSize: "12px", fontWeight: 400, color: "#404552", lineHeight: 1.6 }}>
+                        The predicted therapeutic targets for Type 2 Diabetes suggest a potential mechanism of action involving the modulation of insulin signaling pathways, particularly those regulated by JAK2 and DPP4.
+                        <br /><br />
+                        The involvement of JAK2, which is a key downstream effector of cytokine receptor signaling, implies that inhibiting this pathway may help mitigate elevated blood glucose and insulin resistance. The identification of GLP1R and SGLT2 as potential targets also hints at roles for incretin-related pathways in the pathogenesis of Type 2 Diabetes.
+                        <br /><br />
+                        These findings highlight the complexity of Type 2 Diabetes and the need for further investigation into the interplay between metabolic and immune signaling pathways.
+                      </Typography>
+                    )}
+                    {insightTab === 1 && (
+                      <Box sx={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                        <Typography sx={{ fontFamily: FONT, fontSize: "13px", fontWeight: 700, color: "#1A1F26", lineHeight: "100%" }}>Recommendations</Typography>
+                        {[
+                          { target: "JAK2", status: "High", desc: "Best entry point for insulin signaling inhibition; may reduce glucose regulation." },
+                          { target: "DPP4", status: "High", desc: "Well-validated target with existing gliptin class drugs; strong repurposing potential." },
+                          { target: "GLP1R", status: "Medium", desc: "Incretin pathway modulation for glucose-dependent insulin secretion enhancement." },
+                          { target: "SGLT2", status: "Medium", desc: "Renal glucose reabsorption target; proven clinical efficacy across multiple cytokine pathways." },
+                        ].map((rec, i) => (
+                          <Box key={i} sx={{ display: "flex", flexDirection: "column", gap: "4px", p: "10px 12px", bgcolor: "#FAFCFF", border: `1px solid ${BORDER}`, borderRadius: "8px" }}>
+                            <Box sx={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                              <Typography sx={{ fontFamily: FONT, fontSize: "13px", fontWeight: 600, color: "#1A1A26", lineHeight: "100%" }}>{rec.target}</Typography>
+                              <Chip label={rec.status} size="small" sx={{ bgcolor: rec.status === "High" ? "rgba(20,158,133,0.12)" : "rgba(217,140,26,0.12)", color: rec.status === "High" ? "#00BCD4" : "#D98C1A", fontFamily: FONT, fontSize: "10px", fontWeight: 600, height: "17px", borderRadius: "4px", "& .MuiChip-label": { px: "8px", py: "2px", lineHeight: "100%" } }} />
+                            </Box>
+                            <Typography sx={{ fontFamily: FONT, fontSize: "12px", fontWeight: 400, color: "#4D5461", lineHeight: "100%" }}>{rec.desc}</Typography>
+                          </Box>
+                        ))}
+                      </Box>
+                    )}
+                    {insightTab === 2 && (
+                      <Box sx={{ display: "flex", flexDirection: "column", gap: "16px", pt: "12px" }}>
+                        <Typography sx={{ fontFamily: FONT, fontSize: "14px", fontWeight: 600, color: "#262E38", lineHeight: "100%" }}>References</Typography>
+                        {[
+                          { title: "JAK2 inhibition in Type 2 Diabetes: A systematic review", journal: "Nature Reviews Drug Discovery, 2023", doi: "DOI: 10.1038/nrd.2023.142" },
+                          { title: "DPP4 inhibitors and cardiovascular outcomes in diabetic patients", journal: "The Lancet Diabetes & Endocrinology, 2022", doi: "DOI: 10.1016/S2213-8587(22)00156-2" },
+                          { title: "GLP-1 receptor agonists: mechanisms and therapeutic potential", journal: "Cell Metabolism, 2023", doi: "DOI: 10.1016/j.cmet.2023.04.008" },
+                          { title: "SGLT2 inhibitors in the management of Type 2 Diabetes", journal: "New England Journal of Medicine, 2022", doi: "DOI: 10.1056/NEJMra2203096" },
+                          { title: "Insulin signaling pathways as drug targets for T2D", journal: "Pharmacological Reviews, 2023", doi: "DOI: 10.1124/pharmrev.122.000560" },
+                        ].map((source, i) => (
+                          <Box key={i} sx={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                            <Typography sx={{ fontFamily: FONT, fontSize: "12px", fontWeight: 600, color: "#262E38", lineHeight: "100%" }}>[{i + 1}] {source.title}</Typography>
+                            <Typography sx={{ fontFamily: FONT, fontSize: "11px", fontWeight: 400, color: "#667080", lineHeight: "100%" }}>{source.journal}</Typography>
+                            <Typography sx={{ fontFamily: FONT, fontSize: "11px", fontWeight: 400, color: "#00BCD4", lineHeight: "100%", cursor: "pointer", "&:hover": { textDecoration: "underline" } }}>{source.doi}</Typography>
+                          </Box>
+                        ))}
+                      </Box>
+                    )}
+                  </Box>
+                </Box>
+              </Box>
+              <Box sx={{ display: "flex", gap: "12px", mt: "16px" }}>
+                <Button variant="outlined" sx={{ textTransform: "none", fontFamily: FONT, fontSize: "13px", color: TEXT_DARK, borderColor: BORDER, p: "6px 16px" }}>Branch</Button>
+                <Button variant="outlined" sx={{ textTransform: "none", fontFamily: FONT, fontSize: "13px", color: TEXT_DARK, borderColor: BORDER, p: "6px 16px" }}>Rerun</Button>
+                <Button variant="outlined" sx={{ textTransform: "none", fontFamily: FONT, fontSize: "13px", color: TEXT_DARK, borderColor: BORDER, p: "6px 16px" }}>Export</Button>
+              </Box>
+            </AccordionDetails>
+          </Accordion>
+        </Box>
+
+        {/* SUBGRAPH Accordion */}
+        <Box sx={{ p: "4px 0" }}>
+          <Accordion
+            expanded={expandedAccordion === "subgraph"}
+            onChange={() => setExpandedAccordion(expandedAccordion === "subgraph" ? "" : "subgraph")}
+            sx={{ border: `1px solid ${BORDER}`, borderRadius: "10px !important", "&:before": { display: "none" }, boxShadow: "none", bgcolor: "#FFFFFF" }}
+          >
+            <AccordionSummary
+              expandIcon={<ExpandMoreOutlined sx={{ color: "#94A3B8", width: 20, height: 20 }} />}
+              sx={{ minHeight: "48px", p: "8px 16px", "&.Mui-expanded": { minHeight: "48px" }, "& .MuiAccordionSummary-content": { margin: 0, alignItems: "center" } }}
+            >
+              <SectionAccordionSummary label="SUBGRAPH" />
+            </AccordionSummary>
+            <AccordionDetails sx={{ p: "16px" }}>
+              <Typography sx={{ fontFamily: FONT, fontSize: "15px", fontWeight: 400, color: TEXT_DARK, lineHeight: "22px", mb: "12px" }}>
+                Here is the generated knowledge graph for Type 2 Diabetes. This map illustrates the validated and predicted relationships between JAK2, drug molecules, associated pathways, and overlapping diseases based on TxKG relations:
+              </Typography>
+              <Box sx={{ borderRadius: "12px", overflow: "hidden", lineHeight: 0 }}>
+                <svg viewBox="0 0 840 360" width="100%" style={{ maxWidth: 840 }} xmlns="http://www.w3.org/2000/svg">
+                  <rect width="840" height="360" fill="#0F172A" rx="12" />
+                  {Array.from({ length: 15 }, (_, c) => Array.from({ length: 13 }, (_, r) => (
+                    <circle key={`d-${c}-${r}`} cx={c * 60} cy={r * 30} r="1" fill="white" opacity="0.07" />
+                  )))}
+                  {[[400,165,240,75],[400,165,500,60],[400,165,620,125],[400,165,140,175],[400,165,440,105],[400,165,220,265],[400,165,340,280],[400,165,110,255],[400,165,610,245],[400,165,500,275],[400,165,700,155],[400,165,680,295],[240,75,110,255],[240,75,610,245],[440,105,500,275],[140,175,220,265]].map(([x1,y1,x2,y2], i) => (
+                    <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke="rgba(102,115,140,0.4)" strokeWidth="1.2" />
+                  ))}
+                  <circle cx="400" cy="165" r="26" fill="#1F2433" /><text x="400" y="200" textAnchor="middle" fill="#D1D9E6" fontSize="9" fontFamily="Geist,sans-serif" fontWeight="500">Type 2 Diabetes</text>
+                  <circle cx="240" cy="75" r="17" fill="#F28C33" /><text x="240" y="102" textAnchor="middle" fill="#D1D9E6" fontSize="9" fontFamily="Geist,sans-serif" fontWeight="500">JAK2</text>
+                  <circle cx="500" cy="60" r="15" fill="#F28C33" /><text x="500" y="86" textAnchor="middle" fill="#D1D9E6" fontSize="9" fontFamily="Geist,sans-serif" fontWeight="500">DPP4</text>
+                  <circle cx="620" cy="125" r="14" fill="#F28C33" /><text x="620" y="150" textAnchor="middle" fill="#D1D9E6" fontSize="9" fontFamily="Geist,sans-serif" fontWeight="500">GLP1R</text>
+                  <circle cx="140" cy="175" r="14" fill="#F28C33" /><text x="140" y="200" textAnchor="middle" fill="#D1D9E6" fontSize="9" fontFamily="Geist,sans-serif" fontWeight="500">SGLT2</text>
+                  <circle cx="440" cy="105" r="12" fill="#F28C33" /><text x="440" y="128" textAnchor="middle" fill="#D1D9E6" fontSize="9" fontFamily="Geist,sans-serif" fontWeight="500">INSR</text>
+                  <circle cx="220" cy="265" r="15" fill="#8C4DBF" /><text x="220" y="291" textAnchor="middle" fill="#D1D9E6" fontSize="9" fontFamily="Geist,sans-serif" fontWeight="500">Metformin</text>
+                  <circle cx="340" cy="280" r="14" fill="#8C4DBF" /><text x="340" y="305" textAnchor="middle" fill="#D1D9E6" fontSize="9" fontFamily="Geist,sans-serif" fontWeight="500">Imatinib</text>
+                  <circle cx="110" cy="255" r="12" fill="#8C4DBF" /><text x="110" y="278" textAnchor="middle" fill="#D1D9E6" fontSize="9" fontFamily="Geist,sans-serif" fontWeight="500">Ruxolitinib</text>
+                  <circle cx="610" cy="245" r="15" fill="#149E99" /><text x="610" y="271" textAnchor="middle" fill="#D1D9E6" fontSize="9" fontFamily="Geist,sans-serif" fontWeight="500">JAK-STAT</text>
+                  <circle cx="500" cy="275" r="13" fill="#149E99" /><text x="500" y="299" textAnchor="middle" fill="#D1D9E6" fontSize="9" fontFamily="Geist,sans-serif" fontWeight="500">Insulin Sig.</text>
+                  <circle cx="700" cy="155" r="11" fill="#F25966" /><text x="700" y="177" textAnchor="middle" fill="#D1D9E6" fontSize="9" fontFamily="Geist,sans-serif" fontWeight="500">Obesity</text>
+                  <circle cx="680" cy="295" r="12" fill="#F25966" /><text x="680" y="320" textAnchor="middle" fill="#D1D9E6" fontSize="9" fontFamily="Geist,sans-serif" fontWeight="500">Type 2 Diabetes</text>
+                </svg>
+              </Box>
+              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", p: "16px", bgcolor: GRAY_BG, border: `1px solid ${BORDER}`, borderRadius: "8px", mt: "12px" }}>
+                {[{ label: "RELATIONSHIPS FOUND", value: "52", unit: "relations" }, { label: "DRUG CANDIDATES", value: "15", unit: "candidates" }, { label: "PATHWAY CONNECTIONS", value: "10", unit: "connections" }].map((stat, i, arr) => (
+                  <React.Fragment key={i}>
+                    <Box sx={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                      <Typography sx={{ fontFamily: FONT, fontSize: "11px", fontWeight: 600, color: "#475569", textTransform: "uppercase" }}>{stat.label}</Typography>
+                      <Typography sx={{ fontFamily: FONT, fontSize: "20px", fontWeight: 700, color: "#0F172A", lineHeight: "26px" }}>
+                        {stat.value} <Typography component="span" sx={{ fontSize: "14px", fontWeight: 400 }}>{stat.unit}</Typography>
+                      </Typography>
+                    </Box>
+                    {i < arr.length - 1 && <Box sx={{ width: "1px", height: "40px", bgcolor: BORDER }} />}
+                  </React.Fragment>
+                ))}
+              </Box>
+              <Box sx={{ display: "flex", gap: "12px", mt: "12px" }}>
+                {["Branch", "Rerun", "Export"].map(label => (
+                  <Button key={label} sx={{ textTransform: "none", fontFamily: FONT, fontSize: "14px", fontWeight: 600, color: "#1E293B", bgcolor: "#FFFFFF", border: `1px solid ${BORDER}`, borderRadius: "8px", p: "10px 16px" }}>{label}</Button>
+                ))}
+              </Box>
+            </AccordionDetails>
+          </Accordion>
+        </Box>
+
+        {/* METAPATH Accordion */}
+        <Box sx={{ p: "4px 0" }}>
+          <Accordion
+            expanded={expandedAccordion === "metapath"}
+            onChange={() => setExpandedAccordion(expandedAccordion === "metapath" ? "" : "metapath")}
+            sx={{ border: `1px solid ${BORDER}`, borderRadius: "10px !important", "&:before": { display: "none" }, boxShadow: "none", bgcolor: "#FFFFFF" }}
+          >
+            <AccordionSummary
+              expandIcon={<ExpandMoreOutlined sx={{ color: "#94A3B8", width: 20, height: 20 }} />}
+              sx={{ minHeight: "48px", p: "8px 16px", "&.Mui-expanded": { minHeight: "48px" }, "& .MuiAccordionSummary-content": { margin: 0, alignItems: "center" } }}
+            >
+              <SectionAccordionSummary label="METAPATH ANALYSIS" />
+            </AccordionSummary>
+            <AccordionDetails sx={{ p: "16px" }}>
+              <Typography sx={{ fontFamily: FONT, fontSize: "16px", fontWeight: 700, color: "#111827", mb: "16px" }}>TxKG — Meta-Path Analysis</Typography>
+              <Box sx={{ display: "flex", alignItems: "center", p: "12px 16px", gap: "32px", bgcolor: "#F9FAFB", border: `1px solid ${BORDER}`, borderRadius: "8px" }}>
+                {[{ value: "12", label: "Paths" }, { value: "8", label: "Targets" }, { value: "5", label: "Pathways" }, { value: "1.5", label: "Avg/Target" }, { value: "24", label: "Nodes" }, { value: "38", label: "Edges" }, { value: "4", label: "Clusters" }].map((stat, i) => (
+                  <Box key={i} sx={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                    <Typography sx={{ fontFamily: FONT, fontSize: "16px", fontWeight: 700, color: "#111827", lineHeight: "19px" }}>{stat.value}</Typography>
+                    <Typography sx={{ fontFamily: FONT, fontSize: "11px", fontWeight: 400, color: "#6B7280", lineHeight: "13px" }}>{stat.label}</Typography>
+                  </Box>
+                ))}
+              </Box>
+              <Box sx={{ display: "flex", gap: "16px", mt: "16px" }}>
+                <Box sx={{ flex: 1, display: "flex", flexDirection: "column", gap: "6px" }}>
+                  <Typography sx={{ fontFamily: FONT, fontSize: "13px", fontWeight: 600, color: "#111827", lineHeight: "16px" }}>Target Prediction Scores</Typography>
+                  {[{ name: "PPARG", desc: "Peroxisome proliferator-activated receptor gamma", score: "92" }, { name: "DPP4", desc: "Dipeptidyl peptidase-4", score: "87" }, { name: "GLP1R", desc: "Glucagon-like peptide-1 receptor", score: "79" }, { name: "SGLT2", desc: "Sodium-glucose co-transporter 2", score: "71" }, { name: "INSR", desc: "Insulin receptor", score: "65" }].map((target, i) => (
+                    <Box key={i} sx={{ display: "flex", alignItems: "center", p: "8px 10px", gap: "8px", borderBottom: `1px solid ${BORDER}` }}>
+                      <Typography sx={{ fontFamily: FONT, fontSize: "13px", fontWeight: 600, color: "#111827", lineHeight: "16px" }}>{target.name}</Typography>
+                      <Typography sx={{ flex: 1, fontFamily: FONT, fontSize: "11px", fontWeight: 400, color: "#6B7280", lineHeight: "13px" }}>{target.desc}</Typography>
+                      <Box sx={{ display: "flex", alignItems: "center", p: "3px 8px", bgcolor: "#D1FAE5", borderRadius: "8px" }}>
+                        <Typography sx={{ fontFamily: FONT, fontSize: "11px", fontWeight: 600, color: "#059669", lineHeight: "13px" }}>{target.score}</Typography>
+                      </Box>
+                    </Box>
+                  ))}
+                </Box>
+                <Box sx={{ flex: 1, display: "flex", flexDirection: "column", gap: "6px" }}>
+                  <Typography sx={{ fontFamily: FONT, fontSize: "13px", fontWeight: 600, color: "#111827", lineHeight: "16px" }}>Meta-Path Traversals</Typography>
+                  <Box sx={{ display: "flex", flexDirection: "column", p: "10px 12px", gap: "6px", bgcolor: "#F9FAFB", borderRadius: "8px" }}>
+                    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                      <Typography sx={{ fontFamily: FONT, fontSize: "13px", fontWeight: 600, color: "#111827", lineHeight: "16px" }}>PPARG</Typography>
+                      <Box sx={{ display: "flex", alignItems: "center", p: "3px 8px", bgcolor: "#00BCD4", borderRadius: "8px" }}>
+                        <Typography sx={{ fontFamily: FONT, fontSize: "11px", fontWeight: 600, color: "#FFFFFF", lineHeight: "13px" }}>92</Typography>
+                      </Box>
+                    </Box>
+                    <Typography sx={{ fontFamily: FONT, fontSize: "11px", fontWeight: 400, color: "#6B7280", lineHeight: "13px" }}>• T2D → PPARG</Typography>
+                    <Typography sx={{ fontFamily: FONT, fontSize: "11px", fontWeight: 400, color: "#6B7280", lineHeight: "13px" }}>• T2D → Insulin resistance → PPARG</Typography>
+                    <Typography sx={{ fontFamily: FONT, fontSize: "11px", fontWeight: 400, color: "#6B7280", lineHeight: "13px" }}>• T2D → Thiazolidinediones → PPARG</Typography>
+                  </Box>
+                  {[{ name: "DPP4", path: "T2D → GLP-1 → DPP4", score: "87" }, { name: "GLP1R", path: "T2D → Incretin → GLP1R", score: "79" }, { name: "SGLT2", path: "T2D → Glucose → SGLT2", score: "71" }, { name: "INSR", path: "T2D → Insulin sig. → INSR", score: "65" }].map((item, i) => (
+                    <Box key={i} sx={{ display: "flex", alignItems: "center", p: "6px 12px", gap: "8px", borderBottom: `1px solid ${BORDER}` }}>
+                      <Typography sx={{ fontFamily: FONT, fontSize: "12px", fontWeight: 500, color: "#111827", lineHeight: "15px" }}>{item.name}</Typography>
+                      <Typography sx={{ flex: 1, fontFamily: FONT, fontSize: "11px", fontWeight: 400, color: "#6B7280", lineHeight: "13px" }}>{item.path}</Typography>
+                      <Box sx={{ display: "flex", alignItems: "center", p: "3px 8px", bgcolor: "#D1FAE5", borderRadius: "8px" }}>
+                        <Typography sx={{ fontFamily: FONT, fontSize: "11px", fontWeight: 600, color: "#059669", lineHeight: "13px" }}>{item.score}</Typography>
+                      </Box>
+                    </Box>
+                  ))}
+                </Box>
+              </Box>
+              <Box sx={{ display: "flex", gap: "10px", pt: "4px" }}>
+                {["Branch", "Rerun", "Export"].map(label => (
+                  <Button key={label} sx={{ textTransform: "none", fontFamily: FONT, fontSize: "14px", fontWeight: 500, color: "#1E293B", bgcolor: "#FFFFFF", border: `1px solid ${BORDER}`, borderRadius: "8px", p: "10px 16px", "&:hover": { bgcolor: GRAY_BG } }}>{label}</Button>
+                ))}
+              </Box>
+            </AccordionDetails>
+          </Accordion>
+        </Box>
+
+        {/* Bridge card */}
+        <Box sx={{ border: "1.5px dashed rgba(0,188,212,0.6)", borderRadius: "12px", mt: "8px", bgcolor: "rgba(0,188,212,0.02)" }}>
+          <div className="agent-message-row-bridge">
+            <div className="agent-icon"></div>
+            <div className="bridge-content">
+              <h3 className="bridge-header">READY FOR LITERATURE MINING</h3>
+              <p className="bridge-message">
+                TxKG analysis is complete. Would you like to proceed to LitMinex with the recommended targets, or select specific targets from the identified list?
+              </p>
+              <div className="option-cards">
+                <div className="option-card">
+                  <h4 className="option-card-title">Proceed with Recommended Targets</h4>
+                  <p className="option-card-description">Run LitMinex on all 10 identified targets ranked by therapeutic relevance</p>
+                  <button className="option-card-button primary" onClick={() => { setActiveStep(1); setWorkflowPhase("litminex-loading"); }}>
+                    <span className="option-card-button-label">Use recommended targets</span>
+                  </button>
+                </div>
+                <div className="option-card">
+                  <h4 className="option-card-title">Select Custom Targets</h4>
+                  <p className="option-card-description">Choose specific targets from the list or enter your own for literature mining</p>
+                  <button className="option-card-button secondary" onClick={() => setWorkflowPhase("target-selection")}>
+                    <span className="option-card-button-label">Select Targets</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </Box>
+      </Box>
+    );
+  }
+
+  // ─── Target Selection ─────────────────────────────────────────────────────
+  if (workflowPhase === 'target-selection') {
+    return (
+      <Box sx={{ p: "24px 40px 0 40px", bgcolor: GRAY_BG }}>
+        <Box sx={{ display: "flex", justifyContent: "flex-end", p: "8px 0" }}>
+          <Box sx={{ bgcolor: USER_MSG_BG, border: `1px solid ${BORDER}`, borderRadius: "12px", p: "16px", maxWidth: "680px" }}>
+            <Typography sx={{ fontFamily: FONT, fontSize: "11px", fontWeight: 700, color: TEAL, textTransform: "uppercase", letterSpacing: "0.5px", mb: "12px" }}>DR. PRIYA (YOU)</Typography>
+            <Typography sx={{ fontFamily: FONT, fontSize: "15px", fontWeight: 400, color: TEXT_DARK, lineHeight: "22px" }}>{query}</Typography>
+          </Box>
+        </Box>
+
+        {/* TXKG collapsed */}
+        <Box sx={{ p: "4px 0" }}>
+          <Accordion
+            expanded={expandedAccordion === "txkg"}
+            onChange={() => setExpandedAccordion(expandedAccordion === "txkg" ? "" : "txkg")}
+            sx={{ border: `1px solid ${BORDER}`, borderRadius: "12px !important", "&:before": { display: "none" }, boxShadow: "none", bgcolor: "#FFFFFF" }}
+          >
+            <AccordionSummary expandIcon={<ExpandMoreOutlined sx={{ color: "#6B7280" }} />}
+              sx={{ minHeight: "48px", p: "8px 16px", "&.Mui-expanded": { minHeight: "48px" }, "& .MuiAccordionSummary-content": { margin: 0, alignItems: "center" } }}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: "10px", width: "100%" }}>
+                <Box sx={{ width: 30, height: 30, borderRadius: "8px", bgcolor: "#F0FDF9", border: "1px solid #00BCD4", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <SparkleIcon />
+                </Box>
+                <Typography sx={{ flex: 1, fontFamily: FONT, fontSize: "12px", fontWeight: 700, color: "#00BCD4", textTransform: "uppercase", letterSpacing: "0.05em" }}>TXKG</Typography>
+              </Box>
+            </AccordionSummary>
+            <AccordionDetails sx={{ p: "16px" }}>
+              <Typography sx={{ fontFamily: FONT, fontSize: "15px", color: TEXT_DARK, lineHeight: "22px", mb: "12px" }}>
+                I found 10 protein targets strongly associated with Type 2 Diabetes pathways. Here are the top candidates ranked by therapeutic relevance:
+              </Typography>
+              <Box sx={{ display: "flex", gap: "12px" }}>
+                <Box sx={{ flex: "0 0 52%", minWidth: 0 }}>
+                  <Box sx={{ border: `1px solid ${BORDER}`, borderRadius: "8px", overflow: "hidden" }}>
+                    <Box sx={{ display: "flex", bgcolor: GRAY_BG, p: "10px 12px", borderBottom: `1px solid ${BORDER}` }}>
+                      {["UNIPROT ID", "TARGET", "SCORE"].map((h, i) => <Typography key={i} sx={{ flex: i === 1 ? 1 : "0 0 100px", fontFamily: FONT, fontSize: "11px", fontWeight: 700, color: TEXT_MUTED, textTransform: "uppercase", textAlign: i === 2 ? "right" : "left" }}>{h}</Typography>)}
+                    </Box>
+                    {mockTargets.map((t, i) => (
+                      <Box key={t.id} sx={{ display: "flex", p: "10px 12px", borderBottom: i < mockTargets.length - 1 ? `1px solid ${BORDER}` : "none" }}>
+                        <Typography sx={{ flex: "0 0 100px", fontFamily: FONT, fontSize: "13px", fontWeight: 600, color: TEAL }}>{t.id}</Typography>
+                        <Typography sx={{ flex: 1, fontFamily: FONT, fontSize: "13px", color: TEXT_DARK }}>{t.name}</Typography>
+                        <Typography sx={{ flex: "0 0 100px", fontFamily: FONT, fontSize: "13px", fontWeight: 600, color: TEXT_DARK, textAlign: "right" }}>{t.score}</Typography>
+                      </Box>
+                    ))}
+                  </Box>
+                </Box>
+                <Box sx={{ flex: 1, border: `1px solid ${BORDER}`, borderRadius: "8px", overflow: "hidden" }}>
+                  <Box sx={{ bgcolor: GRAY_BG, p: "10px 12px", borderBottom: `1px solid ${BORDER}` }}>
+                    <Typography sx={{ fontFamily: FONT, fontSize: "13px", fontWeight: 700, color: INSIGHTS_HEADER }}>Insights</Typography>
+                    <Typography sx={{ fontFamily: FONT, fontSize: "10px", color: TEXT_MUTED, mt: "2px" }}>AI-powered target recommendations and Q&A</Typography>
+                  </Box>
+                  <Box sx={{ borderBottom: `1px solid ${BORDER}`, px: "4px" }}>
+                    <Tabs value={insightTab} onChange={(_, v) => setInsightTab(v)} TabIndicatorProps={{ style: { display: "none" } }}
+                      sx={{ minHeight: "32px", "& .MuiTab-root": { minHeight: "28px", p: "4px 10px", textTransform: "none", fontFamily: FONT, fontSize: "10px", fontWeight: 600, color: TEXT_MUTED, "&.Mui-selected": { color: ACTIVE_TAB } } }}>
+                      <Tab label="Interpretation" /><Tab label="Recommendations" /><Tab label="Sources" />
+                    </Tabs>
+                  </Box>
+                  <Box sx={{ p: "12px", maxHeight: "320px", overflowY: "auto" }}>
+                    {insightTab === 0 && <Typography sx={{ fontFamily: FONT, fontSize: "12px", color: "#404552", lineHeight: 1.6 }}>The predicted therapeutic targets for Type 2 Diabetes suggest a potential mechanism of action involving the modulation of insulin signaling pathways, particularly those regulated by JAK2 and DPP4.</Typography>}
+                    {insightTab === 1 && (
+                      <Box sx={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                        {[{ target: "JAK2", status: "High", desc: "Best entry point for insulin signaling inhibition." }, { target: "DPP4", status: "High", desc: "Well-validated with existing gliptin class drugs." }, { target: "GLP1R", status: "Medium", desc: "Incretin pathway modulation for glucose-dependent insulin secretion." }].map((r, i) => (
+                          <Box key={i} sx={{ p: "8px 10px", bgcolor: "#FAFCFF", border: `1px solid ${BORDER}`, borderRadius: "6px" }}>
+                            <Box sx={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                              <Typography sx={{ fontFamily: FONT, fontSize: "12px", fontWeight: 600, color: "#1A1A26" }}>{r.target}</Typography>
+                              <Chip label={r.status} size="small" sx={{ height: "16px", bgcolor: r.status === "High" ? "rgba(20,158,133,0.12)" : "rgba(217,140,26,0.12)", color: r.status === "High" ? "#00BCD4" : "#D98C1A", fontFamily: FONT, fontSize: "10px", fontWeight: 600, "& .MuiChip-label": { px: "6px" } }} />
+                            </Box>
+                            <Typography sx={{ fontFamily: FONT, fontSize: "11px", color: "#4D5461", mt: "2px" }}>{r.desc}</Typography>
+                          </Box>
+                        ))}
+                      </Box>
+                    )}
+                  </Box>
+                </Box>
+              </Box>
+              <Box sx={{ display: "flex", gap: "12px", mt: "12px" }}>
+                {["Branch", "Rerun", "Export"].map(l => <Button key={l} sx={{ textTransform: "none", fontFamily: FONT, fontSize: "13px", color: TEXT_DARK, bgcolor: "#FFFFFF", border: `1px solid ${BORDER}`, borderRadius: "8px", px: "16px", py: "6px" }}>{l}</Button>)}
+              </Box>
+            </AccordionDetails>
+          </Accordion>
+        </Box>
+
+        {/* SUBGRAPH collapsed */}
+        <Box sx={{ p: "4px 0" }}>
+          <Accordion
+            expanded={expandedAccordion === "subgraph"}
+            onChange={() => setExpandedAccordion(expandedAccordion === "subgraph" ? "" : "subgraph")}
+            sx={{ border: `1px solid ${BORDER}`, borderRadius: "12px !important", "&:before": { display: "none" }, boxShadow: "none", bgcolor: "#FFFFFF" }}
+          >
+            <AccordionSummary expandIcon={<ExpandMoreOutlined sx={{ color: "#6B7280" }} />}
+              sx={{ minHeight: "48px", p: "8px 16px", "&.Mui-expanded": { minHeight: "48px" }, "& .MuiAccordionSummary-content": { margin: 0, alignItems: "center" } }}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: "10px", width: "100%" }}>
+                <Box sx={{ width: 30, height: 30, borderRadius: "8px", bgcolor: "#F0FDF9", border: "1px solid #00BCD4", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <SparkleIcon />
+                </Box>
+                <Typography sx={{ flex: 1, fontFamily: FONT, fontSize: "12px", fontWeight: 700, color: "#00BCD4", textTransform: "uppercase", letterSpacing: "0.05em" }}>SUBGRAPH</Typography>
+              </Box>
+            </AccordionSummary>
+            <AccordionDetails sx={{ p: "16px" }}>
+              <Typography sx={{ fontFamily: FONT, fontSize: "15px", color: TEXT_DARK, lineHeight: "22px", mb: "12px" }}>Here is the generated knowledge graph for Type 2 Diabetes:</Typography>
+              <Box sx={{ borderRadius: "12px", overflow: "hidden", lineHeight: 0 }}>
+                <svg viewBox="0 0 840 360" width="100%" style={{ maxWidth: 840 }} xmlns="http://www.w3.org/2000/svg">
+                  <rect width="840" height="360" fill="#0F172A" rx="12" />
+                  {[[400,165,240,75],[400,165,500,60],[400,165,620,125],[400,165,140,175],[400,165,440,105],[400,165,220,265],[400,165,340,280],[400,165,110,255],[400,165,610,245],[400,165,500,275],[400,165,700,155],[400,165,680,295],[240,75,110,255],[240,75,610,245],[440,105,500,275],[140,175,220,265]].map(([x1,y1,x2,y2],i)=>(<line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke="rgba(102,115,140,0.4)" strokeWidth="1.2"/>))}
+                  <circle cx="400" cy="165" r="26" fill="#1F2433"/><text x="400" y="200" textAnchor="middle" fill="#D1D9E6" fontSize="9" fontFamily="Geist,sans-serif">Type 2 Diabetes</text>
+                  <circle cx="240" cy="75" r="17" fill="#F28C33"/><text x="240" y="102" textAnchor="middle" fill="#D1D9E6" fontSize="9" fontFamily="Geist,sans-serif">JAK2</text>
+                  <circle cx="500" cy="60" r="15" fill="#F28C33"/><text x="500" y="86" textAnchor="middle" fill="#D1D9E6" fontSize="9" fontFamily="Geist,sans-serif">DPP4</text>
+                  <circle cx="620" cy="125" r="14" fill="#F28C33"/><text x="620" y="150" textAnchor="middle" fill="#D1D9E6" fontSize="9" fontFamily="Geist,sans-serif">GLP1R</text>
+                  <circle cx="140" cy="175" r="14" fill="#F28C33"/><text x="140" y="200" textAnchor="middle" fill="#D1D9E6" fontSize="9" fontFamily="Geist,sans-serif">SGLT2</text>
+                  <circle cx="220" cy="265" r="15" fill="#8C4DBF"/><text x="220" y="291" textAnchor="middle" fill="#D1D9E6" fontSize="9" fontFamily="Geist,sans-serif">Metformin</text>
+                  <circle cx="610" cy="245" r="15" fill="#149E99"/><text x="610" y="271" textAnchor="middle" fill="#D1D9E6" fontSize="9" fontFamily="Geist,sans-serif">JAK-STAT</text>
+                  <circle cx="700" cy="155" r="11" fill="#F25966"/><text x="700" y="177" textAnchor="middle" fill="#D1D9E6" fontSize="9" fontFamily="Geist,sans-serif">Obesity</text>
+                </svg>
+              </Box>
+              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", p: "16px", bgcolor: GRAY_BG, border: `1px solid ${BORDER}`, borderRadius: "8px", mt: "12px" }}>
+                {[{ label: "RELATIONSHIPS FOUND", value: "52", unit: "relations" }, { label: "DRUG CANDIDATES", value: "15", unit: "candidates" }, { label: "PATHWAY CONNECTIONS", value: "10", unit: "connections" }].map((stat, i, arr) => (
+                  <React.Fragment key={i}>
+                    <Box>
+                      <Typography sx={{ fontFamily: FONT, fontSize: "11px", fontWeight: 600, color: "#475569", textTransform: "uppercase" }}>{stat.label}</Typography>
+                      <Typography sx={{ fontFamily: FONT, fontSize: "20px", fontWeight: 700, color: TEXT_DARK }}>
+                        {stat.value} <Typography component="span" sx={{ fontSize: "13px", fontWeight: 400 }}>{stat.unit}</Typography>
+                      </Typography>
+                    </Box>
+                    {i < arr.length - 1 && <Box sx={{ width: "1px", height: "40px", bgcolor: BORDER }} />}
+                  </React.Fragment>
+                ))}
+              </Box>
+              <Box sx={{ display: "flex", gap: "12px", mt: "12px" }}>
+                {["Branch", "Rerun", "Export"].map(l => <Button key={l} sx={{ textTransform: "none", fontFamily: FONT, fontSize: "13px", color: TEXT_DARK, bgcolor: "#FFFFFF", border: `1px solid ${BORDER}`, borderRadius: "8px", px: "16px", py: "6px" }}>{l}</Button>)}
+              </Box>
+            </AccordionDetails>
+          </Accordion>
+        </Box>
+
+        {/* METAPATH collapsed */}
+        <Box sx={{ p: "4px 0" }}>
+          <Accordion
+            expanded={expandedAccordion === "metapath"}
+            onChange={() => setExpandedAccordion(expandedAccordion === "metapath" ? "" : "metapath")}
+            sx={{ border: `1px solid ${BORDER}`, borderRadius: "12px !important", "&:before": { display: "none" }, boxShadow: "none", bgcolor: "#FFFFFF" }}
+          >
+            <AccordionSummary expandIcon={<ExpandMoreOutlined sx={{ color: "#6B7280" }} />}
+              sx={{ minHeight: "48px", p: "8px 16px", "&.Mui-expanded": { minHeight: "48px" }, "& .MuiAccordionSummary-content": { margin: 0, alignItems: "center" } }}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: "10px", width: "100%" }}>
+                <Box sx={{ width: 30, height: 30, borderRadius: "8px", bgcolor: "#F0FDF9", border: "1px solid #00BCD4", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <SparkleIcon />
+                </Box>
+                <Typography sx={{ flex: 1, fontFamily: FONT, fontSize: "12px", fontWeight: 700, color: "#00BCD4", textTransform: "uppercase", letterSpacing: "0.05em" }}>METAPATH ANALYSIS</Typography>
+              </Box>
+            </AccordionSummary>
+            <AccordionDetails sx={{ p: "16px" }}>
+              <Typography sx={{ fontFamily: FONT, fontSize: "16px", fontWeight: 700, color: "#111827", mb: "12px" }}>TxKG — Meta-Path Analysis</Typography>
+              <Box sx={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: "24px", p: "12px 16px", bgcolor: "#F9FAFB", border: `1px solid ${BORDER}`, borderRadius: "8px", mb: "16px" }}>
+                {[{ v: "12", l: "Paths" }, { v: "8", l: "Targets" }, { v: "5", l: "Pathways" }, { v: "1.5", l: "Avg/Target" }, { v: "24", l: "Nodes" }, { v: "38", l: "Edges" }, { v: "4", l: "Clusters" }].map((s, i) => (
+                  <Box key={i} sx={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                    <Typography sx={{ fontFamily: FONT, fontSize: "16px", fontWeight: 700, color: "#111827" }}>{s.v}</Typography>
+                    <Typography sx={{ fontFamily: FONT, fontSize: "11px", color: "#6B7280" }}>{s.l}</Typography>
+                  </Box>
+                ))}
+              </Box>
+              <Box sx={{ display: "flex", gap: "16px" }}>
+                <Box sx={{ flex: 1 }}>
+                  <Typography sx={{ fontFamily: FONT, fontSize: "13px", fontWeight: 600, color: "#111827", mb: "8px" }}>Target Prediction Scores</Typography>
+                  {[{ name: "PPARG", desc: "Peroxisome proliferator-activated receptor gamma", score: "92" }, { name: "DPP4", desc: "Dipeptidyl peptidase-4", score: "87" }, { name: "GLP1R", desc: "Glucagon-like peptide-1 receptor", score: "79" }, { name: "SGLT2", desc: "Sodium-glucose co-transporter 2", score: "71" }, { name: "INSR", desc: "Insulin receptor", score: "65" }].map((t, i) => (
+                    <Box key={i} sx={{ display: "flex", alignItems: "center", p: "8px 10px", gap: "8px", borderBottom: `1px solid ${BORDER}` }}>
+                      <Typography sx={{ fontFamily: FONT, fontSize: "13px", fontWeight: 600, color: "#111827", minWidth: 48 }}>{t.name}</Typography>
+                      <Typography sx={{ flex: 1, fontFamily: FONT, fontSize: "11px", color: "#6B7280" }}>{t.desc}</Typography>
+                      <Box sx={{ p: "3px 8px", bgcolor: "#D1FAE5", borderRadius: "8px" }}><Typography sx={{ fontFamily: FONT, fontSize: "11px", fontWeight: 600, color: "#059669" }}>{t.score}</Typography></Box>
+                    </Box>
+                  ))}
+                </Box>
+                <Box sx={{ flex: 1 }}>
+                  <Typography sx={{ fontFamily: FONT, fontSize: "13px", fontWeight: 600, color: "#111827", mb: "8px" }}>Meta-Path Traversals</Typography>
+                  {[{ n: "PPARG", p: "T2D → PPARG / T2D → Insulin resistance → PPARG", s: "92", teal: true }, { n: "DPP4", p: "T2D → GLP-1 → DPP4", s: "87" }, { n: "GLP1R", p: "T2D → Incretin → GLP1R", s: "79" }, { n: "SGLT2", p: "T2D → Glucose → SGLT2", s: "71" }, { n: "INSR", p: "T2D → Insulin sig. → INSR", s: "65" }].map((item, i) => (
+                    <Box key={i} sx={{ display: "flex", alignItems: "center", p: "6px 10px", gap: "8px", borderBottom: `1px solid ${BORDER}` }}>
+                      <Typography sx={{ fontFamily: FONT, fontSize: "12px", fontWeight: 500, color: "#111827", minWidth: 44 }}>{item.n}</Typography>
+                      <Typography sx={{ flex: 1, fontFamily: FONT, fontSize: "11px", color: "#6B7280" }}>{item.p}</Typography>
+                      <Box sx={{ p: "3px 8px", bgcolor: item.teal ? "#00BCD4" : "#D1FAE5", borderRadius: "8px" }}><Typography sx={{ fontFamily: FONT, fontSize: "11px", fontWeight: 600, color: item.teal ? "#FFFFFF" : "#059669" }}>{item.s}</Typography></Box>
+                    </Box>
+                  ))}
+                </Box>
+              </Box>
+              <Box sx={{ display: "flex", gap: "12px", mt: "12px" }}>
+                {["Branch", "Export"].map(l => <Button key={l} sx={{ textTransform: "none", fontFamily: FONT, fontSize: "13px", color: TEXT_DARK, bgcolor: "#FFFFFF", border: `1px solid ${BORDER}`, borderRadius: "8px", px: "16px", py: "6px" }}>{l}</Button>)}
+              </Box>
+            </AccordionDetails>
+          </Accordion>
+        </Box>
+
+        {/* Target Selection Panel */}
+        <Box sx={{ bgcolor: "#FFFFFF", border: `1px solid ${BORDER}`, borderRadius: "12px", p: "20px", mb: "8px" }}>
+          <Typography sx={{ fontFamily: FONT, fontSize: "15px", fontWeight: 700, color: TEXT_DARK, mb: "4px" }}>Select Targets for LitMinex</Typography>
+          <Typography sx={{ fontFamily: FONT, fontSize: "12px", color: TEXT_MUTED, mb: "16px" }}>Choose from the identified targets or add your own</Typography>
+          {mockTargets.map((target) => (
+            <Box key={target.id} sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", py: "10px", borderBottom: `1px solid ${BORDER}` }}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <Checkbox
+                  checked={selectedTargets.includes(target.id)}
+                  onChange={(e) => {
+                    if (e.target.checked) setSelectedTargets([...selectedTargets, target.id]);
+                    else setSelectedTargets(selectedTargets.filter(id => id !== target.id));
+                  }}
+                  sx={{ p: "4px", color: BORDER, "&.Mui-checked": { color: TEAL } }}
+                />
+                <Typography sx={{ fontFamily: FONT, fontSize: "13px", fontWeight: selectedTargets.includes(target.id) ? 600 : 400, color: TEXT_DARK }}>{target.name}</Typography>
+              </Box>
+              <Typography sx={{ fontFamily: FONT, fontSize: "13px", color: selectedTargets.includes(target.id) ? TEAL : TEXT_MUTED, fontWeight: selectedTargets.includes(target.id) ? 600 : 400 }}>{target.score}</Typography>
+            </Box>
+          ))}
+          <Box sx={{ mt: "12px", mb: "16px" }}>
+            <Typography sx={{ fontFamily: FONT, fontSize: "12px", color: TEXT_MUTED, mb: "8px" }}>Add custom target</Typography>
+            <TextField
+              placeholder="Add custom target (e.g. EGFR, VEGFR2...)"
+              fullWidth size="small"
+              sx={{ "& .MuiOutlinedInput-root": { fontFamily: FONT, fontSize: "13px", borderRadius: "8px" } }}
+              InputProps={{ endAdornment: (
+                <IconButton size="small" sx={{ bgcolor: TEAL, borderRadius: "6px", p: "6px", "&:hover": { bgcolor: "#089B98" } }}>
+                  <AddOutlined sx={{ fontSize: 16, color: "#FFFFFF" }} />
+                </IconButton>
+              )}}
+            />
+          </Box>
+          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <Typography sx={{ fontFamily: FONT, fontSize: "13px", fontWeight: 600, color: TEXT_DARK }}>{selectedTargets.length} targets selected</Typography>
+            <Box sx={{ display: "flex", gap: "12px" }}>
+              <Button onClick={() => setWorkflowPhase("txkg-results")} sx={{ textTransform: "none", fontFamily: FONT, fontSize: "13px", color: TEXT_DARK }}>Cancel</Button>
+              <Button
+                disabled={selectedTargets.length === 0}
+                onClick={() => { setActiveStep(1); setWorkflowPhase("litminex-loading"); }}
+                sx={{ bgcolor: TEAL, color: "#FFFFFF", textTransform: "none", fontFamily: FONT, fontSize: "13px", fontWeight: 600, px: "20px", borderRadius: "8px", "&:hover": { bgcolor: "#089B98" }, "&.Mui-disabled": { bgcolor: "#E2E8F0" } }}
+              >
+                Proceed to LitMinex
+              </Button>
+            </Box>
+          </Box>
+        </Box>
+      </Box>
+    );
+  }
+
+  return null;
+};
+
+export default TXKGPhase;

@@ -2,9 +2,16 @@
 import { useNavigate } from "react-router-dom";
 import {
   Dialog, DialogContent, Box, Typography, TextField, Button, IconButton,
+  Select, MenuItem, FormControl,
 } from "@mui/material";
-import { CloseOutlined, AddOutlined, ScienceOutlined, CheckCircleOutlined } from "@mui/icons-material";
+import { CloseOutlined, ScienceOutlined, CheckCircleOutlined } from "@mui/icons-material";
 import { useProjects } from "../context/ProjectsContext";
+
+const DISEASES = [
+  "Thrombocytosis", "Pancreatic Cancer", "Type 2 Diabetes", "Alzheimer's Disease",
+  "Lung Cancer", "Breast Cancer", "Melanoma", "Pulmonary Hypertension",
+  "Hepatic Fibrosis", "Multiple Myeloma", "Hemangioma", "NSCLC",
+];
 
 const TEAL = "#0ABFBC";
 const DARK = "#0F172A";
@@ -14,9 +21,10 @@ const FONT = "'Inter', sans-serif";
 const NewProjectModal = ({ open, onClose }) => {
   const navigate = useNavigate();
   const { addProject } = useProjects();
-  const [name, setName] = useState("");
-  const [desc, setDesc] = useState("");
-  const [step, setStep] = useState("form");
+  const [name, setName]       = useState("");
+  const [disease, setDisease] = useState("");
+  const [desc, setDesc]       = useState("");
+  const [step, setStep]       = useState("form");
 
   const handleCreate = () => {
     addProject(name);
@@ -25,6 +33,7 @@ const NewProjectModal = ({ open, onClose }) => {
 
   const handleClose = () => {
     setName("");
+    setDisease("");
     setDesc("");
     setStep("form");
     onClose();
@@ -64,10 +73,10 @@ const NewProjectModal = ({ open, onClose }) => {
               </Box>
               <Box>
                 <Typography sx={{ fontFamily: FONT, fontWeight: 700, fontSize: "18px", color: DARK, lineHeight: 1.3 }}>
-                  Create New Project
+                  New project
                 </Typography>
                 <Typography sx={{ fontFamily: FONT, fontSize: "13px", color: SUB, mt: "2px" }}>
-                  Start a new research project
+                  Create a new project
                 </Typography>
               </Box>
             </Box>
@@ -100,6 +109,29 @@ const NewProjectModal = ({ open, onClose }) => {
                     "& input::placeholder": { color: "#94A3B8", opacity: 1, fontFamily: FONT },
                   }}
                 />
+              </Box>
+              <Box>
+                <Typography sx={{ fontFamily: FONT, fontSize: "13px", fontWeight: 500, color: DARK, mb: "8px" }}>
+                  Disease
+                </Typography>
+                <FormControl fullWidth size="small">
+                  <Select
+                    value={disease}
+                    onChange={(e) => setDisease(e.target.value)}
+                    displayEmpty
+                    renderValue={(v) => v || <Typography sx={{ fontFamily: FONT, fontSize: "13px", color: "#94A3B8" }}>Select a disease...</Typography>}
+                    sx={{
+                      borderRadius: "8px", fontFamily: FONT, fontSize: "13px",
+                      "& .MuiOutlinedInput-notchedOutline": { borderColor: "#E2E8F0" },
+                      "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "#CBD5E1" },
+                      "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: TEAL, borderWidth: "1.5px" },
+                    }}
+                  >
+                    {DISEASES.map(d => (
+                      <MenuItem key={d} value={d} sx={{ fontFamily: FONT, fontSize: "13px" }}>{d}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
               </Box>
               <Box>
                 <Typography sx={{ fontFamily: FONT, fontSize: "13px", fontWeight: 500, color: DARK, mb: "8px" }}>
@@ -143,7 +175,6 @@ const NewProjectModal = ({ open, onClose }) => {
             <Button
               variant="contained"
               disableElevation
-              startIcon={<AddOutlined sx={{ fontSize: 15 }} />}
               onClick={handleCreate}
               disabled={!name.trim()}
               sx={{
@@ -154,7 +185,7 @@ const NewProjectModal = ({ open, onClose }) => {
                 "&.Mui-disabled": { bgcolor: "#A5F3F2", color: "#fff" },
               }}
             >
-              Create Project
+              Create &amp; Save
             </Button>
           </Box>
         </>
@@ -188,13 +219,13 @@ const NewProjectModal = ({ open, onClose }) => {
           <Box sx={{ height: "1px", bgcolor: "#E2E8F0" }} />
 
           <DialogContent sx={{ px: "28px", pt: "40px", pb: "40px" }}>
-            <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "16px" }}>
+            <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "20px" }}>
               <Box sx={{
-                width: 64, height: 64, borderRadius: "50%",
-                bgcolor: "#ECFDF5", border: "2px solid #A7F3D0",
+                width: 80, height: 80, borderRadius: "50%",
+                bgcolor: TEAL,
                 display: "flex", alignItems: "center", justifyContent: "center",
               }}>
-                <CheckCircleOutlined sx={{ fontSize: 36, color: "#10B981" }} />
+                <CheckCircleOutlined sx={{ fontSize: 44, color: "#fff" }} />
               </Box>
               <Box sx={{ textAlign: "center" }}>
                 <Typography sx={{ fontFamily: FONT, fontWeight: 700, fontSize: "20px", color: DARK, mb: "8px" }}>
@@ -209,9 +240,9 @@ const NewProjectModal = ({ open, onClose }) => {
                 disableElevation
                 onClick={handleViewProject}
                 sx={{
-                  mt: "8px", fontFamily: FONT, fontSize: "13px", fontWeight: 500,
+                  mt: "4px", fontFamily: FONT, fontSize: "13px", fontWeight: 600,
                   bgcolor: TEAL, color: "#fff", textTransform: "none",
-                  borderRadius: "8px", px: "28px", py: "9px",
+                  borderRadius: "50px", px: "32px", py: "10px",
                   "&:hover": { bgcolor: "#09ADAB" },
                 }}
               >

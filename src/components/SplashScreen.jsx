@@ -1,6 +1,6 @@
 ﻿import React, { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
 import { FlaskConical, Database, Activity, Sparkle, Eye, EyeOff } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const TEAL = "#00C2B5";
 const DARK = "#0F172A";
@@ -84,8 +84,7 @@ function ErrorText({ children }) {
   );
 }
 
-function LoginScreen() {
-  const navigate = useNavigate();
+function LoginScreen({ onLoginSuccess }) {
   const [values, setValues] = useState({ username: "", password: "", remember: false });
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
@@ -111,7 +110,7 @@ function LoginScreen() {
     if (!nextErrors.username && !nextErrors.password) {
       if (values.username === "Admin" && values.password === "Admin") {
         setErrors({});
-        navigate('/splash');
+        if (onLoginSuccess) onLoginSuccess();
         return;
       }
       nextErrors.password = "Invalid credentials";
@@ -818,8 +817,7 @@ function SplashScreen() {
   );
 }
 
-/* ══════════════════  Export Login Screen ═══════════════════════════
-   Now properly integrated with React Router navigation
-   Login → /splash → /welcome → /dashboard
+/* ══════════════════  Export SplashScreen ════════════════════════════
+   Integrated with React Router navigation
    ══════════════════════════════════════════════════════════════════ */
-export default LoginScreen;
+export default SplashScreen;
