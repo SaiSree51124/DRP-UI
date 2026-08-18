@@ -1,368 +1,1873 @@
 ﻿import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  Box, Typography, TextField, Select, MenuItem, InputAdornment, IconButton,
+  Box,
+  Typography,
+  TextField,
+  Select,
+  MenuItem,
+  Popover,
+  Divider,
 } from "@mui/material";
+
 import {
-  SearchOutlined, AddOutlined,
-  ChevronLeftOutlined, ChevronRightOutlined,
+  SearchOutlined,
+  AddOutlined,
+  ChevronLeftOutlined,
+  ChevronRightOutlined,
+  MoreVertOutlined,
+  KeyboardArrowDownOutlined,
 } from "@mui/icons-material";
 
-const FONT      = "'Inter', sans-serif";
-const TEAL      = "#0ABFBC";
-const MUTED     = "#94A3B8";
-const BORDER    = "#E2E8F0";
-const TEXT_DARK = "#0F172A";
-const BG        = "#F8FAFC";
+/* ─────────────────────────────────────────────────────────────
+   DESIGN TOKENS
+───────────────────────────────────────────────────────────── */
+
+const FONT = "'Inter', sans-serif";
+
+const TEAL = "#00BCD4";
+
+const TOPNAV_BORDER = "#E2E8F0";
+const BREADCRUMB_COLOR = "#64748B";
+const TITLE_COLOR = "#0F172A";
+const SUBTITLE_COLOR = "#64748B";
+const CARD_BORDER = "#E2E8F0";
+const SEARCH_ICON_COLOR = "#CBD5E1";
+const DROPDOWN_LABEL_COLOR = "#64748B";
+const DROPDOWN_VALUE_COLOR = "#0F172A";
+const MUTED = "#94A3B8";
+const BG = "#F8FAFC";
+
+/*
+  Shared table column definition.
+
+  IMPORTANT:
+  The exact same grid is used by:
+  - table header
+  - table rows
+
+  This keeps Disease, Last Module and Status perfectly aligned.
+*/
+const TABLE_GRID = "minmax(220px, 1fr) 230px 155px 130px 40px";
+
+/* ─────────────────────────────────────────────────────────────
+   PROJECT DATA
+───────────────────────────────────────────────────────────── */
 
 const ALL_PROJECTS = [
-  { id: "type-2-diabetes",              name: "Type 2 Diabetes",             disease: "Type 2 Diabetes",        module: "TxKG",      status: "ACTIVE"    },
-  { id: "metformin-for-oncology",          name: "Metformin for Oncology",      disease: "Pancreatic Cancer",       module: "TxKG",      status: "ACTIVE"    },
-  { id: "rapamycin-for-neuro",              name: "Rapamycin for Neuro",          disease: "Alzheimer's Disease",    module: "LitMineX",  status: "ACTIVE"    },
-  { id: "sildenafil-for-cv",               name: "Sildenafil for CV",            disease: "Pulmonary Hypertension",  module: "CurateX",   status: "ON HOLD"   },
-  { id: "anastrozole-for-lung",            name: "Anastrozole for Lung",         disease: "NSCLC",                   module: "TxKG",      status: "ACTIVE"    },
-  { id: "propranolol-for-hema",            name: "Propranolol for Hema",         disease: "Hemangioma",              module: "LitMineX",  status: "ACTIVE"    },
-  { id: "imatinib-for-nsclc",             name: "Imatinib for NSCLC",           disease: "Lung Cancer",             module: "CurateX",   status: "IN REVIEW" },
-  { id: "losartan-for-fibrosis",           name: "Losartan for Fibrosis",        disease: "Hepatic Fibrosis",        module: "TxKG",      status: "ACTIVE"    },
-  { id: "thalidomide-for-myeloma",         name: "Thalidomide for Myeloma",      disease: "Multiple Myeloma",        module: "LitMineX",  status: "IN REVIEW" },
-  { id: "celecoxib-for-glioblastoma",      name: "Celecoxib for Glioblastoma",   disease: "Glioblastoma",            module: "TxKG",      status: "ACTIVE"    },
-  { id: "metformin-for-breast-cancer",     name: "Metformin for Breast Cancer",  disease: "Breast Cancer",           module: "LitMineX",  status: "ACTIVE"    },
+  {
+    id: "type-2-diabetes",
+    name: "Type 2 Diabetes",
+    disease: "Type 2 Diabetes",
+    module: "TxKG",
+    status: "ACTIVE",
+  },
+  {
+    id: "rapamycin-for-neuro",
+    name: "Rapamycin for Neuro",
+    disease: "Alzheimer's Disease",
+    module: "LitMineX",
+    status: "ACTIVE",
+  },
+  {
+    id: "sildenafil-for-cv",
+    name: "Sildenafil for CV",
+    disease: "Pulmonary Hypertension",
+    module: "CurateX",
+    status: "ON HOLD",
+  },
+  {
+    id: "anastrozole-for-lung",
+    name: "Anastrozole for Lung",
+    disease: "NSCLC",
+    module: "NovSearch",
+    status: "ACTIVE",
+  },
+  {
+    id: "propranolol-for-hema",
+    name: "Propranolol for Hema",
+    disease: "Hemangioma",
+    module: "LitMineX",
+    status: "ACTIVE",
+  },
+  {
+    id: "imatinib-for-nsclc",
+    name: "Imatinib for NSCLC",
+    disease: "Lung Cancer",
+    module: "CurateX",
+    status: "REVIEW",
+  },
+  {
+    id: "losartan-for-fibrosis",
+    name: "Losartan for Fibrosis",
+    disease: "Hepatic Fibrosis",
+    module: "TxKG",
+    status: "ACTIVE",
+  },
+  {
+    id: "thalidomide-for-myeloma",
+    name: "Thalidomide for Myeloma",
+    disease: "Multiple Myeloma",
+    module: "NovSearch",
+    status: "REVIEW",
+  },
+  {
+    id: "metformin-for-breast-cancer",
+    name: "Metformin for Breast Cancer",
+    disease: "Breast Cancer",
+    module: "LitMineX",
+    status: "ACTIVE",
+  },
 ];
 
+/* ─────────────────────────────────────────────────────────────
+   STATUS COLORS
+───────────────────────────────────────────────────────────── */
+
 const STATUS_META = {
-  "ACTIVE":    { color: "#16A34A", bg: "#DCFCE7" },
-  "ON HOLD":   { color: "#B45309", bg: "#FEF3C7" },
-  "IN REVIEW": { color: "#92400E", bg: "#FEF9C3" },
+  ACTIVE: {
+    color: "#0D9488",
+    bg: "#E6FAF7",
+  },
+
+  "ON HOLD": {
+    color: "#7C3AED",
+    bg: "#EDE9FE",
+  },
+
+  REVIEW: {
+    color: "#D97706",
+    bg: "#FEF3C7",
+  },
+
+  "IN REVIEW": {
+    color: "#D97706",
+    bg: "#FEF3C7",
+  },
+
+  COMPLETED: {
+    color: "#164E63",
+    bg: "#DDF4F4",
+  },
+
+  ARCHIVED: {
+    color: "#64748B",
+    bg: "#F1F5F9",
+  },
 };
 
-const StatusChip = ({ status }) => {
-  const { color, bg } = STATUS_META[status] || { color: MUTED, bg: "#F1F5F9" };
+/* ─────────────────────────────────────────────────────────────
+   STATUS CHIP
+───────────────────────────────────────────────────────────── */
+
+const StatusChip = ({ status, onClick }) => {
+  const { color, bg } =
+    STATUS_META[status] || {
+      color: MUTED,
+      bg: "#F1F5F9",
+    };
+
   return (
-    <Box sx={{
-      display: "inline-flex", alignItems: "center",
-      px: "8px", py: "3px", borderRadius: "4px", bgcolor: bg,
-    }}>
-      <Typography sx={{
-        fontFamily: FONT, fontSize: "11px", fontWeight: 700,
-        color, letterSpacing: "0.4px",
-      }}>
+    <Box
+      component="button"
+      onClick={(event) => {
+        event.stopPropagation();
+
+        if (onClick) {
+          onClick(event);
+        }
+      }}
+      sx={{
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+
+        px: "8px",
+        py: "3px",
+
+        minHeight: "28px",
+
+        border: "none",
+        borderRadius: "4px",
+
+        bgcolor: bg,
+        color,
+
+        cursor: "pointer",
+
+        fontFamily: FONT,
+
+        "&:hover": {
+          filter: "brightness(0.98)",
+        },
+      }}
+    >
+      <Typography
+        sx={{
+          fontFamily: FONT,
+          fontSize: "11px",
+          fontWeight: 700,
+          color,
+          letterSpacing: "0.4px",
+          lineHeight: 1,
+        }}
+      >
         {status}
       </Typography>
     </Box>
   );
 };
 
-/* Figma dropdown: height 38px, radius 8px, border 1px #E2E8F0, padding T10 R10 B10 L14, gap 8px */
-const FilterSelect = ({ value, onChange, options, label }) => (
-  <Select
-    value={value}
-    onChange={onChange}
-    size="small"
-    displayEmpty
-    renderValue={(v) => (
-      <Typography sx={{ fontFamily: FONT, fontSize: "13px", color: TEXT_DARK }}>
-        {label}: <span style={{ fontWeight: 400 }}>{v || `All ${label}s`}</span>
-      </Typography>
-    )}
-    sx={{
-      height: "38px", bgcolor: "#fff",
-      borderRadius: "8px",
-      "& .MuiOutlinedInput-notchedOutline": {
-        borderColor: BORDER, borderWidth: "1px",
-      },
-      "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "#CBD5E1" },
-      "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: TEAL, borderWidth: "1px" },
-      "& .MuiSelect-select": { pl: "14px", pr: "10px !important", py: "10px" },
-      "& .MuiSelect-icon": { right: "8px" },
-    }}
-  >
-    <MenuItem value=""><em>All {label}s</em></MenuItem>
-    {options.map((o) => (
-      <MenuItem key={o} value={o} sx={{ fontFamily: FONT, fontSize: "13px" }}>{o}</MenuItem>
-    ))}
-  </Select>
-);
+/* ─────────────────────────────────────────────────────────────
+   FILTER SELECT
+───────────────────────────────────────────────────────────── */
+
+const FilterSelect = ({
+  value,
+  onChange,
+  options,
+  label,
+  allLabel,
+}) => {
+  return (
+    <Select
+      value={value}
+      onChange={onChange}
+      size="small"
+      displayEmpty
+      IconComponent={() => null}
+      renderValue={(selectedValue) => (
+        <Box
+          sx={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "4px",
+            maxWidth: "100%",
+            minWidth: 0,
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+          }}
+        >
+          <Typography
+            component="span"
+            sx={{
+              flexShrink: 0,
+              fontFamily: FONT,
+              fontSize: "13px",
+              fontWeight: 400,
+              color: DROPDOWN_LABEL_COLOR,
+              lineHeight: 1,
+              whiteSpace: "nowrap",
+            }}
+          >
+            {label}:
+          </Typography>
+
+          <Typography
+            component="span"
+            sx={{
+              minWidth: 0,
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              fontFamily: FONT,
+              fontSize: "13px",
+              fontWeight: 600,
+              color: DROPDOWN_VALUE_COLOR,
+              lineHeight: 1,
+              whiteSpace: "nowrap",
+            }}
+          >
+            {selectedValue || allLabel}
+          </Typography>
+
+          <KeyboardArrowDownOutlined
+            sx={{
+              flexShrink: 0,
+              marginLeft: "1px",
+              fontSize: "16px",
+              color: "#64748B",
+              pointerEvents: "none",
+            }}
+          />
+        </Box>
+      )}
+      sx={{
+        width: "100%",
+        height: "40px",
+        minWidth: 0,
+        bgcolor: "#FFFFFF",
+        borderRadius: "8px",
+        flexShrink: 0,
+
+        "& .MuiOutlinedInput-notchedOutline": {
+          borderColor: CARD_BORDER,
+          borderWidth: "1px",
+        },
+
+        "&:hover .MuiOutlinedInput-notchedOutline": {
+          borderColor: "#CBD5E1",
+        },
+
+        "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+          borderColor: TEAL,
+          borderWidth: "1px",
+        },
+
+        "& .MuiSelect-select": {
+          width: "100%",
+          minHeight: "unset !important",
+          height: "40px",
+          display: "flex",
+          alignItems: "center",
+          boxSizing: "border-box",
+          padding: "0 12px 0 14px !important",
+          overflow: "hidden",
+          whiteSpace: "nowrap",
+        },
+
+      }}
+    >
+      <MenuItem
+        value=""
+        sx={{
+          fontFamily: FONT,
+          fontSize: "13px",
+        }}
+      >
+        {allLabel}
+      </MenuItem>
+
+      {options.map((option) => (
+        <MenuItem
+          key={option}
+          value={option}
+          sx={{
+            fontFamily: FONT,
+            fontSize: "13px",
+          }}
+        >
+          {option}
+        </MenuItem>
+      ))}
+    </Select>
+  );
+};
+
+/* ─────────────────────────────────────────────────────────────
+   SORT SELECT
+───────────────────────────────────────────────────────────── */
+
+const SortSelect = ({ value, onChange }) => {
+  return (
+    <Select
+      value={value}
+      onChange={onChange}
+      size="small"
+      IconComponent={() => null}
+      renderValue={(selectedValue) => (
+        <Box
+          sx={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "4px",
+            maxWidth: "100%",
+            minWidth: 0,
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+          }}
+        >
+          <Typography
+            component="span"
+            sx={{
+              flexShrink: 0,
+              fontFamily: FONT,
+              fontSize: "13px",
+              fontWeight: 400,
+              color: DROPDOWN_LABEL_COLOR,
+              lineHeight: 1,
+              whiteSpace: "nowrap",
+            }}
+          >
+            Sort by:
+          </Typography>
+
+          <Typography
+            component="span"
+            sx={{
+              minWidth: 0,
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              fontFamily: FONT,
+              fontSize: "13px",
+              fontWeight: 600,
+              color: DROPDOWN_VALUE_COLOR,
+              lineHeight: 1,
+              whiteSpace: "nowrap",
+            }}
+          >
+            {selectedValue}
+          </Typography>
+
+          <KeyboardArrowDownOutlined
+            sx={{
+              flexShrink: 0,
+              marginLeft: "1px",
+              fontSize: "16px",
+              color: "#64748B",
+              pointerEvents: "none",
+            }}
+          />
+        </Box>
+      )}
+      sx={{
+        width: "100%",
+        height: "40px",
+        minWidth: 0,
+        bgcolor: "#FFFFFF",
+        borderRadius: "8px",
+        flexShrink: 0,
+
+        "& .MuiOutlinedInput-notchedOutline": {
+          borderColor: CARD_BORDER,
+          borderWidth: "1px",
+        },
+
+        "&:hover .MuiOutlinedInput-notchedOutline": {
+          borderColor: "#CBD5E1",
+        },
+
+        "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+          borderColor: TEAL,
+          borderWidth: "1px",
+        },
+
+        "& .MuiSelect-select": {
+          width: "100%",
+          minHeight: "unset !important",
+          height: "40px",
+          display: "flex",
+          alignItems: "center",
+          boxSizing: "border-box",
+          padding: "0 12px 0 14px !important",
+          overflow: "hidden",
+          whiteSpace: "nowrap",
+        },
+
+      }}
+    >
+      {["Latest Activity", "Name", "Status"].map((option) => (
+        <MenuItem
+          key={option}
+          value={option}
+          sx={{
+            fontFamily: FONT,
+            fontSize: "13px",
+          }}
+        >
+          {option}
+        </MenuItem>
+      ))}
+    </Select>
+  );
+};
+
+/* ─────────────────────────────────────────────────────────────
+   STATUS DROPDOWN
+   Figma:
+   Width: 180px
+   Height: 216px
+   Radius: 8px
+   Padding top/bottom: 8px
+───────────────────────────────────────────────────────────── */
+
+const StatusDropdown = ({
+  anchorEl,
+  open,
+  onClose,
+  currentStatus,
+  onStatusChange,
+}) => {
+  const statuses = [
+    {
+      value: "ACTIVE",
+      label: "Active",
+      color: "#00BCD4",
+      bg: "#E6FAF7",
+    },
+    {
+      value: "REVIEW",
+      label: "In Review",
+      color: "#F59E0B",
+      bg: "#FEF3C7",
+    },
+    {
+      value: "ON HOLD",
+      label: "On Hold",
+      color: "#8B5CF6",
+      bg: "#F0EBFF",
+    },
+    {
+      value: "COMPLETED",
+      label: "Completed",
+      color: "#164E63",
+      bg: "#DDF4F4",
+    },
+    {
+      value: "ARCHIVED",
+      label: "Archived",
+      color: "#64748B",
+      bg: "#F1F5F9",
+    },
+  ];
+
+  const handleStatusChange = (status) => {
+    onStatusChange?.(status);
+    onClose();
+  };
+
+  return (
+    <Popover
+      open={open}
+      anchorEl={anchorEl}
+      onClose={onClose}
+      anchorOrigin={{
+        vertical: "bottom",
+        horizontal: "left",
+      }}
+      transformOrigin={{
+        vertical: "top",
+        horizontal: "left",
+      }}
+      slotProps={{
+        paper: {
+          sx: {
+            width: "180px",
+            height: "216px",
+            mt: "8px",
+            borderRadius: "8px",
+            bgcolor: "#FFFFFF",
+            overflow: "hidden",
+            boxShadow: "0px 4px 16px rgba(0, 0, 0, 0.12)",
+            border: "none",
+          },
+        },
+      }}
+    >
+      <Box
+        sx={{
+          width: "180px",
+          height: "216px",
+          display: "flex",
+          flexDirection: "column",
+          boxSizing: "border-box",
+          py: "8px",
+        }}
+      >
+        {/* Figma: dropdown-header — 180 Fill × 24 Hug, padding 6px 14px */}
+        <Box
+          sx={{
+            width: "180px",
+            height: "24px",
+            flexShrink: 0,
+            display: "flex",
+            alignItems: "center",
+            boxSizing: "border-box",
+            px: "14px",
+            py: "6px",
+          }}
+        >
+          <Typography
+            sx={{
+              fontFamily: FONT,
+              fontSize: "12px",
+              fontWeight: 700,
+              color: "#64748B",
+              letterSpacing: "0.5px",
+              lineHeight: "12px",
+              textTransform: "uppercase",
+            }}
+          >
+            Set Status
+          </Typography>
+        </Box>
+
+        <Divider sx={{ borderColor: "#E2E8F0", flexShrink: 0 }} />
+
+        {/* Figma: each option — 180 Fill × 35 Hug, padding 7px 14px, gap 10px */}
+        <Box
+          sx={{
+            width: "180px",
+            flex: 1,
+            minHeight: 0,
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
+          {statuses.map((status) => {
+            const selected = currentStatus === status.value;
+
+            return (
+              <Box
+                key={status.value}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  handleStatusChange(status.value);
+                }}
+                sx={{
+                  width: "180px",
+                  height: "35px",
+                  minHeight: "35px",
+                  flexShrink: 0,
+                  display: "flex",
+                  alignItems: "center",
+                  boxSizing: "border-box",
+                  px: "14px",
+                  py: "7px",
+                  gap: "10px",
+                  bgcolor: selected ? "#F5F7FA" : "#FFFFFF",
+                  cursor: "pointer",
+                  "&:hover": {
+                    bgcolor: "#F5F7FA",
+                  },
+                }}
+              >
+                <Box
+                  sx={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    width: "fit-content",
+                    minWidth: "fit-content",
+                    px: "12px",
+                    py: "6px",
+                    borderRadius: "14px",
+                    bgcolor: status.bg,
+                    boxSizing: "border-box",
+                  }}
+                >
+                  <Typography
+                    sx={{
+                      fontFamily: FONT,
+                      fontSize: "12px",
+                      fontWeight: 500,
+                      color: status.color,
+                      lineHeight: "12px",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {status.label}
+                  </Typography>
+                </Box>
+              </Box>
+            );
+          })}
+        </Box>
+      </Box>
+    </Popover>
+  );
+};
+
+/* ─────────────────────────────────────────────────────────────
+   ACTIONS DROPDOWN
+   Figma:
+   Width: 160px
+   Height: 157px
+   Radius: 8px
+   Padding top/bottom: 6px
+───────────────────────────────────────────────────────────── */
+
+const ActionsDropdown = ({
+  anchorEl,
+  open,
+  onClose,
+  onAction,
+}) => {
+  const actions = [
+    { value: "edit", label: "Edit Project" },
+    { value: "duplicate", label: "Duplicate" },
+    { value: "archive", label: "Archive" },
+    { value: "delete", label: "Delete", danger: true },
+  ];
+
+  const handleAction = (action) => {
+    onAction?.(action);
+    onClose();
+  };
+
+  return (
+    <Popover
+      open={open}
+      anchorEl={anchorEl}
+      onClose={onClose}
+      anchorOrigin={{
+        vertical: "bottom",
+        horizontal: "right",
+      }}
+      transformOrigin={{
+        vertical: "top",
+        horizontal: "right",
+      }}
+      slotProps={{
+        paper: {
+          sx: {
+            width: "160px",
+            height: "157px",
+            mt: "6px",
+            borderRadius: "8px",
+            bgcolor: "#FFFFFF",
+            overflow: "hidden",
+            boxShadow: "0px 4px 16px rgba(0, 0, 0, 0.12)",
+            border: "none",
+          },
+        },
+      }}
+    >
+      <Box
+        sx={{
+          width: "160px",
+          height: "157px",
+          display: "flex",
+          flexDirection: "column",
+          boxSizing: "border-box",
+          py: "6px",
+        }}
+      >
+        {actions.map((action) => (
+          <React.Fragment key={action.value}>
+            {action.value === "delete" && (
+              <Divider
+                sx={{
+                  borderColor: "#E2E8F0",
+                  flexShrink: 0,
+                }}
+              />
+            )}
+
+            <Box
+              onClick={(event) => {
+                event.stopPropagation();
+                handleAction(action.value);
+              }}
+              sx={{
+                flex: 1,
+                minHeight: 0,
+                display: "flex",
+                alignItems: "center",
+                px: "24px",
+                cursor: "pointer",
+                "&:hover": {
+                  bgcolor: "#F8FAFC",
+                },
+              }}
+            >
+              <Typography
+                sx={{
+                  fontFamily: FONT,
+                  fontSize: "16px",
+                  fontWeight: 400,
+                  color: action.danger ? "#EF4444" : "#333333",
+                  lineHeight: 1,
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {action.label}
+              </Typography>
+            </Box>
+          </React.Fragment>
+        ))}
+      </Box>
+    </Popover>
+  );
+};
+
+/* ─────────────────────────────────────────────────────────────
+   PAGINATION BUTTON
+───────────────────────────────────────────────────────────── */
 
 const ROWS_PER_PAGE = 10;
+const TOTAL_ITEMS = 47;
+const TOTAL_PAGES = 12;
+
+function PageButton({
+  children,
+  active,
+  onClick,
+  disabled,
+  "aria-label": ariaLabel,
+}) {
+  return (
+    <Box
+      component="button"
+      onClick={onClick}
+      disabled={disabled}
+      aria-label={ariaLabel}
+      sx={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+
+        width: "32px",
+        height: "32px",
+
+        padding: 0,
+
+        borderRadius: "4px",
+
+        border: active
+          ? `1.5px solid ${TEAL}`
+          : "1.5px solid transparent",
+
+        background: active
+          ? "transparent"
+          : "#F1F5F9",
+
+        color: disabled
+          ? "#CBD5E1"
+          : active
+          ? TEAL
+          : "#6B7280",
+
+        cursor: disabled
+          ? "default"
+          : "pointer",
+
+        fontFamily: FONT,
+        fontSize: "12px",
+        fontWeight: 500,
+
+        lineHeight: 1,
+
+        boxSizing: "border-box",
+
+        transition:
+          "background 0.15s, border-color 0.15s",
+
+        "&:hover": disabled
+          ? {}
+          : {
+              background: active
+                ? "transparent"
+                : "#E7ECF3",
+            },
+      }}
+    >
+      {children}
+    </Box>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────
+   PROJECTS PAGE
+───────────────────────────────────────────────────────────── */
 
 const ProjectsPage = () => {
-  const navigate      = useNavigate();
-  const [search,      setSearch]      = useState("");
-  const [moduleFilter,setModuleFilter] = useState("");
-  const [statusFilter,setStatusFilter] = useState("");
-  const [sortBy,      setSortBy]       = useState("Latest Activity");
-  const [page,        setPage]         = useState(1);
+  const navigate = useNavigate();
 
-  const filtered = ALL_PROJECTS.filter((p) => {
-    const q = search.toLowerCase();
+  const [search, setSearch] = useState("");
+  const [moduleFilter, setModuleFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [sortBy, setSortBy] =
+    useState("Latest Activity");
+
+  const [page, setPage] = useState(1);
+
+  /* Status dropdown state */
+  const [statusAnchorEl, setStatusAnchorEl] =
+    useState(null);
+
+  const [selectedProjectId, setSelectedProjectId] =
+    useState(null);
+
+  /* Actions dropdown state */
+  const [actionsAnchorEl, setActionsAnchorEl] =
+    useState(null);
+
+  const [actionProjectId, setActionProjectId] =
+    useState(null);
+
+  /* ─────────────────────────────────────────────
+     FILTERED PROJECTS
+  ───────────────────────────────────────────── */
+
+  const filtered = ALL_PROJECTS.filter((project) => {
+    const query = search.toLowerCase();
+
     return (
-      (!q || p.name.toLowerCase().includes(q) || p.disease.toLowerCase().includes(q)) &&
-      (!moduleFilter || p.module === moduleFilter) &&
-      (!statusFilter || p.status === statusFilter)
+      (!query ||
+        project.name
+          .toLowerCase()
+          .includes(query) ||
+        project.disease
+          .toLowerCase()
+          .includes(query)) &&
+      (!moduleFilter ||
+        project.module === moduleFilter) &&
+      (!statusFilter ||
+        project.status === statusFilter)
     );
   });
 
-  const totalPages = Math.max(1, Math.ceil(43 / ROWS_PER_PAGE));
-  const visiblePages = [1, 2, 3, 4, 5].filter((n) => n <= totalPages);
+  /* ─────────────────────────────────────────────
+     PAGINATION
+  ───────────────────────────────────────────── */
+
+  const rangeStart =
+    (page - 1) * ROWS_PER_PAGE + 1;
+
+  const rangeEnd = Math.min(
+    page * ROWS_PER_PAGE,
+    TOTAL_ITEMS
+  );
+
+  /* ─────────────────────────────────────────────
+     STATUS DROPDOWN
+  ───────────────────────────────────────────── */
+
+  const handleStatusClick = (
+    event,
+    projectId
+  ) => {
+    event.stopPropagation();
+
+    setSelectedProjectId(projectId);
+
+    setStatusAnchorEl(event.currentTarget);
+  };
+
+  const handleStatusClose = () => {
+    setStatusAnchorEl(null);
+    setSelectedProjectId(null);
+  };
+
+  const handleStatusChange = (status) => {
+    console.log(
+      "Change project status:",
+      selectedProjectId,
+      status
+    );
+
+    /*
+      Connect your API/update logic here.
+
+      For now the dropdown behavior is implemented
+      and the selected project/status are available.
+    */
+  };
+
+  /* ─────────────────────────────────────────────
+     ACTIONS DROPDOWN
+  ───────────────────────────────────────────── */
+
+  const handleActionsClick = (
+    event,
+    projectId
+  ) => {
+    event.stopPropagation();
+
+    setActionProjectId(projectId);
+
+    setActionsAnchorEl(
+      event.currentTarget
+    );
+  };
+
+  const handleActionsClose = () => {
+    setActionsAnchorEl(null);
+    setActionProjectId(null);
+  };
+
+  const handleProjectAction = (action) => {
+    console.log(
+      "Project action:",
+      action,
+      actionProjectId
+    );
+
+    /*
+      Connect your API/action handlers here.
+
+      edit
+      duplicate
+      archive
+      delete
+    */
+  };
+
+  /* ─────────────────────────────────────────────
+     RENDER
+  ───────────────────────────────────────────── */
 
   return (
-    <Box sx={{
-      height: "100%", display: "flex", flexDirection: "column",
-      px: "32px", pt: "32px", pb: "32px", gap: "24px",
-      boxSizing: "border-box",
-      bgcolor: BG,
-    }}>
+    <Box
+      sx={{
+        height: "100%",
+        width: "100%",
 
-      {/* ── Page header ─────────────────────────────────────────────── */}
-      {/* Figma: header-row, horizontal, Fill 1136px, Hug 51px, space-between */}
-      <Box sx={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
-        <Box>
-          {/* "Projects": Inter 700 24px lh 120% #0F172A */}
-          <Typography sx={{
-            fontFamily: FONT, fontSize: "24px", fontWeight: 700,
-            color: TEXT_DARK, lineHeight: "1.2",
-          }}>
-            Projects
-          </Typography>
-          {/* subtitle: Inter 400 14px lh 100% #475569 */}
-          <Typography sx={{
-            fontFamily: FONT, fontSize: "14px", fontWeight: 400,
-            color: "#475569", lineHeight: "1", mt: "6px",
-          }}>
-            Manage and track your drug repurposing research
-          </Typography>
-        </Box>
+        display: "flex",
+        flexDirection: "column",
 
-        {/* "+ New Project" button: bg #0ABFBC, radius 8px, T10 R16 B10 L16, gap 10px */}
-        <Box
-          component="button"
-          onClick={() => {}}
-          sx={{
-            display: "flex", alignItems: "center", gap: "10px",
-            px: "16px", py: "10px", borderRadius: "8px",
-            bgcolor: TEAL, color: "#fff", border: "none", cursor: "pointer",
-            fontFamily: FONT, fontSize: "14px", fontWeight: 500,
-            flexShrink: 0,
-            "&:hover": { bgcolor: "#089B98" },
-          }}
-        >
-          <AddOutlined sx={{ fontSize: 16 }} />
-          New Project
-        </Box>
-      </Box>
+        bgcolor: BG,
 
-      {/* ── Filter bar ──────────────────────────────────────────────── */}
-      {/* Figma: horizontal, Fill 1136px, Hug 44px, gap 16px */}
-      <Box sx={{ display: "flex", alignItems: "center", gap: "16px" }}>
+        boxSizing: "border-box",
 
-        {/* Search: Fill 527px, height 44px, radius 8px, border 1px, px 16, gap 12 */}
-        <TextField
-          placeholder="Search projects..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          variant="outlined"
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start" sx={{ mr: "4px" }}>
-                <SearchOutlined sx={{ fontSize: 18, color: MUTED }} />
-              </InputAdornment>
-            ),
-          }}
-          sx={{
-            flex: 1,
-            "& .MuiOutlinedInput-root": {
-              height: "44px", borderRadius: "8px", bgcolor: "#fff",
-              gap: "12px",
-              "& fieldset": { borderColor: BORDER },
-              "&:hover fieldset": { borderColor: "#CBD5E1" },
-              "&.Mui-focused fieldset": { borderColor: TEAL, borderWidth: "1px" },
-              pl: "16px",
-            },
-            "& input": {
-              fontFamily: FONT, fontSize: "13px", color: TEXT_DARK, p: 0,
-            },
-            "& input::placeholder": { color: MUTED, opacity: 1 },
-          }}
-        />
-
-        {/* Module: Hug 187px × 38px */}
-        <FilterSelect
-          value={moduleFilter}
-          onChange={(e) => setModuleFilter(e.target.value)}
-          options={["TxKG", "LitMineX", "CurateX"]}
-          label="Module"
-        />
-
-        {/* Status: Hug 169px × 38px */}
-        <FilterSelect
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-          options={["ACTIVE", "ON HOLD", "REVIEW"]}
-          label="Status"
-        />
-
-        {/* Sort by: Hug 205px × 38px */}
-        <Select
-          value={sortBy}
-          onChange={(e) => setSortBy(e.target.value)}
-          size="small"
-          sx={{
-            height: "38px", bgcolor: "#fff",
-            borderRadius: "8px",
-            "& .MuiOutlinedInput-notchedOutline": { borderColor: BORDER },
-            "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "#CBD5E1" },
-            "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: TEAL, borderWidth: "1px" },
-            "& .MuiSelect-select": { pl: "14px", py: "10px", fontFamily: FONT, fontSize: "13px", color: TEXT_DARK },
-          }}
-        >
-          {["Latest Activity", "Name", "Status"].map((o) => (
-            <MenuItem key={o} value={o} sx={{ fontFamily: FONT, fontSize: "13px" }}>Sort by: {o}</MenuItem>
-          ))}
-        </Select>
-      </Box>
-
-      {/* ── Table card ─────────────────────────────────────────────── */}
-      {/* Figma: Fill 1136px, Hug 682px, Radius 16px, Border 1px #E2E8F0, Shadow X0 Y4 Blur12 #000 1.96% */}
-      <Box sx={{
-        bgcolor: "#fff",
-        border: `1px solid ${BORDER}`,
-        borderRadius: "16px",
-        boxShadow: "0px 4px 12px 0px rgba(0,0,0,0.0196)",
         overflow: "hidden",
-        display: "flex", flexDirection: "column",
-        flex: 1, minHeight: 0,
-      }}>
+      }}
+    >
+      {/* ─────────────────────────────────────────
+          TOP NAV
+      ───────────────────────────────────────── */}
 
-        {/* Section header: Fill 1136px, Hug 59px, space-between, padding 20px */}
-        <Box sx={{
-          display: "flex", alignItems: "center", justifyContent: "space-between",
-          px: "20px", py: "20px",
-          borderBottom: `1px solid ${BORDER}`,
+      <Box
+        sx={{
           flexShrink: 0,
-        }}>
-          <Typography sx={{
-            fontFamily: FONT, fontSize: "16px", fontWeight: 600, color: TEXT_DARK,
-          }}>
-            Active Repurposing Projects
-          </Typography>
-          {/* "View All": Inter 600 13px #0ABFBC */}
-          <Typography sx={{
-            fontFamily: FONT, fontSize: "13px", fontWeight: 600,
-            color: TEAL, cursor: "pointer",
-            "&:hover": { opacity: 0.8 },
-          }}>
-            View All
-          </Typography>
-        </Box>
 
-        {/* Column header: Fill 1136px, Hug 37px, bg #F8FAFC, padding T12 R20 B12 L20 */}
-        {/* Headers: PROJECT NAME 11px/700/#94A3B8, DISEASE, MODULE, STATUS */}
-        <Box sx={{
-          display: "flex", alignItems: "center",
-          bgcolor: BG, px: "20px", py: "12px",
-          borderBottom: `1px solid ${BORDER}`,
-          flexShrink: 0,
-        }}>
-          <Typography sx={{ fontFamily: FONT, fontSize: "11px", fontWeight: 700, color: MUTED, textTransform: "uppercase", flex: 1 }}>
-            Project Name
-          </Typography>
-          <Typography sx={{ fontFamily: FONT, fontSize: "11px", fontWeight: 700, color: MUTED, textTransform: "uppercase", width: "160px" }}>
-            Disease
-          </Typography>
-          <Typography sx={{ fontFamily: FONT, fontSize: "11px", fontWeight: 700, color: MUTED, textTransform: "uppercase", width: "120px" }}>
-            Module
-          </Typography>
-          <Typography sx={{ fontFamily: FONT, fontSize: "11px", fontWeight: 700, color: MUTED, textTransform: "uppercase", width: "120px" }}>
-            Status
-          </Typography>
-        </Box>
+          height: "57px",
 
-        {/* Data rows: overflow */}
-        <Box sx={{ flex: 1, overflowY: "auto" }}>
-          {filtered.map((p, i) => (
-            <Box
-              key={p.name}
-              onClick={() => navigate(`/dashboard/active-projects/${p.id}`)}
+          bgcolor: "#FFFFFF",
+
+          borderBottom:
+            `1px solid ${TOPNAV_BORDER}`,
+
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+
+          padding: "14px 32px",
+
+          boxSizing: "border-box",
+        }}
+      >
+        <Typography
+          sx={{
+            fontFamily: FONT,
+            fontSize: "13px",
+            fontWeight: 500,
+
+            color: BREADCRUMB_COLOR,
+
+            lineHeight: 1,
+          }}
+        >
+          Projects
+        </Typography>
+      </Box>
+
+      {/* ─────────────────────────────────────────
+          CONTENT
+      ───────────────────────────────────────── */}
+
+      <Box
+        sx={{
+          flex: 1,
+
+          minHeight: 0,
+
+          display: "flex",
+          flexDirection: "column",
+
+          padding: "32px",
+
+          gap: "24px",
+
+          "@media (max-width: 1200px)": {
+            padding: "28px",
+            gap: "20px",
+          },
+
+          "@media (max-width: 700px)": {
+            padding: "20px",
+            gap: "18px",
+          },
+
+          "@media (max-width: 520px)": {
+            padding: "16px",
+            gap: "16px",
+          },
+
+          boxSizing: "border-box",
+
+          overflow: "hidden",
+        }}
+      >
+        {/* ───────────────────────────────────────
+            HEADER
+        ─────────────────────────────────────── */}
+
+        <Box
+          sx={{
+            flexShrink: 0,
+
+            display: "flex",
+            alignItems: "flex-start",
+
+            justifyContent:
+              "space-between",
+
+            gap: "20px",
+
+            "@media (max-width: 700px)": {
+              flexDirection: "column",
+              alignItems: "stretch",
+              gap: "14px",
+            },
+          }}
+        >
+          {/* Title */}
+          <Box
             sx={{
-                display: "flex", alignItems: "center",
-                px: "20px", py: "16px", gap: "16px",
-                borderBottom: i < filtered.length - 1 ? `1px solid ${BORDER}` : "none",
-                cursor: "pointer",
-                "&:hover": { bgcolor: BG },
+              display: "flex",
+              flexDirection: "column",
+
+              gap: "4px",
+            }}
+          >
+            <Typography
+              sx={{
+                fontFamily: FONT,
+                fontSize: "28px",
+                fontWeight: 700,
+
+                color: TITLE_COLOR,
+
+                lineHeight: "1.2",
               }}
             >
-              <Typography sx={{ fontFamily: FONT, fontSize: "14px", fontWeight: 500, color: TEXT_DARK, flex: 1, minWidth: 0 }}>
-                {p.name}
-              </Typography>
-              <Typography sx={{ fontFamily: FONT, fontSize: "14px", color: "#475569", width: "160px", flexShrink: 0 }}>
-                {p.disease}
-              </Typography>
-              <Typography sx={{ fontFamily: FONT, fontSize: "14px", color: "#475569", width: "120px", flexShrink: 0 }}>
-                {p.module}
-              </Typography>
-              <Box sx={{ width: "120px", flexShrink: 0 }}>
-                <StatusChip status={p.status} />
-              </Box>
-            </Box>
-          ))}
-        </Box>
+              Projects
+            </Typography>
 
-        {/* Footer: Figma Fill 1136px, Hug 56px, border-top 1px, space-between, T12 R20 B12 L20, bg #F8FAFC */}
-        <Box sx={{
-          display: "flex", alignItems: "center", justifyContent: "space-between",
-          px: "20px", py: "12px",
-          borderTop: `1px solid ${BORDER}`,
-          bgcolor: BG,
-          flexShrink: 0,
-        }}>
-          {/* "Showing 10 of 43 projects": Inter 400 13px #475569 */}
-          <Typography sx={{ fontFamily: FONT, fontSize: "13px", fontWeight: 400, color: "#475569" }}>
-            Showing {Math.min(filtered.length, ROWS_PER_PAGE)} of 43 projects
-          </Typography>
+            <Typography
+              sx={{
+                fontFamily: FONT,
+                fontSize: "14px",
+                fontWeight: 400,
 
-          {/* page-controls: Hug 272px × 32px, Horizontal, Gap 8px */}
-          <Box sx={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <IconButton
-              size="small"
-              disabled={page === 1}
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              sx={{ color: MUTED, width: 32, height: 32, p: 0 }}
+                color: SUBTITLE_COLOR,
+
+                lineHeight: 1,
+              }}
             >
-              <ChevronLeftOutlined sx={{ fontSize: 18 }} />
-            </IconButton>
-            {visiblePages.map((n) => (
-              <Box
-                key={n}
-                onClick={() => setPage(n)}
-                sx={{
-                  /* page-1: Fixed 32×32, Radius 8px, Color #0ABFBC when active */
-                  width: 32, height: 32, borderRadius: "8px",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  bgcolor: n === page ? TEAL : "transparent",
-                  cursor: "pointer",
-                  "&:hover": { bgcolor: n === page ? TEAL : BORDER },
-                }}
-              >
-                <Typography sx={{
-                  fontFamily: FONT, fontSize: "13px",
-                  fontWeight: n === page ? 600 : 400,
-                  color: n === page ? "#fff" : TEXT_DARK,
-                }}>
-                  {n}
-                </Typography>
-              </Box>
-            ))}
-            <IconButton
-              size="small"
-              disabled={page === totalPages}
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              sx={{ color: MUTED, width: 32, height: 32, p: 0 }}
-            >
-              <ChevronRightOutlined sx={{ fontSize: 18 }} />
-            </IconButton>
+              Manage and track your research
+            </Typography>
+          </Box>
+
+          {/* New Project */}
+          <Box
+            component="button"
+            onClick={() => {}}
+            sx={{
+              display: "flex",
+              alignItems: "center",
+
+              gap: "8px",
+
+              padding: "10px 18px",
+
+              borderRadius: "8px",
+
+              bgcolor: TEAL,
+              color: "#FFFFFF",
+
+              border: "none",
+
+              cursor: "pointer",
+
+              fontFamily: FONT,
+              fontSize: "14px",
+              fontWeight: 600,
+
+              boxShadow:
+                "0px 4px 12px 0px rgba(0,194,181,0.1255)",
+
+              flexShrink: 0,
+
+              "@media (max-width: 700px)": {
+                alignSelf: "flex-start",
+              },
+
+              "&:hover": {
+                bgcolor: "#00A8BD",
+              },
+            }}
+          >
+            <AddOutlined
+              sx={{
+                fontSize: 16,
+                width: 16,
+                height: 16,
+              }}
+            />
+
+            New Project
           </Box>
         </Box>
+
+        {/* ───────────────────────────────────────
+            FILTER BAR
+        ─────────────────────────────────────── */}
+
+        <Box
+          sx={{
+            flexShrink: 0,
+            width: "100%",
+            display: "grid",
+            /*
+              Desktop: keep all four controls on one line while
+              allowing the search field to take the remaining space.
+              The smaller gaps also keep the controls visually grouped.
+            */
+            gridTemplateColumns: "minmax(0, 1fr) 220px 165px 205px",
+            alignItems: "center",
+            gap: "8px",
+            boxSizing: "border-box",
+
+            "@media (max-width: 1200px)": {
+              gridTemplateColumns: "minmax(0, 1fr) 205px 155px 190px",
+              gap: "8px",
+            },
+
+            "@media (max-width: 980px)": {
+              gridTemplateColumns: "minmax(300px, 1fr) 180px",
+              gap: "10px",
+            },
+
+            "@media (max-width: 700px)": {
+              gridTemplateColumns: "1fr 1fr",
+              gap: "10px",
+            },
+
+            "@media (max-width: 520px)": {
+              gridTemplateColumns: "1fr",
+              gap: "10px",
+            },
+          }}
+        >
+          {/* Search */}
+          <TextField
+            placeholder="Search projects..."
+            value={search}
+            onChange={(event) =>
+              setSearch(event.target.value)
+            }
+            variant="outlined"
+            InputProps={{
+              startAdornment: (
+                <SearchOutlined
+                  sx={{
+                    fontSize: "15px",
+                    color:
+                      SEARCH_ICON_COLOR,
+                    mr: "10px",
+                  }}
+                />
+              ),
+            }}
+            sx={{
+              width: "100%",
+              minWidth: 0,
+
+              "& .MuiOutlinedInput-root": {
+                height: "40px",
+
+                borderRadius: "8px",
+
+                bgcolor: "#FFFFFF",
+
+                pl: "14px",
+                pr: "14px",
+
+                "& fieldset": {
+                  borderColor: CARD_BORDER,
+                },
+
+                "&:hover fieldset": {
+                  borderColor: "#CBD5E1",
+                },
+
+                "&.Mui-focused fieldset": {
+                  borderColor: TEAL,
+                  borderWidth: "1px",
+                },
+              },
+
+              "& input": {
+                fontFamily: FONT,
+                fontSize: "13px",
+
+                color: TITLE_COLOR,
+
+                p: 0,
+              },
+
+              "& input::placeholder": {
+                color: SEARCH_ICON_COLOR,
+                opacity: 1,
+              },
+            }}
+          />
+
+          {/* Last Module */}
+          <FilterSelect
+            value={moduleFilter}
+            onChange={(event) =>
+              setModuleFilter(
+                event.target.value
+              )
+            }
+            options={[
+              "TxKG",
+              "LitMineX",
+              "CurateX",
+              "NovSearch",
+            ]}
+            label="Last Module"
+            allLabel="All Modules"
+          />
+
+          {/* Status */}
+          <FilterSelect
+            value={statusFilter}
+            onChange={(event) =>
+              setStatusFilter(
+                event.target.value
+              )
+            }
+            options={[
+              "ACTIVE",
+              "ON HOLD",
+              "REVIEW",
+            ]}
+            label="Status"
+            allLabel="All Status"
+          />
+
+          {/* Sort */}
+          <SortSelect
+            value={sortBy}
+            onChange={(event) =>
+              setSortBy(event.target.value)
+            }
+          />
+        </Box>
+
+        {/* ───────────────────────────────────────
+            TABLE CARD
+        ─────────────────────────────────────── */}
+
+        <Box
+          sx={{
+            flex: 1,
+
+            minHeight: 0,
+
+            display: "flex",
+            flexDirection: "column",
+
+            bgcolor: "#FFFFFF",
+
+            border:
+              `1px solid ${CARD_BORDER}`,
+
+            borderRadius: "12px",
+
+            boxShadow:
+              "0px 2px 8px rgba(0,0,0,0.039)",
+
+            overflow: "hidden",
+
+            boxSizing: "border-box",
+          }}
+        >
+          {/* Card title */}
+          <Box
+            sx={{
+              px: "24px",
+              py: "20px",
+
+              flexShrink: 0,
+            }}
+          >
+            <Typography
+              sx={{
+                fontFamily: FONT,
+                fontSize: "16px",
+                fontWeight: 600,
+
+                color: TITLE_COLOR,
+              }}
+            >
+              Repurposing Projects
+            </Typography>
+          </Box>
+
+          {/* ─────────────────────────────────────
+              TABLE HEADER
+
+              Uses SAME TABLE_GRID as rows.
+          ───────────────────────────────────── */}
+
+          <Box
+            sx={{
+              display: "grid",
+
+              gridTemplateColumns:
+                TABLE_GRID,
+
+              alignItems: "center",
+
+              bgcolor: BG,
+
+              px: "24px",
+              py: "10px",
+
+              borderTop:
+                `1px solid ${CARD_BORDER}`,
+
+              borderBottom:
+                `1px solid ${CARD_BORDER}`,
+
+              flexShrink: 0,
+
+              boxSizing: "border-box",
+              minWidth: "775px",
+            }}
+          >
+            <Typography
+              sx={{
+                fontFamily: FONT,
+                fontSize: "11px",
+                fontWeight: 700,
+
+                color: MUTED,
+
+                letterSpacing:
+                  "0.4px",
+
+                whiteSpace: "nowrap",
+              }}
+            >
+              PROJECT NAME
+            </Typography>
+
+            <Typography
+              sx={{
+                fontFamily: FONT,
+                fontSize: "11px",
+                fontWeight: 700,
+
+                color: MUTED,
+
+                letterSpacing:
+                  "0.4px",
+
+                whiteSpace: "nowrap",
+              }}
+            >
+              DISEASE
+            </Typography>
+
+            <Typography
+              sx={{
+                fontFamily: FONT,
+                fontSize: "11px",
+                fontWeight: 700,
+
+                color: MUTED,
+
+                letterSpacing:
+                  "0.4px",
+
+                whiteSpace: "nowrap",
+              }}
+            >
+              LAST MODULE
+            </Typography>
+
+            <Typography
+              sx={{
+                fontFamily: FONT,
+                fontSize: "11px",
+                fontWeight: 700,
+
+                color: MUTED,
+
+                letterSpacing:
+                  "0.4px",
+
+                whiteSpace: "nowrap",
+              }}
+            >
+              STATUS
+            </Typography>
+
+            {/* Action column spacer */}
+            <Box />
+          </Box>
+
+          {/* ─────────────────────────────────────
+              TABLE ROWS
+          ───────────────────────────────────── */}
+
+          <Box
+            sx={{
+              flex: 1,
+
+              minHeight: 0,
+
+              overflowY: "auto",
+
+              overflowX: "auto",
+            }}
+          >
+            {filtered.map((project, index) => (
+              <Box
+                key={project.id}
+                onClick={() =>
+                  navigate(
+                    `/dashboard/active-projects/${project.id}`
+                  )
+                }
+                sx={{
+                  display: "grid",
+
+                  /*
+                    SAME grid as table header.
+                    This fixes Disease / Last Module /
+                    Status alignment.
+                  */
+                  gridTemplateColumns:
+                    TABLE_GRID,
+
+                  alignItems: "center",
+
+                  px: "24px",
+                  py: "16px",
+
+                  minHeight: "74px",
+
+                  borderBottom:
+                    index ===
+                    filtered.length - 1
+                      ? "none"
+                      : "1px solid #F0F2F5",
+
+                  cursor: "pointer",
+
+                  boxSizing: "border-box",
+                  minWidth: "775px",
+
+                  "&:hover": {
+                    bgcolor: BG,
+                  },
+                }}
+              >
+                {/* Project name */}
+                <Typography
+                  sx={{
+                    fontFamily: FONT,
+                    fontSize: "14px",
+                    fontWeight: 600,
+
+                    color: TITLE_COLOR,
+
+                    minWidth: 0,
+
+                    overflow: "hidden",
+                    textOverflow:
+                      "ellipsis",
+                    whiteSpace:
+                      "nowrap",
+                  }}
+                >
+                  {project.name}
+                </Typography>
+
+                {/* Disease */}
+                <Typography
+                  sx={{
+                    fontFamily: FONT,
+                    fontSize: "14px",
+                    fontWeight: 400,
+
+                    color: "#475569",
+
+                    minWidth: 0,
+
+                    overflow: "hidden",
+                    textOverflow:
+                      "ellipsis",
+                    whiteSpace:
+                      "nowrap",
+                  }}
+                >
+                  {project.disease}
+                </Typography>
+
+                {/* Last Module */}
+                <Typography
+                  sx={{
+                    fontFamily: FONT,
+                    fontSize: "14px",
+                    fontWeight: 400,
+
+                    color: "#475569",
+
+                    minWidth: 0,
+
+                    overflow: "hidden",
+                    textOverflow:
+                      "ellipsis",
+                    whiteSpace:
+                      "nowrap",
+                  }}
+                >
+                  {project.module}
+                </Typography>
+
+                {/* Status */}
+                <Box
+                  sx={{
+                    minWidth: 0,
+
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent:
+                      "flex-start",
+                  }}
+                >
+                  <StatusChip
+                    status={project.status}
+                    onClick={(event) =>
+                      handleStatusClick(
+                        event,
+                        project.id
+                      )
+                    }
+                  />
+                </Box>
+
+                {/* Actions */}
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent:
+                      "flex-end",
+                  }}
+                >
+                  <Box
+                    component="button"
+                    onClick={(event) =>
+                      handleActionsClick(
+                        event,
+                        project.id
+                      )
+                    }
+                    aria-label={`Actions for ${project.name}`}
+                    sx={{
+                      width: "28px",
+                      height: "32px",
+
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent:
+                        "center",
+
+                      border: "none",
+                      bgcolor:
+                        "transparent",
+
+                      borderRadius: "4px",
+
+                      cursor: "pointer",
+
+                      p: 0,
+
+                      "&:hover": {
+                        bgcolor: "#F1F5F9",
+                      },
+                    }}
+                  >
+                    <MoreVertOutlined
+                      sx={{
+                        fontSize: 18,
+                        color: MUTED,
+                      }}
+                    />
+                  </Box>
+                </Box>
+              </Box>
+            ))}
+
+            {/* Empty state */}
+            {filtered.length === 0 && (
+              <Box
+                sx={{
+                  minHeight: "180px",
+
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent:
+                    "center",
+                }}
+              >
+                <Typography
+                  sx={{
+                    fontFamily: FONT,
+                    fontSize: "14px",
+                    color: MUTED,
+                  }}
+                >
+                  No projects found
+                </Typography>
+              </Box>
+            )}
+          </Box>
+        </Box>
+
+        {/* ───────────────────────────────────────
+            PAGINATION
+        ─────────────────────────────────────── */}
+
+        <Box
+          sx={{
+            flexShrink: 0,
+
+            width: "100%",
+
+            display: "flex",
+            alignItems: "center",
+            justifyContent:
+              "center",
+
+            flexWrap: "wrap",
+
+            gap: "8px",
+          }}
+        >
+          <PageButton
+            aria-label="Previous page"
+            disabled={page === 1}
+            onClick={() =>
+              setPage((currentPage) =>
+                Math.max(
+                  1,
+                  currentPage - 1
+                )
+              )
+            }
+          >
+            <ChevronLeftOutlined
+              sx={{ fontSize: 16 }}
+            />
+          </PageButton>
+
+          {[1, 2, 3].map((number) => (
+            <PageButton
+              key={number}
+              active={page === number}
+              onClick={() =>
+                setPage(number)
+              }
+            >
+              {number}
+            </PageButton>
+          ))}
+
+          <Box
+            sx={{
+              px: "4px",
+
+              color: "#6B7280",
+
+              fontFamily: FONT,
+              fontSize: "12px",
+            }}
+          >
+            &hellip;
+          </Box>
+
+          <PageButton
+            active={
+              page === TOTAL_PAGES
+            }
+            onClick={() =>
+              setPage(TOTAL_PAGES)
+            }
+          >
+            {TOTAL_PAGES}
+          </PageButton>
+
+          <PageButton
+            aria-label="Next page"
+            disabled={
+              page === TOTAL_PAGES
+            }
+            onClick={() =>
+              setPage((currentPage) =>
+                Math.min(
+                  TOTAL_PAGES,
+                  currentPage + 1
+                )
+              )
+            }
+          >
+            <ChevronRightOutlined
+              sx={{ fontSize: 16 }}
+            />
+          </PageButton>
+
+          <Typography
+            sx={{
+              fontFamily: FONT,
+              fontSize: "12px",
+              fontWeight: 400,
+
+              color: "#6B7280",
+
+              whiteSpace: "nowrap",
+
+              ml: "8px",
+            }}
+          >
+            Showing {rangeStart}-
+            {rangeEnd} of {TOTAL_ITEMS}{" "}
+            articles
+          </Typography>
+        </Box>
       </Box>
+
+      {/* ─────────────────────────────────────────
+          STATUS DROPDOWN
+      ───────────────────────────────────────── */}
+
+      <StatusDropdown
+        anchorEl={statusAnchorEl}
+        open={Boolean(statusAnchorEl)}
+        onClose={handleStatusClose}
+        currentStatus={
+          ALL_PROJECTS.find(
+            (project) =>
+              project.id ===
+              selectedProjectId
+          )?.status
+        }
+        onStatusChange={
+          handleStatusChange
+        }
+      />
+
+      {/* ─────────────────────────────────────────
+          ACTIONS DROPDOWN
+      ───────────────────────────────────────── */}
+
+      <ActionsDropdown
+        anchorEl={actionsAnchorEl}
+        open={Boolean(actionsAnchorEl)}
+        onClose={handleActionsClose}
+        onAction={
+          handleProjectAction
+        }
+      />
     </Box>
   );
 };

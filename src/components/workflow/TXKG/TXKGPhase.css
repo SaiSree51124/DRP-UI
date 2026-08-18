@@ -1,0 +1,2243 @@
+/* =========================================================
+   GLOBAL
+   ========================================================= */
+
+* {
+  box-sizing: border-box;
+}
+
+.txkg-section,
+.subgraph-section,
+.metapath-section {
+  font-family: "Inter", sans-serif;
+}
+
+button {
+  font-family: "Inter", sans-serif;
+}
+
+
+/* =========================================================
+   TXKG SECTION
+   ========================================================= */
+
+.txkg-section {
+  box-sizing: border-box;
+
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+
+  width: 1120px;
+  max-width: 100%;
+  min-height: 625px;
+
+  padding: 12px;
+  gap: 8px;
+
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+
+/* ---------- TXKG HEADER ---------- */
+
+.txkg-header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+
+  width: 100%;
+  height: 32px;
+}
+
+.txkg-header-left {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  gap: 8px;
+}
+
+.txkg-agent-avatar {
+  box-sizing: border-box;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  width: 32px;
+  height: 32px;
+
+  border: 1px solid #00bcd4;
+  border-radius: 8px;
+
+  flex-shrink: 0;
+}
+
+.txkg-agent-avatar svg {
+  width: 14px;
+  height: 14px;
+
+  color: #00bcd4;
+}
+
+.txkg-agent-title {
+  font-size: 12px;
+  line-height: 15px;
+  font-weight: 700;
+
+  text-transform: uppercase;
+
+  color: #1e293b;
+}
+
+.txkg-collapse {
+  width: 20px;
+  height: 20px;
+
+  color: #6b7280;
+
+  cursor: pointer;
+}
+
+
+/* ---------- TXKG DESCRIPTION ---------- */
+
+.txkg-description {
+  width: 100%;
+  min-height: 22px;
+
+  font-size: 15px;
+  line-height: 22px;
+  font-weight: 400;
+
+  color: #0f172a;
+}
+
+
+/* ---------- TXKG CONTENT ---------- */
+
+.txkg-content {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+
+  width: 100%;
+  gap: 12px;
+}
+
+
+/* ---------- TXKG TARGETS CARD ---------- */
+
+.txkg-targets {
+  box-sizing: border-box;
+
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+
+  flex: 1 1 577px;
+
+  width: 577px;
+  min-width: 0;
+  height: 423px;
+
+  padding: 12px;
+  gap: 8px;
+
+  background: #f8fafc;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+
+  overflow: hidden;
+}
+
+
+/* ---------- TXKG TABLE HEADER ---------- */
+
+.txkg-table-header {
+  box-sizing: border-box;
+
+  display: grid;
+
+  grid-template-columns:
+    80px
+    minmax(0, 1fr)
+    50px;
+
+  align-items: center;
+
+  width: 100%;
+  height: 34px;
+
+  padding: 10px 12px;
+
+  gap: 8px;
+
+  background: #f8fafc;
+
+  border-bottom: 1px solid #e6ebf0;
+  border-radius: 4px;
+
+  flex-shrink: 0;
+}
+
+.txkg-table-header span {
+  font-size: 11px;
+  line-height: 13px;
+  font-weight: 700;
+
+  color: #666e7a;
+}
+
+
+/* ---------- TXKG TABLE BODY ---------- */
+
+.txkg-table-body {
+  width: 100%;
+
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+
+.txkg-table-body::-webkit-scrollbar {
+  width: 5px;
+}
+
+.txkg-table-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.txkg-table-body::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+
+/* ---------- TXKG TABLE ROW ---------- */
+
+.txkg-table-row {
+  box-sizing: border-box;
+
+  display: grid;
+
+  grid-template-columns:
+    80px
+    minmax(0, 1fr)
+    50px;
+
+  align-items: center;
+
+  width: 100%;
+  min-height: 27px;
+
+  padding: 6px 12px;
+
+  gap: 8px;
+
+  font-size: 12px;
+  line-height: 15px;
+
+  color: #262b33;
+
+  transition:
+    background 0.15s ease,
+    border 0.15s ease;
+}
+
+.txkg-table-row:nth-child(even) {
+  background: #fafcff;
+}
+
+.txkg-table-row:hover {
+  background: rgba(0, 188, 212, 0.04);
+}
+
+.txkg-table-row.is-selected {
+  background: rgba(0, 188, 212, 0.05);
+
+  border: 1px solid rgba(0, 188, 212, 0.3);
+
+  border-radius: 4px;
+}
+
+
+/* ---------- TXKG TABLE CELLS ---------- */
+
+.txkg-uniprot {
+  min-width: 0;
+
+  font-size: 12px;
+  line-height: 15px;
+  font-weight: 600;
+
+  color: #00bcd4;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.txkg-target {
+  min-width: 0;
+
+  font-size: 12px;
+  line-height: 15px;
+  font-weight: 500;
+
+  color: #262b33;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.txkg-score {
+  font-size: 12px;
+  line-height: 15px;
+  font-weight: 700;
+
+  color: #262b33;
+
+  text-align: left;
+}
+
+.txkg-table-row.is-selected .txkg-uniprot,
+.txkg-table-row.is-selected .txkg-target,
+.txkg-table-row.is-selected .txkg-score {
+  color: #ffffff;
+}
+
+
+/* ---------- TXKG INSIGHTS ---------- */
+
+.txkg-insights {
+  box-sizing: border-box;
+
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+
+  flex: 1 1 507px;
+
+  width: 507px;
+  min-width: 0;
+  height: 435px;
+
+  padding: 16px;
+  gap: 8px;
+
+  background: #ffffff;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+}
+
+
+/* ---------- TXKG INSIGHTS TITLE ---------- */
+
+.txkg-insights-title {
+  width: 100%;
+
+  font-size: 13px;
+  line-height: 16px;
+  font-weight: 700;
+
+  color: #1a1f26;
+}
+
+.txkg-insights-subtitle {
+  width: 100%;
+
+  font-size: 10px;
+  line-height: 12px;
+  font-weight: 400;
+
+  color: #808794;
+}
+
+
+/* ---------- TXKG TABS ---------- */
+
+.txkg-tabs {
+  box-sizing: border-box;
+
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+
+  width: 100%;
+  height: 31px;
+
+  padding: 4px 0;
+
+  border-bottom: 1px solid #e6ebf0;
+
+  flex-shrink: 0;
+}
+
+.txkg-tab {
+  box-sizing: border-box;
+
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+
+  padding: 4px 10px;
+
+  min-height: 20px;
+
+  font-size: 10px;
+  line-height: 12px;
+  font-weight: 500;
+
+  color: #808794;
+
+  cursor: pointer;
+}
+
+.txkg-tab:hover {
+  color: #00bcd4;
+}
+
+.txkg-tab.active {
+  height: 22px;
+
+  border-bottom: 2px solid #00bcd4;
+
+  color: #00bcd4;
+
+  font-weight: 600;
+}
+
+
+/* ---------- TXKG INTERPRETATION ---------- */
+
+.txkg-interpretation {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+
+  width: 100%;
+
+  gap: 6px;
+
+  border-radius: 8px;
+}
+
+.txkg-interpretation-text {
+  width: 100%;
+
+  font-size: 12px;
+  line-height: 15px;
+  font-weight: 400;
+
+  color: #404552;
+}
+
+
+/* ---------- TXKG RECOMMENDATIONS ---------- */
+
+.txkg-recommendations {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+
+  width: 100%;
+
+  padding: 0;
+
+  gap: 8px;
+}
+
+.txkg-recommendations.hidden {
+  display: none;
+}
+
+.txkg-recommendation {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+
+  width: 100%;
+  min-height: 55px;
+
+  padding: 10px 12px;
+
+  gap: 4px;
+
+  background: #fafcff;
+
+  border-radius: 8px;
+}
+
+.txkg-recommendation-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  width: 100%;
+
+  gap: 8px;
+}
+
+.txkg-recommendation-name {
+  font-size: 13px;
+  line-height: 16px;
+  font-weight: 600;
+
+  color: #1a1a26;
+}
+
+.txkg-recommendation-priority {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+
+  padding: 2px 8px;
+
+  border-radius: 4px;
+
+  font-size: 10px;
+  line-height: 12px;
+  font-weight: 600;
+}
+
+.txkg-priority-high {
+  background: rgba(0, 188, 212, 0.12);
+
+  color: #ffffff;
+}
+
+.txkg-priority-high-text {
+  color: #ffffff;
+}
+
+.txkg-priority-medium {
+  background: rgba(217, 140, 26, 0.12);
+
+  color: #d98c1a;
+}
+
+.txkg-recommendation-text {
+  width: 100%;
+
+  font-size: 12px;
+  line-height: 15px;
+  font-weight: 400;
+
+  color: #4d5461;
+}
+
+
+/* ---------- TXKG ACTION PANEL ---------- */
+
+.txkg-action-panel {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+
+  width: 100%;
+
+  gap: 12px;
+
+  margin-top: auto;
+}
+
+.txkg-action-btn {
+  box-sizing: border-box;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  min-height: 37px;
+
+  padding: 10px 16px;
+
+  background: #ffffff;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+
+  font-size: 14px;
+  line-height: 17px;
+  font-weight: 500;
+
+  color: #1e293b;
+
+  cursor: pointer;
+
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.txkg-action-btn:hover {
+  background: #f8fafc;
+
+  border-color: #cbd5e1;
+}
+
+.txkg-action-btn.export {
+  font-weight: 600;
+
+  border-color: #cbd5e1;
+}
+
+
+/* =========================================================
+   SUBGRAPH SECTION
+   ========================================================= */
+
+.subgraph-section {
+  box-sizing: border-box;
+
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+
+  width: 1120px;
+  max-width: 100%;
+  min-height: 628px;
+
+  padding: 16px;
+
+  gap: 12px;
+
+  background: #ffffff;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+
+/* ---------- SUBGRAPH HEADER ---------- */
+
+.subgraph-header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+
+  width: 100%;
+  height: 32px;
+}
+
+.subgraph-header-left {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  gap: 8px;
+}
+
+.subgraph-agent-avatar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  width: 32px;
+  height: 32px;
+
+  border: 1px solid #00bcd4;
+  border-radius: 8px;
+
+  flex-shrink: 0;
+}
+
+.subgraph-agent-avatar svg {
+  width: 14px;
+  height: 14px;
+
+  color: #00bcd4;
+}
+
+.subgraph-agent-title {
+  font-size: 12px;
+  line-height: 15px;
+  font-weight: 700;
+
+  text-transform: uppercase;
+
+  color: #1e293b;
+}
+
+
+/* ---------- SUBGRAPH DESCRIPTION ---------- */
+
+.subgraph-description {
+  width: 100%;
+
+  font-size: 15px;
+  line-height: 22px;
+  font-weight: 400;
+
+  color: #0f172a;
+}
+
+
+/* ---------- GRAPH WRAPPER ---------- */
+
+.subgraph-graph-wrapper {
+  width: 100%;
+
+  overflow-x: auto;
+  overflow-y: hidden;
+
+  scrollbar-width: thin;
+}
+
+.subgraph-graph-wrapper::-webkit-scrollbar {
+  height: 5px;
+}
+
+.subgraph-graph-wrapper::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.subgraph-graph-wrapper::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+
+  border-radius: 10px;
+}
+
+
+/* ---------- GRAPH ---------- */
+
+.subgraph-graph {
+  position: relative;
+
+  width: 840px;
+  height: 360px;
+
+  flex-shrink: 0;
+
+  background: #0f172a;
+
+  border-radius: 12px;
+
+  overflow: hidden;
+}
+
+
+/* ---------- GRAPH GRID ---------- */
+
+.subgraph-grid {
+  position: absolute;
+
+  inset: 0;
+
+  display: grid;
+
+  grid-template-columns: repeat(14, 1fr);
+  grid-template-rows: repeat(6, 1fr);
+
+  pointer-events: none;
+}
+
+.subgraph-grid span {
+  width: 2px;
+  height: 2px;
+
+  margin: auto;
+
+  background: #ffffff;
+
+  opacity: 0.07;
+
+  border-radius: 50%;
+}
+
+
+/* ---------- GRAPH EDGES ---------- */
+
+.subgraph-edge {
+  position: absolute;
+
+  z-index: 1;
+
+  height: 0;
+
+  transform-origin: left center;
+
+  border-top: 1px solid rgba(148, 163, 184, 0.35);
+
+  pointer-events: none;
+}
+
+.subgraph-edge-1 {
+  width: 192px;
+
+  left: 500px;
+  top: 125px;
+
+  transform: rotate(128.66deg);
+}
+
+.subgraph-edge-2 {
+  width: 215px;
+
+  left: 500px;
+  top: 60px;
+
+  transform: rotate(90deg);
+}
+
+.subgraph-edge-3 {
+  width: 228px;
+
+  left: 240px;
+  top: 75px;
+
+  transform: rotate(-116deg);
+}
+
+.subgraph-edge-4 {
+  width: 86px;
+
+  left: 610px;
+  top: 245px;
+
+  transform: rotate(35.54deg);
+}
+
+.subgraph-edge-5 {
+  width: 407px;
+
+  left: 240px;
+  top: 75px;
+
+  transform: rotate(24.68deg);
+}
+
+.subgraph-edge-6 {
+  width: 222px;
+
+  left: 110px;
+  top: 75px;
+
+  transform: rotate(125.84deg);
+}
+
+.subgraph-edge-7 {
+  width: 191px;
+
+  left: 220px;
+  top: 75px;
+
+  transform: rotate(96.01deg);
+}
+
+.subgraph-edge-8 {
+  width: 300px;
+
+  left: 400px;
+  top: 155px;
+
+  transform: rotate(-1.91deg);
+}
+
+.subgraph-edge-9 {
+  width: 309px;
+
+  left: 400px;
+  top: 165px;
+
+  transform: rotate(24.9deg);
+}
+
+.subgraph-edge-10 {
+  width: 149px;
+
+  left: 400px;
+  top: 165px;
+
+  transform: rotate(47.73deg);
+}
+
+.subgraph-edge-11 {
+  width: 225px;
+
+  left: 400px;
+  top: 165px;
+
+  transform: rotate(20.85deg);
+}
+
+.subgraph-edge-12 {
+  width: 304px;
+
+  left: 110px;
+  top: 165px;
+
+  transform: rotate(162.76deg);
+}
+
+.subgraph-edge-13 {
+  width: 130px;
+
+  left: 340px;
+  top: 165px;
+
+  transform: rotate(117.55deg);
+}
+
+.subgraph-edge-14 {
+  width: 206px;
+
+  left: 220px;
+  top: 165px;
+
+  transform: rotate(150.95deg);
+}
+
+.subgraph-edge-15 {
+  width: 72px;
+
+  left: 400px;
+  top: 105px;
+
+  transform: rotate(-56.31deg);
+}
+
+.subgraph-edge-16 {
+  width: 260px;
+
+  left: 140px;
+  top: 165px;
+
+  transform: rotate(177.8deg);
+}
+
+.subgraph-edge-17 {
+  width: 224px;
+
+  left: 400px;
+  top: 125px;
+
+  transform: rotate(-10.3deg);
+}
+
+.subgraph-edge-18 {
+  width: 145px;
+
+  left: 400px;
+  top: 60px;
+
+  transform: rotate(-46.4deg);
+}
+
+.subgraph-edge-19 {
+  width: 184px;
+
+  left: 240px;
+  top: 75px;
+
+  transform: rotate(-150.64deg);
+}
+
+
+/* ---------- GRAPH NODES ---------- */
+
+.subgraph-node {
+  position: absolute;
+
+  z-index: 2;
+
+  border-radius: 50%;
+}
+
+
+/* Disease */
+
+.subgraph-t2d {
+  width: 52px;
+  height: 52px;
+
+  left: 374px;
+  top: 139px;
+
+  background: #1f2433;
+}
+
+
+/* Protein nodes */
+
+.subgraph-jak2 {
+  width: 34px;
+  height: 34px;
+
+  left: 223px;
+  top: 58px;
+
+  background: #f28c33;
+}
+
+.subgraph-dpp4 {
+  width: 30px;
+  height: 30px;
+
+  left: 485px;
+  top: 45px;
+
+  background: #f28c33;
+}
+
+.subgraph-glp1r {
+  width: 28px;
+  height: 28px;
+
+  left: 606px;
+  top: 111px;
+
+  background: #f28c33;
+}
+
+.subgraph-sglt2 {
+  width: 28px;
+  height: 28px;
+
+  left: 126px;
+  top: 161px;
+
+  background: #f28c33;
+}
+
+.subgraph-insr {
+  width: 24px;
+  height: 24px;
+
+  left: 428px;
+  top: 93px;
+
+  background: #f28c33;
+}
+
+
+/* Compound nodes */
+
+.subgraph-metformin {
+  width: 30px;
+  height: 30px;
+
+  left: 205px;
+  top: 250px;
+
+  background: #8c4dbf;
+}
+
+.subgraph-imatinib {
+  width: 28px;
+  height: 28px;
+
+  left: 326px;
+  top: 266px;
+
+  background: #8c4dbf;
+}
+
+.subgraph-ruxolitinib {
+  width: 24px;
+  height: 24px;
+
+  left: 98px;
+  top: 243px;
+
+  background: #8c4dbf;
+}
+
+
+/* Pathway nodes */
+
+.subgraph-jakstat {
+  width: 30px;
+  height: 30px;
+
+  left: 595px;
+  top: 230px;
+
+  background: #00bcd4;
+}
+
+.subgraph-insulin-sig {
+  width: 26px;
+  height: 26px;
+
+  left: 487px;
+  top: 262px;
+
+  background: #00bcd4;
+}
+
+
+/* Disease / comorbidity nodes */
+
+.subgraph-thrombocytosis {
+  width: 24px;
+  height: 24px;
+
+  left: 668px;
+  top: 283px;
+
+  background: #f25966;
+}
+
+.subgraph-obesity {
+  width: 22px;
+  height: 22px;
+
+  left: 689px;
+  top: 144px;
+
+  background: #f25966;
+}
+
+
+/* ---------- GRAPH LABELS ---------- */
+
+.subgraph-node-label {
+  position: absolute;
+
+  z-index: 3;
+
+  font-size: 9px;
+  line-height: 11px;
+  font-weight: 500;
+
+  text-align: center;
+
+  color: #d1d9e6;
+
+  pointer-events: none;
+}
+
+.subgraph-label-t2d {
+  width: 70px;
+
+  left: 365px;
+  top: 194px;
+}
+
+.subgraph-label-jak2 {
+  width: 23px;
+
+  left: 228px;
+  top: 95px;
+}
+
+.subgraph-label-dpp4 {
+  width: 24px;
+
+  left: 488px;
+  top: 78px;
+}
+
+.subgraph-label-glp1r {
+  width: 28px;
+
+  left: 605px;
+  top: 142px;
+}
+
+.subgraph-label-sglt2 {
+  width: 29px;
+
+  left: 126px;
+  top: 192px;
+}
+
+.subgraph-label-insr {
+  width: 21px;
+
+  left: 429px;
+  top: 120px;
+}
+
+.subgraph-label-metformin {
+  width: 45px;
+
+  left: 198px;
+  top: 283px;
+}
+
+.subgraph-label-imatinib {
+  width: 35px;
+
+  left: 322px;
+  top: 297px;
+}
+
+.subgraph-label-ruxolitinib {
+  width: 45px;
+
+  left: 88px;
+  top: 270px;
+}
+
+.subgraph-label-jakstat {
+  width: 43px;
+
+  left: 589px;
+  top: 263px;
+}
+
+.subgraph-label-insulin-sig {
+  width: 47px;
+
+  left: 477px;
+  top: 291px;
+}
+
+.subgraph-label-thrombocytosis {
+  width: 70px;
+
+  left: 645px;
+  top: 310px;
+}
+
+.subgraph-label-obesity {
+  width: 34px;
+
+  left: 683px;
+  top: 169px;
+}
+
+
+/* ---------- SUBGRAPH LEGEND ---------- */
+
+.subgraph-legend {
+  position: absolute;
+
+  left: 20px;
+  bottom: 10px;
+
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  gap: 18px;
+
+  font-size: 9px;
+  line-height: 11px;
+  font-weight: 600;
+
+  color: #b3bac7;
+}
+
+.subgraph-legend-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  gap: 6px;
+}
+
+.subgraph-legend-dot {
+  width: 8px;
+  height: 8px;
+
+  flex-shrink: 0;
+
+  border-radius: 50%;
+}
+
+
+/* ---------- SUBGRAPH SUMMARY ---------- */
+
+.subgraph-summary {
+  box-sizing: border-box;
+
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+
+  width: 100%;
+  min-height: 73px;
+
+  padding: 16px;
+
+  background: #f8fafc;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+}
+
+.subgraph-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+
+  gap: 4px;
+}
+
+.subgraph-stat-label {
+  font-size: 11px;
+  line-height: 13px;
+  font-weight: 600;
+
+  text-transform: uppercase;
+
+  color: #475569;
+}
+
+.subgraph-stat-value {
+  font-size: 20px;
+  line-height: 24px;
+  font-weight: 700;
+
+  color: #0f172a;
+}
+
+.subgraph-stat-divider {
+  width: 1px;
+  height: 40px;
+
+  background: #e2e8f0;
+}
+
+
+/* ---------- SUBGRAPH ACTIONS ---------- */
+
+.subgraph-actions {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+
+  width: 100%;
+
+  gap: 12px;
+}
+
+.subgraph-action-btn {
+  box-sizing: border-box;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  min-height: 37px;
+
+  padding: 10px 16px;
+
+  background: #ffffff;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+
+  font-size: 14px;
+  line-height: 17px;
+  font-weight: 500;
+
+  color: #1e293b;
+
+  cursor: pointer;
+
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.subgraph-action-btn:hover {
+  background: #f8fafc;
+
+  border-color: #cbd5e1;
+}
+
+
+/* =========================================================
+   META-PATH ANALYSIS
+   ========================================================= */
+
+.metapath-section {
+  box-sizing: border-box;
+
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+
+  width: 1120px;
+  max-width: 100%;
+  min-height: 501px;
+
+  padding: 16px;
+
+  gap: 16px;
+
+  background: #ffffff;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+}
+
+
+/* ---------- META-PATH HEADER ---------- */
+
+.metapath-header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+
+  width: 100%;
+  height: 32px;
+}
+
+.metapath-header-left {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  gap: 8px;
+}
+
+.metapath-agent-avatar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  width: 32px;
+  height: 32px;
+
+  border: 1px solid #00bcd4;
+  border-radius: 8px;
+}
+
+.metapath-agent-title {
+  font-size: 11px;
+  line-height: 13px;
+  font-weight: 700;
+
+  text-transform: uppercase;
+
+  color: #1e293b;
+}
+
+.metapath-title {
+  width: 100%;
+
+  font-size: 16px;
+  line-height: 19px;
+  font-weight: 700;
+
+  color: #111827;
+}
+
+
+/* ---------- META-PATH STATS ---------- */
+
+.metapath-stats {
+  box-sizing: border-box;
+
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+
+  width: 100%;
+  min-height: 43px;
+
+  padding: 12px 16px;
+
+  gap: 32px;
+
+  background: #f9fafb;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+
+  overflow-x: auto;
+
+  scrollbar-width: thin;
+}
+
+.metapath-stats::-webkit-scrollbar {
+  height: 4px;
+}
+
+.metapath-stats::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+.metapath-stat {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  flex-shrink: 0;
+
+  gap: 6px;
+}
+
+.metapath-stat-value {
+  font-size: 16px;
+  line-height: 19px;
+  font-weight: 700;
+
+  color: #111827;
+}
+
+.metapath-stat-label {
+  font-size: 11px;
+  line-height: 13px;
+  font-weight: 400;
+
+  color: #6b7280;
+}
+
+
+/* ---------- META-PATH CONTENT ---------- */
+
+.metapath-content {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+
+  width: 100%;
+
+  gap: 16px;
+}
+
+.metapath-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+
+  flex: 1 1 536px;
+
+  width: 536px;
+  min-width: 0;
+
+  gap: 6px;
+}
+
+.metapath-panel-title {
+  width: 100%;
+
+  font-size: 13px;
+  line-height: 16px;
+  font-weight: 600;
+
+  color: #111827;
+}
+
+
+/* ---------- TARGET PREDICTION SCORES ---------- */
+
+.metapath-score-list {
+  width: 100%;
+
+  overflow: hidden;
+}
+
+.metapath-score-row {
+  box-sizing: border-box;
+
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  width: 100%;
+  min-height: 36px;
+
+  padding: 8px 10px;
+
+  gap: 8px;
+
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.metapath-target {
+  flex-shrink: 0;
+
+  font-size: 13px;
+  line-height: 16px;
+  font-weight: 600;
+
+  color: #111827;
+}
+
+.metapath-target-description {
+  flex: 1;
+
+  min-width: 0;
+
+  font-size: 11px;
+  line-height: 13px;
+  font-weight: 400;
+
+  color: #6b7280;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.metapath-score-badge {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+
+  min-width: 28px;
+  height: 19px;
+
+  padding: 3px 8px;
+
+  background: #d1fae5;
+
+  border-radius: 8px;
+
+  font-size: 11px;
+  line-height: 13px;
+  font-weight: 600;
+
+  color: #00bcd4;
+}
+
+
+/* ---------- META-PATH TRAVERSALS ---------- */
+
+.metapath-traversals {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+
+  width: 100%;
+
+  gap: 6px;
+}
+
+.metapath-traversal-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+
+  width: 100%;
+
+  padding: 10px 12px;
+
+  gap: 6px;
+
+  background: #f9fafb;
+
+  border-radius: 8px;
+}
+
+.metapath-traversal-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  width: 100%;
+
+  gap: 8px;
+}
+
+.metapath-traversal-target {
+  flex: 1;
+
+  min-width: 0;
+
+  font-size: 13px;
+  line-height: 16px;
+  font-weight: 600;
+
+  color: #111827;
+}
+
+.metapath-traversal-score {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+
+  min-width: 30px;
+  height: 19px;
+
+  padding: 3px 8px;
+
+  background: #00bcd4;
+
+  border-radius: 8px;
+
+  font-size: 11px;
+  line-height: 13px;
+  font-weight: 600;
+
+  color: #ffffff;
+}
+
+.metapath-path {
+  width: 100%;
+
+  font-size: 11px;
+  line-height: 13px;
+  font-weight: 400;
+
+  color: #6b7280;
+}
+
+
+/* ---------- SECONDARY META-PATH ROWS ---------- */
+
+.metapath-traversal-row {
+  box-sizing: border-box;
+
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  width: 100%;
+  min-height: 32px;
+
+  padding: 6px 12px;
+
+  gap: 8px;
+
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.metapath-traversal-name {
+  flex-shrink: 0;
+
+  font-size: 12px;
+  line-height: 15px;
+  font-weight: 500;
+
+  color: #111827;
+}
+
+.metapath-traversal-path {
+  flex: 1;
+
+  min-width: 0;
+
+  font-size: 11px;
+  line-height: 13px;
+  font-weight: 400;
+
+  color: #6b7280;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.metapath-traversal-badge {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+
+  min-width: 30px;
+  height: 19px;
+
+  padding: 3px 8px;
+
+  background: #d1fae5;
+
+  border-radius: 8px;
+
+  font-size: 11px;
+  line-height: 13px;
+  font-weight: 600;
+
+  color: #00bcd4;
+}
+
+
+/* ---------- META-PATH ACTIONS ---------- */
+
+.metapath-actions {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+
+  width: 100%;
+
+  gap: 10px;
+
+  padding-top: 4px;
+}
+
+.metapath-action-btn {
+  box-sizing: border-box;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  min-height: 37px;
+
+  padding: 10px 16px;
+
+  background: #ffffff;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+
+  font-size: 14px;
+  line-height: 17px;
+  font-weight: 500;
+
+  color: #1e293b;
+
+  cursor: pointer;
+
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.metapath-action-btn:hover {
+  background: #f8fafc;
+
+  border-color: #cbd5e1;
+}
+
+.metapath-action-btn.export {
+  font-weight: 600;
+
+  border-color: #cbd5e1;
+}
+
+
+/* =========================================================
+   COMMON RESPONSIVE BEHAVIOR
+   ========================================================= */
+
+/* 1200px and below */
+
+@media (max-width: 1200px) {
+  .txkg-section,
+  .subgraph-section,
+  .metapath-section {
+    width: 100%;
+  }
+}
+
+
+/* 1024px and below */
+
+@media (max-width: 1024px) {
+  .txkg-content {
+    gap: 12px;
+  }
+
+  .txkg-targets {
+    flex-basis: 55%;
+  }
+
+  .txkg-insights {
+    flex-basis: 45%;
+  }
+
+  .metapath-content {
+    gap: 12px;
+  }
+}
+
+
+/* 900px and below */
+
+@media (max-width: 900px) {
+
+  /* ---------- TXKG ---------- */
+
+  .txkg-section {
+    height: auto;
+    min-height: 0;
+  }
+
+  .txkg-content {
+    flex-direction: column;
+  }
+
+  .txkg-targets,
+  .txkg-insights {
+    width: 100%;
+    flex-basis: auto;
+  }
+
+  .txkg-targets {
+    height: 423px;
+  }
+
+  .txkg-insights {
+    height: auto;
+    min-height: 435px;
+  }
+
+  /* ---------- SUBGRAPH ---------- */
+
+  .subgraph-section {
+    min-height: 0;
+    height: auto;
+  }
+
+  .subgraph-summary {
+    flex-wrap: wrap;
+
+    gap: 20px;
+  }
+
+  .subgraph-stat-divider {
+    display: none;
+  }
+
+  /* ---------- META PATH ---------- */
+
+  .metapath-section {
+    min-height: 0;
+    height: auto;
+  }
+
+  .metapath-content {
+    flex-direction: column;
+  }
+
+  .metapath-panel {
+    width: 100%;
+    flex-basis: auto;
+  }
+}
+
+
+/* 768px and below */
+
+@media (max-width: 768px) {
+
+  .txkg-section,
+  .subgraph-section,
+  .metapath-section {
+    padding: 12px;
+
+    border-radius: 12px;
+  }
+
+  /* ---------- TXKG ---------- */
+
+  .txkg-table-header,
+  .txkg-table-row {
+    grid-template-columns:
+      70px
+      minmax(0, 1fr)
+      45px;
+  }
+
+  .txkg-action-panel {
+    flex-wrap: wrap;
+  }
+
+  /* ---------- SUBGRAPH ---------- */
+
+  .subgraph-actions {
+    flex-wrap: wrap;
+  }
+
+  /* ---------- META PATH ---------- */
+
+  .metapath-actions {
+    flex-wrap: wrap;
+  }
+
+  .metapath-stats {
+    gap: 20px;
+  }
+}
+
+
+/* 600px and below */
+
+@media (max-width: 600px) {
+
+  /* ---------- TXKG ---------- */
+
+  .txkg-section {
+    padding: 10px;
+
+    gap: 8px;
+  }
+
+  .txkg-header {
+    height: 30px;
+  }
+
+  .txkg-agent-avatar {
+    width: 30px;
+    height: 30px;
+  }
+
+  .txkg-description {
+    font-size: 13px;
+    line-height: 19px;
+  }
+
+  .txkg-table-header {
+    height: 32px;
+
+    padding: 8px;
+
+    grid-template-columns:
+      65px
+      minmax(0, 1fr)
+      42px;
+  }
+
+  .txkg-table-row {
+    min-height: 30px;
+
+    padding: 6px 8px;
+
+    grid-template-columns:
+      65px
+      minmax(0, 1fr)
+      42px;
+  }
+
+  .txkg-table-header span,
+  .txkg-table-row {
+    font-size: 10px;
+  }
+
+  .txkg-targets {
+    height: 380px;
+
+    padding: 8px;
+  }
+
+  .txkg-insights {
+    padding: 12px;
+  }
+
+  .txkg-action-btn {
+    flex: 1 1 auto;
+  }
+
+
+  /* ---------- SUBGRAPH ---------- */
+
+  .subgraph-section {
+    padding: 10px;
+  }
+
+  .subgraph-description {
+    font-size: 13px;
+    line-height: 19px;
+  }
+
+  /*
+   * Graph intentionally remains 840px wide.
+   * Horizontal scrolling preserves the Figma
+   * node/edge positions instead of shrinking them.
+   */
+
+  .subgraph-graph-wrapper {
+    width: calc(100vw - 20px);
+    max-width: 100%;
+  }
+
+  .subgraph-summary {
+    align-items: flex-start;
+
+    flex-direction: column;
+
+    padding: 12px;
+
+    gap: 14px;
+  }
+
+  .subgraph-stat {
+    width: 100%;
+  }
+
+  .subgraph-actions {
+    width: 100%;
+  }
+
+  .subgraph-action-btn {
+    flex: 1 1 auto;
+  }
+
+
+  /* ---------- META PATH ---------- */
+
+  .metapath-section {
+    padding: 10px;
+
+    gap: 12px;
+  }
+
+  .metapath-title {
+    font-size: 15px;
+    line-height: 18px;
+  }
+
+  .metapath-stats {
+    padding: 10px 12px;
+
+    gap: 18px;
+  }
+
+  .metapath-stat-value {
+    font-size: 15px;
+  }
+
+  .metapath-stat-label {
+    font-size: 10px;
+  }
+
+  .metapath-score-row {
+    padding: 8px;
+  }
+
+  .metapath-target-description {
+    display: none;
+  }
+
+  .metapath-traversal-card {
+    padding: 9px 10px;
+  }
+
+  .metapath-actions {
+    width: 100%;
+  }
+
+  .metapath-action-btn {
+    flex: 1 1 auto;
+  }
+}
+
+
+/* 480px and below */
+
+@media (max-width: 480px) {
+
+  .txkg-table-header,
+  .txkg-table-row {
+    grid-template-columns:
+      60px
+      minmax(0, 1fr)
+      40px;
+  }
+
+  .txkg-uniprot,
+  .txkg-target,
+  .txkg-score {
+    font-size: 10px;
+  }
+
+  .txkg-recommendation-name {
+    font-size: 12px;
+  }
+
+  .txkg-recommendation-text {
+    font-size: 11px;
+    line-height: 14px;
+  }
+
+  .subgraph-agent-title,
+  .txkg-agent-title,
+  .metapath-agent-title {
+    font-size: 10px;
+  }
+
+  .metapath-score-row {
+    gap: 6px;
+  }
+
+  .metapath-target {
+    font-size: 12px;
+  }
+
+  .metapath-traversal-path {
+    font-size: 10px;
+  }
+}
+/* =========================================================
+   FINAL RESULT MODULE ALIGNMENT FIX
+   ---------------------------------------------------------
+   Keep the existing TXKG / SUBGRAPH / METAPATH internals
+   unchanged. Only align their outer result cards and add
+   spacing from the parent container.
+   ========================================================= */
+
+.txkg-results-content {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+/* Outer result rows */
+.txkg-results-content .agent-message-row.result-row {
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+  box-sizing: border-box;
+  padding-left: 16px;
+  padding-right: 16px;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+/* All three result cards use the same available width */
+.txkg-results-content .result-card.result-card-txkg,
+.txkg-results-content .result-card.result-card-subgraph,
+.txkg-results-content .result-card.result-card-metapath {
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+  box-sizing: border-box;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+/* Accordion itself */
+.txkg-results-content .result-card-txkg > .MuiAccordion-root,
+.txkg-results-content .result-card-subgraph > .MuiAccordion-root,
+.txkg-results-content .result-card-metapath > .MuiAccordion-root {
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+/* Keep expanded Subgraph content natural; do not alter its
+   internal graph/layout dimensions. */
+.txkg-results-content
+.result-card-subgraph
+.MuiAccordionDetails-root {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* MetaPath full-width alignment */
+.txkg-results-content
+.result-card-metapath
+.MuiAccordion-root {
+  width: 100%;
+  max-width: none;
+  box-sizing: border-box;
+}
+
+/* TXKG full-width alignment */
+.txkg-results-content
+.result-card-txkg
+.MuiAccordion-root {
+  width: 100%;
+  max-width: none;
+  box-sizing: border-box;
+}
+
+/* Do not force flex sizing on result rows/cards. The existing
+   JSX/MUI Accordion controls the expanded content height. */

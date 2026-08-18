@@ -1,0 +1,1436 @@
+:root {
+  --ws-navy: #0f172a;
+  --ws-sub: #475569;
+  --ws-teal: #00c2b5;
+  --ws-line: #e2e8f0;
+  --ws-surface: #f8fafc;
+  --ws-white: #ffffff;
+}
+
+
+/* ============================================================
+   GLOBAL
+   ============================================================ */
+
+.welcome-screen,
+.welcome-screen *,
+.welcome-screen *::before,
+.welcome-screen *::after {
+  box-sizing: border-box;
+}
+
+
+/* ============================================================
+   MAIN SCREEN
+   ============================================================ */
+
+.welcome-screen {
+  position: relative;
+
+  min-width: 320px;
+  min-height: 100dvh;
+
+  overflow-x: hidden;
+  overflow-y: auto;
+
+  color: var(--ws-navy);
+
+  background: var(--ws-surface);
+
+  font-family:
+    Inter,
+    "Helvetica Neue",
+    "Segoe UI",
+    Arial,
+    sans-serif;
+}
+
+
+/* ============================================================
+   BACKGROUND
+   ============================================================ */
+
+.ws-background {
+  position: fixed;
+
+  inset: 0;
+
+  z-index: 0;
+
+  width: 100vw;
+  height: 100dvh;
+
+  overflow: hidden;
+
+  pointer-events: none;
+
+  background: #f8fafc;
+}
+
+
+/* ============================================================
+   MAIN GLOW
+   Figma:
+   Width  : 1100px
+   Height : 1100px
+   Opacity: 15%
+   ============================================================ */
+
+.bg-glow-main {
+  position: absolute;
+
+  width: 1100px;
+  height: 1100px;
+
+  left:
+    calc(50% - 550px + 190px);
+
+  top:
+    calc(50% - 550px + 190px);
+
+  background:
+    radial-gradient(
+      100% 100% at 50% 50%,
+      rgba(0, 194, 181, 0.65) 0%,
+      rgba(0, 194, 181, 0) 100%
+    );
+
+  opacity: 0.15;
+}
+
+
+/* ============================================================
+   CENTER RINGS
+   ============================================================ */
+
+.bg-ring {
+  position: absolute;
+
+  left: 50%;
+  top: 50%;
+
+  transform:
+    translate(-50%, -50%);
+
+  box-sizing: border-box;
+
+  border-radius: 50%;
+}
+
+
+/* Ring 1 */
+
+.bg-ring-1 {
+  width: 520px;
+  height: 520px;
+
+  opacity: 0.35;
+
+  border:
+    1px solid
+    rgba(0, 194, 181, 0.2);
+}
+
+
+/* Ring 2 */
+
+.bg-ring-2 {
+  width: 680px;
+  height: 680px;
+
+  opacity: 0.09;
+
+  border:
+    1px solid
+    rgba(0, 194, 181, 0.101961);
+}
+
+
+/* Ring 3 */
+
+.bg-ring-3 {
+  width: 840px;
+  height: 840px;
+
+  opacity: 0.18;
+
+  border:
+    1px solid
+    rgba(0, 194, 181, 0.0588235);
+}
+
+
+/* ============================================================
+   CORNER GLOWS
+   ============================================================ */
+
+.bg-glow {
+  position: absolute;
+
+  pointer-events: none;
+}
+
+
+/* Top left teal */
+
+.bg-glow-tl-1 {
+  width: 220px;
+  height: 220px;
+
+  left: 140px;
+  top: 120px;
+
+  background:
+    radial-gradient(
+      100% 100% at 50% 50%,
+      rgba(0, 194, 181, 0.3) 0%,
+      rgba(0, 194, 181, 0) 100%
+    );
+
+  opacity: 0.4;
+}
+
+
+/* Top left purple */
+
+.bg-glow-tl-2 {
+  width: 160px;
+  height: 160px;
+
+  left: 80px;
+  top: 280px;
+
+  background:
+    radial-gradient(
+      100% 100% at 50% 50%,
+      rgba(139, 92, 246, 0.2) 0%,
+      rgba(139, 92, 246, 0) 100%
+    );
+
+  opacity: 0.4;
+}
+
+
+/* Middle left */
+
+.bg-glow-mid-left {
+  width: 300px;
+  height: 300px;
+
+  left: 120px;
+  top: 520px;
+
+  background:
+    radial-gradient(
+      100% 100% at 50% 50%,
+      rgba(0, 194, 181, 0.4) 0%,
+      rgba(0, 194, 181, 0) 100%
+    );
+
+  opacity: 0.4;
+}
+
+
+/* Top right */
+
+.bg-glow-top-right {
+  width: 240px;
+  height: 240px;
+
+  right: 180px;
+  top: 140px;
+
+  background:
+    radial-gradient(
+      100% 100% at 50% 50%,
+      rgba(139, 92, 246, 0.25) 0%,
+      rgba(139, 92, 246, 0) 100%
+    );
+
+  opacity: 0.4;
+}
+
+
+/* Bottom right */
+
+.bg-glow-bottom-right {
+  width: 260px;
+  height: 260px;
+
+  right: 120px;
+  bottom: 120px;
+
+  background:
+    radial-gradient(
+      100% 100% at 50% 50%,
+      rgba(0, 194, 181, 0.35) 0%,
+      rgba(0, 194, 181, 0) 100%
+    );
+
+  opacity: 0.4;
+}
+
+
+/* ============================================================
+   VIEWPORT
+   ============================================================ */
+
+.ws-viewport {
+  position: relative;
+
+  z-index: 1;
+
+  display: flex;
+
+  justify-content: center;
+
+  min-height: 100dvh;
+
+  padding:
+    clamp(24px, 6vh, 48px)
+    24px
+    48px;
+
+  pointer-events: none;
+}
+
+
+/* ============================================================
+   DESIGN FRAME
+   ============================================================ */
+
+.ws-design-frame {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 16px;
+
+  width: 900px;
+  min-width: 900px;
+  max-width: 900px;
+
+  pointer-events: auto;
+}
+
+
+/* ============================================================
+   HERO
+   ============================================================ */
+
+.ws-hero {
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  width: 760px;
+
+  margin: 0 auto;
+
+  gap: 16px;
+
+  text-align: center;
+}
+
+
+/* ============================================================
+   iNovaPath LOGO
+   Exact Figma frame:
+
+   Width  = 106px
+   Height = 28px
+   Radius = 20px
+   Padding:
+     Top    6px
+     Right  12px
+     Bottom 6px
+     Left   12px
+
+   Background:
+   #00C2B5 / 5%
+   ============================================================ */
+
+.ws-badge {
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  width: 106px;
+  height: 28px;
+
+  min-width: 106px;
+  min-height: 28px;
+
+  padding:
+    6px 12px;
+
+  box-sizing: border-box;
+
+  background:
+    rgba(0, 194, 181, 0.05);
+
+  border-radius: 20px;
+
+  flex-shrink: 0;
+}
+
+
+/* ============================================================
+   iNovaPath TEXT
+   Exact Figma:
+
+   Width         = 82px
+   Height        = 16px
+   Font          = Inter
+   Weight        = 600
+   Style         = Semi Bold
+   Size          = 13px
+   Line height   = 100%
+   Letter spacing= 0%
+   Color         = #00C2B5
+   ============================================================ */
+
+.ws-logo-text {
+  display: block;
+
+  width: 82px;
+  height: 16px;
+
+  margin: 0;
+  padding: 0;
+
+  font-family:
+    Inter,
+    sans-serif;
+
+  font-size: 13px;
+
+  font-weight: 600;
+
+  font-style: normal;
+
+  line-height: 16px;
+
+  letter-spacing: 0;
+
+  color:
+    #00C2B5;
+
+  white-space: nowrap;
+
+  text-align: left;
+}
+
+
+/* ============================================================
+   HERO HEADING
+   ============================================================ */
+
+.ws-hero h1 {
+  width: 760px;
+
+  margin: 0;
+
+  font-family:
+    Inter,
+    sans-serif;
+
+  font-weight: 800;
+
+  font-size: 42px;
+
+  line-height: 1;
+
+  letter-spacing:
+    -0.015em;
+
+  color:
+    var(--ws-navy);
+
+  text-align: center;
+
+  white-space: nowrap;
+}
+
+
+/* ============================================================
+   HERO DESCRIPTION
+   ============================================================ */
+
+.ws-hero p {
+  width: 760px;
+
+  margin: 0;
+
+  font-family:
+    Inter,
+    sans-serif;
+
+  font-weight: 400;
+
+  font-size: 18px;
+
+  line-height: 1.6;
+
+  color:
+    var(--ws-sub);
+
+  text-align: center;
+}
+
+
+/* ============================================================
+   GETTING STARTED GUIDE
+   ============================================================ */
+
+.ws-guide {
+  display: flex;
+
+  align-items: center;
+
+  width: 100%;
+
+  gap: 12px;
+}
+
+
+.ws-guide span {
+  flex: 1;
+
+  height: 1px;
+
+  background:
+    var(--ws-line);
+}
+
+
+.ws-guide strong {
+  flex-shrink: 0;
+
+  font-family:
+    Inter,
+    sans-serif;
+
+  font-weight: 700;
+
+  font-size: 14px;
+
+  line-height: 1;
+
+  letter-spacing:
+    0.12em;
+
+  color:
+    #94a3b8;
+
+  text-transform: uppercase;
+
+  text-align: center;
+}
+
+
+/* ============================================================
+   STEP GRID
+   ============================================================ */
+
+.ws-step-grid {
+  display: grid;
+
+  grid-template-columns:
+    1fr 1fr;
+
+  width: 100%;
+
+  gap: 24px;
+}
+
+
+/* ============================================================
+   STEP CARD
+   ============================================================ */
+
+.ws-step-card {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 24px;
+
+  min-height: 256px;
+
+  padding: 32px;
+
+  background:
+    var(--ws-white);
+
+  border:
+    1px solid
+    var(--ws-line);
+
+  border-radius:
+    16px;
+
+  box-shadow:
+    0 4px 12px
+    rgba(15, 23, 42, 0.0314);
+}
+
+
+/* ============================================================
+   STEP HEADER
+   ============================================================ */
+
+.ws-step-header {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  width: 100%;
+}
+
+
+/* ============================================================
+   STEP BADGE
+   Figma:
+   Width  = 66px
+   Height = 23px
+   Padding = 4px 12px
+   Radius = 20px
+   Color = #00C2B5 / 12.16%
+   ============================================================ */
+
+.ws-step-label {
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  width: 66px;
+
+  height: 23px;
+
+  min-width: 66px;
+
+  padding:
+    4px 12px;
+
+  box-sizing: border-box;
+
+  background:
+    rgba(0, 194, 181, 0.1216);
+
+  border-radius:
+    20px;
+
+  color:
+    #00C2B5;
+
+  font-family:
+    Inter,
+    sans-serif;
+
+  font-size: 12px;
+
+  font-weight: 700;
+
+  line-height: 15px;
+
+  letter-spacing: 0;
+
+  text-transform: uppercase;
+
+  white-space: nowrap;
+}
+
+
+/* ============================================================
+   STEP ICON
+   ============================================================ */
+
+.ws-step-icon {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  width: 32px;
+
+  height: 32px;
+
+  flex-shrink: 0;
+
+  background:
+    transparent;
+
+  border: 0;
+}
+
+
+.ws-step-icon svg {
+  display: block;
+
+  flex-shrink: 0;
+
+  color:
+    #00C2B5;
+
+  stroke:
+    #00C2B5;
+}
+
+
+/* Step 1 Target */
+
+.ws-step-card:first-child
+.ws-step-icon svg {
+  width: 24px;
+
+  height: 24px;
+
+  stroke-width: 2;
+}
+
+
+/* Step 2 Flask */
+
+.ws-step-card:nth-child(2)
+.ws-step-icon svg {
+  width: 22px;
+
+  height: 22px;
+
+  stroke-width: 2;
+}
+
+
+/* ============================================================
+   STEP TITLE
+   ============================================================ */
+
+.ws-step-card h2 {
+  margin: 0;
+
+  font-family:
+    Inter,
+    sans-serif;
+
+  font-weight: 700;
+
+  font-size: 18px;
+
+  line-height:
+    1.2;
+
+  letter-spacing:
+    -0.015em;
+
+  color:
+    var(--ws-navy);
+}
+
+
+/* ============================================================
+   STEP DESCRIPTION
+   ============================================================ */
+
+.ws-step-card p {
+  width: 100%;
+
+  margin: 0;
+
+  font-family:
+    Inter,
+    sans-serif;
+
+  font-size: 12px;
+
+  line-height:
+    1.5;
+
+  color:
+    var(--ws-sub);
+}
+
+
+/* ============================================================
+   STEP TAGS
+   ============================================================ */
+
+.ws-tag-row {
+  display: flex;
+
+  flex-wrap: wrap;
+
+  gap: 7px;
+
+  margin-top: auto;
+}
+
+
+.ws-tag-pill {
+  display: inline-flex;
+
+  align-items: center;
+
+  min-height: 28px;
+
+  padding:
+    5px 9px;
+
+  font-family:
+    Inter,
+    sans-serif;
+
+  font-size: 10px;
+
+  line-height: 1;
+
+  color:
+    var(--ws-sub);
+
+  background:
+    #f8fafc;
+
+  border:
+    1px solid
+    var(--ws-line);
+
+  border-radius:
+    6px;
+}
+
+
+/* ============================================================
+   QUICK START CARD
+   ============================================================ */
+
+.ws-quick-card {
+  display: flex;
+
+  flex-direction: column;
+
+  width: 100%;
+
+  gap: 12px;
+
+  padding: 24px;
+
+  background:
+    var(--ws-surface);
+
+  border:
+    1px solid
+    var(--ws-line);
+
+  border-radius:
+    16px;
+}
+
+
+/* Quick start title */
+
+.ws-quick-card h2 {
+  margin: 0;
+
+  font-family:
+    Inter,
+    sans-serif;
+
+  font-weight: 700;
+
+  font-size: 16px;
+
+  line-height:
+    1.25;
+
+  letter-spacing:
+    -0.012em;
+
+  color:
+    var(--ws-navy);
+}
+
+
+/* Quick start description */
+
+.ws-quick-card > p {
+  margin: 0;
+
+  font-family:
+    Inter,
+    sans-serif;
+
+  font-size: 11px;
+
+  line-height:
+    1.4;
+
+  color:
+    var(--ws-sub);
+}
+
+
+/* ============================================================
+   SEARCH BOX
+   ============================================================ */
+
+.ws-search-box {
+  display: flex;
+
+  flex-wrap: wrap;
+
+  align-items: center;
+
+  width: 100%;
+
+  min-height: 38px;
+
+  gap: 6px;
+
+  padding:
+    4px 8px;
+
+  background:
+    #ffffff;
+
+  border:
+    1px solid
+    var(--ws-line);
+
+  border-radius:
+    8px;
+}
+
+
+/* Input */
+
+.ws-search-box input {
+  flex: 1;
+
+  min-width: 80px;
+
+  height: 28px;
+
+  padding: 0;
+
+  font-family:
+    Inter,
+    sans-serif;
+
+  font-size: 11px;
+
+  color:
+    var(--ws-navy);
+
+  background:
+    transparent;
+
+  border: 0;
+
+  outline: 0;
+}
+
+
+.ws-search-box input::placeholder {
+  color:
+    #94a3b8;
+}
+
+
+/* ============================================================
+   SEARCH TAG
+   ============================================================ */
+
+.ws-search-tag {
+  display: inline-flex;
+
+  flex: 0 0 auto;
+
+  align-items: center;
+
+  min-height: 27px;
+
+  gap: 5px;
+
+  padding:
+    5px 8px;
+
+  font-family:
+    Inter,
+    sans-serif;
+
+  font-size: 10px;
+
+  line-height: 1;
+
+  color:
+    var(--ws-sub);
+
+  background:
+    #f1f5f9;
+
+  border:
+    1px solid
+    var(--ws-line);
+
+  border-radius:
+    7px;
+}
+
+
+.ws-search-tag button {
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  width: 15px;
+
+  height: 15px;
+
+  padding: 0;
+
+  color:
+    #94a3b8;
+
+  background:
+    transparent;
+
+  border: 0;
+
+  cursor: pointer;
+}
+
+
+/* ============================================================
+   SPECIALTY ROW
+   ============================================================ */
+
+.ws-specialty-row {
+  display: flex;
+
+  flex-wrap: wrap;
+
+  align-items: center;
+
+  width: 100%;
+
+  gap: 8px;
+}
+
+
+/* ============================================================
+   SPECIALTY BUTTON
+   ============================================================ */
+
+.ws-specialty {
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  min-height: 28px;
+
+  gap: 5px;
+
+  padding:
+    6px 10px;
+
+  font-family:
+    Inter,
+    sans-serif;
+
+  font-size: 10px;
+
+  font-weight: 500;
+
+  line-height: 1;
+
+  color:
+    var(--ws-sub);
+
+  background:
+    #ffffff;
+
+  border:
+    1px solid
+    var(--ws-line);
+
+  border-radius:
+    999px;
+
+  cursor: pointer;
+}
+
+
+/* Selected */
+
+.ws-specialty.is-selected {
+  color:
+    #ffffff;
+
+  background:
+    var(--ws-teal);
+
+  border-color:
+    var(--ws-teal);
+}
+
+
+/* ============================================================
+   ACTIONS
+   ============================================================ */
+
+.ws-actions {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  flex-wrap: wrap;
+
+  width: 100%;
+
+  gap: 24px;
+}
+
+
+/* Primary button */
+
+.ws-primary {
+  min-width: 248px;
+
+  height: 51px;
+
+  padding:
+    0 24px;
+
+  font-family:
+    Inter,
+    sans-serif;
+
+  font-size: 12px;
+
+  font-weight: 600;
+
+  line-height: 1;
+
+  color:
+    #ffffff;
+
+  background:
+    var(--ws-teal);
+
+  border: 0;
+
+  border-radius:
+    8px;
+
+  cursor: pointer;
+}
+
+
+/* ============================================================
+   SKIP
+   ============================================================ */
+
+.ws-skip {
+  display: flex;
+
+  align-items: center;
+
+  flex-wrap: wrap;
+
+  gap: 5px;
+
+  font-family:
+    Inter,
+    sans-serif;
+
+  font-size: 11px;
+
+  line-height: 1.3;
+
+  color:
+    var(--ws-sub);
+}
+
+
+.ws-skip button {
+  padding: 0;
+
+  font-family:
+    Inter,
+    sans-serif;
+
+  font-size: 11px;
+
+  font-weight: 500;
+
+  line-height: 1.3;
+
+  color:
+    var(--ws-teal);
+
+  background:
+    transparent;
+
+  border: 0;
+
+  text-decoration:
+    underline;
+
+  text-underline-offset:
+    3px;
+
+  cursor: pointer;
+}
+
+
+/* ============================================================
+   FOCUS STATES
+   ============================================================ */
+
+.ws-primary:focus-visible,
+.ws-specialty:focus-visible,
+.ws-skip button:focus-visible,
+.ws-search-tag button:focus-visible,
+.ws-search-box input:focus-visible {
+  outline:
+    3px solid
+    rgba(0, 194, 181, 0.35);
+
+  outline-offset:
+    2px;
+}
+
+
+/* ============================================================
+   TABLET
+   ============================================================ */
+
+@media (max-width: 900px) {
+
+  .ws-design-frame {
+    width: 100%;
+
+    min-width: 0;
+
+    max-width: 900px;
+
+    margin: 0 auto;
+  }
+
+
+  .ws-hero {
+    width: 100%;
+  }
+
+
+  .ws-hero h1,
+  .ws-hero p {
+    width: 100%;
+  }
+
+
+  .ws-hero h1 {
+    font-size:
+      clamp(
+        28px,
+        5vw,
+        42px
+      );
+
+    white-space: normal;
+  }
+
+
+  .ws-hero p {
+    font-size: 15px;
+  }
+
+
+  .ws-step-grid {
+    grid-template-columns:
+      1fr;
+  }
+
+
+  .bg-glow-main {
+    width: 850px;
+
+    height: 850px;
+
+    left: 50%;
+
+    top: 50%;
+
+    transform:
+      translate(
+        -50%,
+        -50%
+      );
+  }
+
+
+  .bg-ring-3 {
+    width: 700px;
+
+    height: 700px;
+  }
+
+
+  .bg-glow-tl-1 {
+    left: 40px;
+  }
+
+
+  .bg-glow-tl-2 {
+    left: 20px;
+  }
+
+
+  .bg-glow-mid-left {
+    left: -50px;
+  }
+
+
+  .bg-glow-top-right {
+    right: 20px;
+  }
+
+
+  .bg-glow-bottom-right {
+    right: -30px;
+  }
+}
+
+
+/* ============================================================
+   MOBILE
+   ============================================================ */
+
+@media (max-width: 560px) {
+
+  .ws-viewport {
+    padding:
+      24px
+      12px
+      40px;
+  }
+
+
+  .ws-step-card,
+  .ws-quick-card {
+    padding:
+      20px;
+  }
+
+
+  .ws-actions {
+    flex-direction:
+      column;
+
+    gap: 12px;
+  }
+
+
+  .ws-primary {
+    width: 100%;
+  }
+
+
+  .ws-skip {
+    justify-content:
+      center;
+
+    text-align:
+      center;
+  }
+
+
+  /* Keep Figma logo dimensions on mobile */
+
+  .ws-badge {
+    width: 106px;
+
+    height: 28px;
+
+    min-width: 106px;
+
+    min-height: 28px;
+
+    padding:
+      6px 12px;
+
+    gap: 0;
+
+    border-radius:
+      20px;
+  }
+
+
+  .ws-logo-text {
+    width: 82px;
+
+    height: 16px;
+
+    font-size: 13px;
+
+    line-height: 16px;
+
+    font-weight: 600;
+  }
+
+
+  /* Background */
+
+  .bg-ring-1 {
+    width: 420px;
+
+    height: 420px;
+  }
+
+
+  .bg-ring-2 {
+    width: 560px;
+
+    height: 560px;
+  }
+
+
+  .bg-ring-3 {
+    width: 700px;
+
+    height: 700px;
+  }
+
+}
+
+
+/* ============================================================
+   REDUCED MOTION
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .welcome-screen * {
+    scroll-behavior:
+      auto;
+
+    transition:
+      none !important;
+  }
+
+}

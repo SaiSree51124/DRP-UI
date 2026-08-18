@@ -1,4 +1,5 @@
 import React from 'react';
+import './TXKGPhase.css';
 import {
   Box, Typography, Button, Tabs, Tab, Checkbox,
   TextField, Accordion, AccordionSummary, AccordionDetails, Chip, IconButton
@@ -9,9 +10,24 @@ import {
   TEXT_DARK, TEXT_MUTED, INSIGHTS_HEADER, ACTIVE_TAB, MOCK_TARGETS,
 } from '../workflowConstants';
 
-const SparkleIcon = () => (
-  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-    <path d="M7 0L8.5 5.5L14 7L8.5 8.5L7 14L5.5 8.5L0 7L5.5 5.5L7 0Z" fill="#00BCD4"/>
+const SparkleIcon = ({ size = 20 }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-hidden="true"
+  >
+    <path
+      d="M11.9 3.25L13.55 9.1C13.67 9.52 14 9.85 14.42 9.97L20.27 11.62C20.75 11.76 20.75 12.44 20.27 12.58L14.42 14.23C14 14.35 13.67 14.68 13.55 15.1L11.9 20.95C11.76 21.43 11.08 21.43 10.94 20.95L9.29 15.1C9.17 14.68 8.84 14.35 8.42 14.23L2.57 12.58C2.09 12.44 2.09 11.76 2.57 11.62L8.42 9.97C8.84 9.85 9.17 9.52 9.29 9.1L10.94 3.25C11.08 2.77 11.76 2.77 11.9 3.25Z"
+      stroke="#00BCD4"
+      strokeWidth="1.65"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <circle cx="5.25" cy="18.45" r="1.75" stroke="#00BCD4" strokeWidth="1.65" />
+    <path d="M18.45 3.25V7.05M16.55 5.15H20.35" stroke="#00BCD4" strokeWidth="1.45" strokeLinecap="round" />
   </svg>
 );
 
@@ -20,7 +36,7 @@ const SectionAccordionSummary = ({ label }) => (
     <Box sx={{ width: 32, height: 32, borderRadius: "8px", bgcolor: "#F0FDF9", border: "1px solid #00BCD4", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
       <SparkleIcon />
     </Box>
-    <Typography sx={{ flex: 1, fontFamily: FONT, fontSize: "12px", fontWeight: 700, color: "#00BCD4", textTransform: "uppercase" }}>
+    <Typography sx={{ flex: 1, fontFamily: FONT, fontSize: "12px", fontWeight: 700, color: "#1E293B", textTransform: "uppercase" }}>
       {label}
     </Typography>
   </Box>
@@ -43,7 +59,7 @@ const TXKGPhase = ({
   // ─── Loading ────────────────────────────────────────────────────────────
   if (workflowPhase === 'txkg-loading') {
     return (
-      <Box sx={{ p: "24px 16px 16px 16px", bgcolor: GRAY_BG }}>
+      <Box className="txkg-loading-content" sx={{ bgcolor: GRAY_BG }}>
         <div className="user-message-row">
           <div className="user-message-bubble">
             <div className="user-bubble-header">
@@ -79,7 +95,7 @@ const TXKGPhase = ({
   // ─── Results ─────────────────────────────────────────────────────────────
   if (workflowPhase === 'txkg-results') {
     return (
-      <Box sx={{ p: "24px 40px 40px 40px", bgcolor: GRAY_BG }}>
+      <Box className="txkg-results-content" sx={{ bgcolor: GRAY_BG }}>
         {/* User message */}
         <div className="user-message-row">
           <div className="user-message-bubble">
@@ -90,8 +106,9 @@ const TXKGPhase = ({
           </div>
         </div>
 
-        {/* TXKG Accordion */}
-        <Box sx={{ p: "4px 0" }}>
+        {/* TXKG result agent-message-row — Figma: 1120 × 644 */}
+        <div className="agent-message-row result-row result-row-txkg">
+          <div className="result-card result-card-txkg">
           <Accordion
             expanded={expandedAccordion === "txkg"}
             onChange={() => setExpandedAccordion(expandedAccordion === "txkg" ? "" : "txkg")}
@@ -196,10 +213,12 @@ const TXKGPhase = ({
               </Box>
             </AccordionDetails>
           </Accordion>
-        </Box>
+          </div>
+        </div>
 
-        {/* SUBGRAPH Accordion */}
-        <Box sx={{ p: "4px 0" }}>
+        {/* SUBGRAPH result agent-message-row */}
+        <div className="agent-message-row result-row result-row-subgraph">
+          <div className="result-card result-card-subgraph">
           <Accordion
             expanded={expandedAccordion === "subgraph"}
             onChange={() => setExpandedAccordion(expandedAccordion === "subgraph" ? "" : "subgraph")}
@@ -224,19 +243,19 @@ const TXKGPhase = ({
                   {[[400,165,240,75],[400,165,500,60],[400,165,620,125],[400,165,140,175],[400,165,440,105],[400,165,220,265],[400,165,340,280],[400,165,110,255],[400,165,610,245],[400,165,500,275],[400,165,700,155],[400,165,680,295],[240,75,110,255],[240,75,610,245],[440,105,500,275],[140,175,220,265]].map(([x1,y1,x2,y2], i) => (
                     <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke="rgba(102,115,140,0.4)" strokeWidth="1.2" />
                   ))}
-                  <circle cx="400" cy="165" r="26" fill="#1F2433" /><text x="400" y="200" textAnchor="middle" fill="#D1D9E6" fontSize="9" fontFamily="Geist,sans-serif" fontWeight="500">Type 2 Diabetes</text>
-                  <circle cx="240" cy="75" r="17" fill="#F28C33" /><text x="240" y="102" textAnchor="middle" fill="#D1D9E6" fontSize="9" fontFamily="Geist,sans-serif" fontWeight="500">JAK2</text>
-                  <circle cx="500" cy="60" r="15" fill="#F28C33" /><text x="500" y="86" textAnchor="middle" fill="#D1D9E6" fontSize="9" fontFamily="Geist,sans-serif" fontWeight="500">DPP4</text>
-                  <circle cx="620" cy="125" r="14" fill="#F28C33" /><text x="620" y="150" textAnchor="middle" fill="#D1D9E6" fontSize="9" fontFamily="Geist,sans-serif" fontWeight="500">GLP1R</text>
-                  <circle cx="140" cy="175" r="14" fill="#F28C33" /><text x="140" y="200" textAnchor="middle" fill="#D1D9E6" fontSize="9" fontFamily="Geist,sans-serif" fontWeight="500">SGLT2</text>
-                  <circle cx="440" cy="105" r="12" fill="#F28C33" /><text x="440" y="128" textAnchor="middle" fill="#D1D9E6" fontSize="9" fontFamily="Geist,sans-serif" fontWeight="500">INSR</text>
-                  <circle cx="220" cy="265" r="15" fill="#8C4DBF" /><text x="220" y="291" textAnchor="middle" fill="#D1D9E6" fontSize="9" fontFamily="Geist,sans-serif" fontWeight="500">Metformin</text>
-                  <circle cx="340" cy="280" r="14" fill="#8C4DBF" /><text x="340" y="305" textAnchor="middle" fill="#D1D9E6" fontSize="9" fontFamily="Geist,sans-serif" fontWeight="500">Imatinib</text>
-                  <circle cx="110" cy="255" r="12" fill="#8C4DBF" /><text x="110" y="278" textAnchor="middle" fill="#D1D9E6" fontSize="9" fontFamily="Geist,sans-serif" fontWeight="500">Ruxolitinib</text>
-                  <circle cx="610" cy="245" r="15" fill="#149E99" /><text x="610" y="271" textAnchor="middle" fill="#D1D9E6" fontSize="9" fontFamily="Geist,sans-serif" fontWeight="500">JAK-STAT</text>
-                  <circle cx="500" cy="275" r="13" fill="#149E99" /><text x="500" y="299" textAnchor="middle" fill="#D1D9E6" fontSize="9" fontFamily="Geist,sans-serif" fontWeight="500">Insulin Sig.</text>
-                  <circle cx="700" cy="155" r="11" fill="#F25966" /><text x="700" y="177" textAnchor="middle" fill="#D1D9E6" fontSize="9" fontFamily="Geist,sans-serif" fontWeight="500">Obesity</text>
-                  <circle cx="680" cy="295" r="12" fill="#F25966" /><text x="680" y="320" textAnchor="middle" fill="#D1D9E6" fontSize="9" fontFamily="Geist,sans-serif" fontWeight="500">Type 2 Diabetes</text>
+                  <circle cx="400" cy="165" r="26" fill="#1F2433" /><text x="400" y="200" textAnchor="middle" fill="#D1D9E6" fontSize="9" fontFamily="Inter,sans-serif" fontWeight="500">Type 2 Diabetes</text>
+                  <circle cx="240" cy="75" r="17" fill="#F28C33" /><text x="240" y="102" textAnchor="middle" fill="#D1D9E6" fontSize="9" fontFamily="Inter,sans-serif" fontWeight="500">JAK2</text>
+                  <circle cx="500" cy="60" r="15" fill="#F28C33" /><text x="500" y="86" textAnchor="middle" fill="#D1D9E6" fontSize="9" fontFamily="Inter,sans-serif" fontWeight="500">DPP4</text>
+                  <circle cx="620" cy="125" r="14" fill="#F28C33" /><text x="620" y="150" textAnchor="middle" fill="#D1D9E6" fontSize="9" fontFamily="Inter,sans-serif" fontWeight="500">GLP1R</text>
+                  <circle cx="140" cy="175" r="14" fill="#F28C33" /><text x="140" y="200" textAnchor="middle" fill="#D1D9E6" fontSize="9" fontFamily="Inter,sans-serif" fontWeight="500">SGLT2</text>
+                  <circle cx="440" cy="105" r="12" fill="#F28C33" /><text x="440" y="128" textAnchor="middle" fill="#D1D9E6" fontSize="9" fontFamily="Inter,sans-serif" fontWeight="500">INSR</text>
+                  <circle cx="220" cy="265" r="15" fill="#8C4DBF" /><text x="220" y="291" textAnchor="middle" fill="#D1D9E6" fontSize="9" fontFamily="Inter,sans-serif" fontWeight="500">Metformin</text>
+                  <circle cx="340" cy="280" r="14" fill="#8C4DBF" /><text x="340" y="305" textAnchor="middle" fill="#D1D9E6" fontSize="9" fontFamily="Inter,sans-serif" fontWeight="500">Imatinib</text>
+                  <circle cx="110" cy="255" r="12" fill="#8C4DBF" /><text x="110" y="278" textAnchor="middle" fill="#D1D9E6" fontSize="9" fontFamily="Inter,sans-serif" fontWeight="500">Ruxolitinib</text>
+                  <circle cx="610" cy="245" r="15" fill="#149E99" /><text x="610" y="271" textAnchor="middle" fill="#D1D9E6" fontSize="9" fontFamily="Inter,sans-serif" fontWeight="500">JAK-STAT</text>
+                  <circle cx="500" cy="275" r="13" fill="#149E99" /><text x="500" y="299" textAnchor="middle" fill="#D1D9E6" fontSize="9" fontFamily="Inter,sans-serif" fontWeight="500">Insulin Sig.</text>
+                  <circle cx="700" cy="155" r="11" fill="#F25966" /><text x="700" y="177" textAnchor="middle" fill="#D1D9E6" fontSize="9" fontFamily="Inter,sans-serif" fontWeight="500">Obesity</text>
+                  <circle cx="680" cy="295" r="12" fill="#F25966" /><text x="680" y="320" textAnchor="middle" fill="#D1D9E6" fontSize="9" fontFamily="Inter,sans-serif" fontWeight="500">Type 2 Diabetes</text>
                 </svg>
               </Box>
               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", p: "16px", bgcolor: GRAY_BG, border: `1px solid ${BORDER}`, borderRadius: "8px", mt: "12px" }}>
@@ -259,10 +278,12 @@ const TXKGPhase = ({
               </Box>
             </AccordionDetails>
           </Accordion>
-        </Box>
+          </div>
+        </div>
 
-        {/* METAPATH Accordion */}
-        <Box sx={{ p: "4px 0" }}>
+        {/* METAPATH result agent-message-row */}
+        <div className="agent-message-row result-row result-row-metapath">
+          <div className="result-card result-card-metapath">
           <Accordion
             expanded={expandedAccordion === "metapath"}
             onChange={() => setExpandedAccordion(expandedAccordion === "metapath" ? "" : "metapath")}
@@ -328,11 +349,11 @@ const TXKGPhase = ({
               </Box>
             </AccordionDetails>
           </Accordion>
-        </Box>
+          </div>
+        </div>
 
         {/* Bridge card */}
-        <Box sx={{ border: "1.5px dashed rgba(0,188,212,0.6)", borderRadius: "12px", mt: "8px", bgcolor: "rgba(0,188,212,0.02)" }}>
-          <div className="agent-message-row-bridge">
+        <div className="agent-message-row-bridge">
             <div className="agent-icon"></div>
             <div className="bridge-content">
               <h3 className="bridge-header">READY FOR LITERATURE MINING</h3>
@@ -357,7 +378,6 @@ const TXKGPhase = ({
               </div>
             </div>
           </div>
-        </Box>
       </Box>
     );
   }
@@ -386,7 +406,7 @@ const TXKGPhase = ({
                 <Box sx={{ width: 30, height: 30, borderRadius: "8px", bgcolor: "#F0FDF9", border: "1px solid #00BCD4", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                   <SparkleIcon />
                 </Box>
-                <Typography sx={{ flex: 1, fontFamily: FONT, fontSize: "12px", fontWeight: 700, color: "#00BCD4", textTransform: "uppercase", letterSpacing: "0.05em" }}>TXKG</Typography>
+                <Typography sx={{ flex: 1, fontFamily: FONT, fontSize: "12px", fontWeight: 700, color: "#1E293B", textTransform: "uppercase", letterSpacing: "0.05em" }}>TXKG</Typography>
               </Box>
             </AccordionSummary>
             <AccordionDetails sx={{ p: "16px" }}>
@@ -457,7 +477,7 @@ const TXKGPhase = ({
                 <Box sx={{ width: 30, height: 30, borderRadius: "8px", bgcolor: "#F0FDF9", border: "1px solid #00BCD4", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                   <SparkleIcon />
                 </Box>
-                <Typography sx={{ flex: 1, fontFamily: FONT, fontSize: "12px", fontWeight: 700, color: "#00BCD4", textTransform: "uppercase", letterSpacing: "0.05em" }}>SUBGRAPH</Typography>
+                <Typography sx={{ flex: 1, fontFamily: FONT, fontSize: "12px", fontWeight: 700, color: "#1E293B", textTransform: "uppercase", letterSpacing: "0.05em" }}>SUBGRAPH</Typography>
               </Box>
             </AccordionSummary>
             <AccordionDetails sx={{ p: "16px" }}>
@@ -466,14 +486,14 @@ const TXKGPhase = ({
                 <svg viewBox="0 0 840 360" width="100%" style={{ maxWidth: 840 }} xmlns="http://www.w3.org/2000/svg">
                   <rect width="840" height="360" fill="#0F172A" rx="12" />
                   {[[400,165,240,75],[400,165,500,60],[400,165,620,125],[400,165,140,175],[400,165,440,105],[400,165,220,265],[400,165,340,280],[400,165,110,255],[400,165,610,245],[400,165,500,275],[400,165,700,155],[400,165,680,295],[240,75,110,255],[240,75,610,245],[440,105,500,275],[140,175,220,265]].map(([x1,y1,x2,y2],i)=>(<line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke="rgba(102,115,140,0.4)" strokeWidth="1.2"/>))}
-                  <circle cx="400" cy="165" r="26" fill="#1F2433"/><text x="400" y="200" textAnchor="middle" fill="#D1D9E6" fontSize="9" fontFamily="Geist,sans-serif">Type 2 Diabetes</text>
-                  <circle cx="240" cy="75" r="17" fill="#F28C33"/><text x="240" y="102" textAnchor="middle" fill="#D1D9E6" fontSize="9" fontFamily="Geist,sans-serif">JAK2</text>
-                  <circle cx="500" cy="60" r="15" fill="#F28C33"/><text x="500" y="86" textAnchor="middle" fill="#D1D9E6" fontSize="9" fontFamily="Geist,sans-serif">DPP4</text>
-                  <circle cx="620" cy="125" r="14" fill="#F28C33"/><text x="620" y="150" textAnchor="middle" fill="#D1D9E6" fontSize="9" fontFamily="Geist,sans-serif">GLP1R</text>
-                  <circle cx="140" cy="175" r="14" fill="#F28C33"/><text x="140" y="200" textAnchor="middle" fill="#D1D9E6" fontSize="9" fontFamily="Geist,sans-serif">SGLT2</text>
-                  <circle cx="220" cy="265" r="15" fill="#8C4DBF"/><text x="220" y="291" textAnchor="middle" fill="#D1D9E6" fontSize="9" fontFamily="Geist,sans-serif">Metformin</text>
-                  <circle cx="610" cy="245" r="15" fill="#149E99"/><text x="610" y="271" textAnchor="middle" fill="#D1D9E6" fontSize="9" fontFamily="Geist,sans-serif">JAK-STAT</text>
-                  <circle cx="700" cy="155" r="11" fill="#F25966"/><text x="700" y="177" textAnchor="middle" fill="#D1D9E6" fontSize="9" fontFamily="Geist,sans-serif">Obesity</text>
+                  <circle cx="400" cy="165" r="26" fill="#1F2433"/><text x="400" y="200" textAnchor="middle" fill="#D1D9E6" fontSize="9" fontFamily="Inter,sans-serif">Type 2 Diabetes</text>
+                  <circle cx="240" cy="75" r="17" fill="#F28C33"/><text x="240" y="102" textAnchor="middle" fill="#D1D9E6" fontSize="9" fontFamily="Inter,sans-serif">JAK2</text>
+                  <circle cx="500" cy="60" r="15" fill="#F28C33"/><text x="500" y="86" textAnchor="middle" fill="#D1D9E6" fontSize="9" fontFamily="Inter,sans-serif">DPP4</text>
+                  <circle cx="620" cy="125" r="14" fill="#F28C33"/><text x="620" y="150" textAnchor="middle" fill="#D1D9E6" fontSize="9" fontFamily="Inter,sans-serif">GLP1R</text>
+                  <circle cx="140" cy="175" r="14" fill="#F28C33"/><text x="140" y="200" textAnchor="middle" fill="#D1D9E6" fontSize="9" fontFamily="Inter,sans-serif">SGLT2</text>
+                  <circle cx="220" cy="265" r="15" fill="#8C4DBF"/><text x="220" y="291" textAnchor="middle" fill="#D1D9E6" fontSize="9" fontFamily="Inter,sans-serif">Metformin</text>
+                  <circle cx="610" cy="245" r="15" fill="#149E99"/><text x="610" y="271" textAnchor="middle" fill="#D1D9E6" fontSize="9" fontFamily="Inter,sans-serif">JAK-STAT</text>
+                  <circle cx="700" cy="155" r="11" fill="#F25966"/><text x="700" y="177" textAnchor="middle" fill="#D1D9E6" fontSize="9" fontFamily="Inter,sans-serif">Obesity</text>
                 </svg>
               </Box>
               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", p: "16px", bgcolor: GRAY_BG, border: `1px solid ${BORDER}`, borderRadius: "8px", mt: "12px" }}>
@@ -509,7 +529,7 @@ const TXKGPhase = ({
                 <Box sx={{ width: 30, height: 30, borderRadius: "8px", bgcolor: "#F0FDF9", border: "1px solid #00BCD4", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                   <SparkleIcon />
                 </Box>
-                <Typography sx={{ flex: 1, fontFamily: FONT, fontSize: "12px", fontWeight: 700, color: "#00BCD4", textTransform: "uppercase", letterSpacing: "0.05em" }}>METAPATH ANALYSIS</Typography>
+                <Typography sx={{ flex: 1, fontFamily: FONT, fontSize: "12px", fontWeight: 700, color: "#1E293B", textTransform: "uppercase", letterSpacing: "0.05em" }}>METAPATH ANALYSIS</Typography>
               </Box>
             </AccordionSummary>
             <AccordionDetails sx={{ p: "16px" }}>

@@ -171,9 +171,9 @@ const CompleteWorkflow = () => {
                 </Typography>
               </Box>
             ) : isActive ? (
-              /* Active: dash + numbered pill badge + label */
-              <Box sx={{ display: "flex", alignItems: "center", height: "42px", width: "180px" }}>
-                <Box sx={{ width: "20px", height: 0, borderTop: "1.5px solid #00BCD4", flexShrink: 0 }} />
+              /* Active: left accent border + dash + numbered pill badge + label */
+              <Box sx={{ display: "flex", alignItems: "center", height: "42px", width: "180px", bgcolor: "rgba(0,188,212,0.07)", borderRadius: "0 6px 6px 0", borderLeft: "3px solid #00BCD4" }}>
+                <Box sx={{ width: "17px", height: 0, borderTop: "1.5px solid #00BCD4", flexShrink: 0 }} />
                 <Box sx={{ borderRadius: "11px", px: "8px", py: "3px", bgcolor: "#00BCD4", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                   <Typography sx={{ fontFamily: "'Geist',sans-serif", fontSize: "11px", fontWeight: 700, color: "#FFFFFF", lineHeight: 1 }}>
                     {String(step.id).padStart(2, "0")}
@@ -201,11 +201,37 @@ const CompleteWorkflow = () => {
   // TopNavBar — top-nav row (breadcrumb + saved) + app-toolbar row (44px, tab-group, result summary, branch dropdown)
   const TopNavBar = () => {
     const isLoading = workflowPhase.endsWith("-loading");
+    const TOTAL_TARGETS = 10;
+    const getTabInfo = () => {
+      switch (workflowPhase) {
+        case 'txkg-loading':    return { badge: 1, title: "Target identification query", count: "/ 1",   dotColor: "#FFC107", statusText: "Searching databases" };
+        case 'txkg-results':   return { badge: 1, title: "Target identification",       count: `/ ${TOTAL_TARGETS}`, dotColor: "#00BCD4", statusText: `${TOTAL_TARGETS} targets found` };
+        case 'target-selection': return { badge: 1, title: "Target selection",          count: `/ ${TOTAL_TARGETS}`, dotColor: "#00BCD4", statusText: `${selectedTargets.length} selected \u2022 ${TOTAL_TARGETS - selectedTargets.length} available` };
+        case 'litminex-loading': return { badge: 2, title: "Literature mining",         count: "/ ...", dotColor: "#FFC107", statusText: "Searching databases" };
+        case 'litminex-results': return { badge: 2, title: "Literature mining",         count: "/ 124", dotColor: "#00BCD4", statusText: "124 articles found" };
+        case 'curatex-loading':  return { badge: 3, title: "Compound screening",        count: "/ ...", dotColor: "#FFC107", statusText: "Analyzing..." };
+        case 'curatex-profile':  return { badge: 3, title: "Target profile",            count: "",      dotColor: "#00BCD4", statusText: "Profile ready" };
+        case 'curatex-submitted':return { badge: 3, title: "Compound screening",        count: "/ ...", dotColor: "#FFC107", statusText: "Scoring compounds..." };
+        case 'curatex-results':  return { badge: 3, title: "Compound screening",        count: "/ 124", dotColor: "#00BCD4", statusText: "6 matches found" };
+        default:
+          if (workflowPhase.startsWith('screensuite')) return { badge: 4, title: "Screening suite", count: "", dotColor: "#FFC107", statusText: "Processing..." };
+          if (workflowPhase.startsWith('novelty'))     return { badge: 5, title: "Novelty search",   count: "", dotColor: "#FFC107", statusText: "Processing..." };
+          return { badge: activeStep + 1, title: WORKFLOW_STEPS[activeStep]?.label || "", count: "", dotColor: "#00BCD4", statusText: "" };
+      }
+    };
+    const tabInfo = getTabInfo();
     const BRANCHES = [
       { id: "main", label: "Main", sub: "Main research path" },
       { id: "alt-jak2", label: "Alt · JAK2 + TPOR (MPL)", sub: "Forked at Target identification" },
     ];
-    const lastCrumb = workflowPhase === "txkg-loading" ? "JAK2 Query" : `${WORKFLOW_STEPS[activeStep]?.label} Results`;
+    const lastCrumb = (() => {
+      if (["txkg-loading", "txkg-results", "target-selection"].includes(workflowPhase)) return "TxKG Query";
+      if (["litminex-loading", "litminex-results"].includes(workflowPhase)) return "LitMineX";
+      if (workflowPhase.startsWith("curatex")) return "CurateX";
+      if (workflowPhase.startsWith("screensuite")) return "ScreenSuite";
+      if (workflowPhase.startsWith("novelty")) return "NovSearch";
+      return `${WORKFLOW_STEPS[activeStep]?.label || ""} Results`;
+    })();
     return (
       <Box sx={{ bgcolor: "#FFFFFF", flexShrink: 0, position: "relative" }}>
         {/* Row 1: breadcrumb + All changes saved — hug height, 32px L/R padding, bottom border */}
@@ -274,14 +300,14 @@ const CompleteWorkflow = () => {
               {/* tab-drug */}
               <div className="tab-drug">
                 <div className="num-badge">
-                  <span className="number">1</span>
+                  <span className="number">{tabInfo.badge}</span>
                 </div>
-                <span className="title">{isLoading ? "Target identification query" : "Target identification"}</span>
-                <span className="count">{isLoading ? "/ 1" : "/ 10"}</span>
+                <span className="title">{tabInfo.title}</span>
+                {tabInfo.count && <span className="count">{tabInfo.count}</span>}
                 <div className="status-badges">
                   <div className="accepted-badge">
-                    <span className="status-dot" style={{ background: isLoading ? "#FFC107" : "#00BCD4" }}></span>
-                    <span className="status-text">{isLoading ? "Searching databases" : "10 targets found"}</span>
+                    <span className="status-dot" style={{ background: tabInfo.dotColor }}></span>
+                    <span className="status-text">{tabInfo.statusText}</span>
                   </div>
                 </div>
               </div>
