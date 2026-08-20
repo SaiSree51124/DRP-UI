@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import ArtifactsPage from "./ArtifactsPage";
+import LineagePage from "./LineagePage";
 import { useLocation, useNavigate } from "react-router-dom";
 import { 
   Box, Typography, Button, Tabs, Tab, Checkbox,
@@ -56,6 +58,7 @@ const CompleteWorkflow = () => {
   const [selectedArticle, setSelectedArticle] = useState(null);
   const [branchOpen, setBranchOpen] = useState(false);
   const [selectedBranch, setSelectedBranch] = useState("main");
+  const [viewMode, setViewMode] = useState("chat"); // 'chat' | 'artifacts'
 
   const [profileData, setProfileData] = useState({
     indication: "Type 2 Diabetes",
@@ -199,7 +202,7 @@ const CompleteWorkflow = () => {
   );
 
   // TopNavBar — top-nav row (breadcrumb + saved) + app-toolbar row (44px, tab-group, result summary, branch dropdown)
-  const TopNavBar = () => {
+  const TopNavBar = ({ viewMode, setViewMode }) => {
     const isLoading = workflowPhase.endsWith("-loading");
     const TOTAL_TARGETS = 10;
     const getTabInfo = () => {
@@ -264,34 +267,57 @@ const CompleteWorkflow = () => {
               {/* pill-tabs */}
               <div className="pill-tabs">
                 {/* tab-chat */}
-                <div className="tab-chat">
-                  <div className="chat-pill">
-                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                      <rect x="1" y="1" width="10" height="7" rx="1.5" stroke="#FFFFFF" strokeWidth="1.2"/>
-                      <path d="M3 11L6 8H10" stroke="#FFFFFF" strokeWidth="1.2" strokeLinecap="round"/>
-                    </svg>
-                    <span className="label">Chat</span>
+                  <div className="tab-chat" onClick={() => setViewMode("chat")} style={{ cursor: "pointer" }}>
+                    <div
+                      className="chat-pill"
+                      style={
+                        viewMode === "chat"
+                          ? { background: "#0F172A", color: "#FFFFFF", padding: "6px 10px", borderRadius: "8px" }
+                          : { background: "transparent", color: TEXT_DARK, padding: "6px 10px", borderRadius: "8px" }
+                      }
+                    >
+                      <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                        <rect x="1" y="1" width="10" height="7" rx="1.5" stroke={viewMode === "chat" ? "#FFFFFF" : "#FFFFFF"} strokeWidth="1.2"/>
+                        <path d="M3 11L6 8H10" stroke={viewMode === "chat" ? "#FFFFFF" : "#FFFFFF"} strokeWidth="1.2" strokeLinecap="round"/>
+                      </svg>
+                      <span className="label">Chat</span>
+                    </div>
                   </div>
-                </div>
                 
                 {/* tab-artifacts */}
-                <div className="tab-artifacts">
+                <div
+                  className="tab-artifacts"
+                  onClick={() => setViewMode("artifacts")}
+                  style={
+                        viewMode === "artifacts"
+                          ? { background: "#0F172A", color: "#FFFFFF", padding: "6px 10px", borderRadius: "8px" }
+                          : { background: "transparent", color: TEXT_DARK, padding: "6px 10px", borderRadius: "8px" }
+                      }
+                >
                   <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                    <rect x="2" y="2" width="10" height="10" rx="1.5" stroke="#64748B" strokeWidth="1.2"/>
-                    <line x1="4" y1="5" x2="10" y2="5" stroke="#64748B" strokeWidth="1"/>
-                    <line x1="4" y1="7.5" x2="10" y2="7.5" stroke="#64748B" strokeWidth="1"/>
-                    <line x1="4" y1="10" x2="8" y2="10" stroke="#64748B" strokeWidth="1"/>
+                    <rect x="2" y="2" width="10" height="10" rx="1.5" stroke={viewMode === "artifacts" ? "#FFFFFF" : "#64748B"} strokeWidth="1.2"/>
+                    <line x1="4" y1="5" x2="10" y2="5" stroke={viewMode === "artifacts" ? "#FFFFFF" : "#64748B"} strokeWidth="1"/>
+                    <line x1="4" y1="7.5" x2="10" y2="7.5" stroke={viewMode === "artifacts" ? "#FFFFFF" : "#64748B"} strokeWidth="1"/>
+                    <line x1="4" y1="10" x2="8" y2="10" stroke={viewMode === "artifacts" ? "#FFFFFF" : "#64748B"} strokeWidth="1"/>
                   </svg>
                   <span className="label">Artifacts</span>
-                  <div className="artifact-badge">
+                  <div className="artifact-badge" style={ viewMode === "artifacts" ? { background: "rgba(255,255,255,0.12)", color: "#FFFFFF", borderRadius: 10, padding: "2px 6px" } : {} }>
                     <span className="count">2</span>
                   </div>
                 </div>
                 
                 {/* tab-lineage */}
-                <div className="tab-lineage">
+                <div
+                  className="tab-lineage"
+                  onClick={() => setViewMode('lineage')}
+                  style={
+                        viewMode === "lineage"
+                          ? { background: "#0F172A", color: "#FFFFFF", padding: "6px 10px", borderRadius: "8px" }
+                          : { background: "transparent", color: TEXT_DARK, padding: "6px 10px", borderRadius: "8px" }
+                      }
+                >
                   <span className="label">Lineage</span>
-                  <div className="artifact-badge">
+                  <div className="artifact-badge" style={ viewMode === 'lineage' ? { background: 'rgba(255,255,255,0.12)', color: '#FFFFFF', borderRadius: 10, padding: '2px 6px' } : {} }>
                     <span className="count">2</span>
                   </div>
                 </div>
@@ -2124,6 +2150,20 @@ const CompleteWorkflow = () => {
 
   // Render Content Based on Phase
   const renderContent = () => {
+    if (viewMode === "lineage") {
+      return (
+        <Box sx={{ flex: 1, p: "24px" }}>
+          <LineagePage />
+        </Box>
+      );
+    }
+    if (viewMode === "artifacts") {
+      return (
+        <Box sx={{ flex: 1, p: "24px" }}>
+          <ArtifactsPage />
+        </Box>
+      );
+    }
     if (["txkg-loading", "txkg-results", "target-selection"].includes(workflowPhase)) {
       return (
         <TXKGPhase
@@ -2268,7 +2308,7 @@ const CompleteWorkflow = () => {
 
       {/* Right of sidebar: top nav + (stepper + content) */}
       <Box sx={{ display: "flex", flexDirection: "column", flex: 1, overflow: "hidden" }}>
-        <TopNavBar />
+        <TopNavBar viewMode={viewMode} setViewMode={setViewMode} />
 
         {/* content-with-stepper: horizontal, fill remaining height */}
         <Box sx={{ display: "flex", flex: 1, overflow: "hidden" }}>
@@ -2278,7 +2318,7 @@ const CompleteWorkflow = () => {
             <Box sx={{ flex: 1, overflow: "auto" }}>
               {renderContent()}
             </Box>
-            <ChatInputBar />
+            {viewMode === "chat" && <ChatInputBar />}
           </Box>
         </Box>
       </Box>

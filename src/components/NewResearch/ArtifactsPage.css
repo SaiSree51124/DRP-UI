@@ -1,0 +1,82 @@
+.artifacts-root {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.artifact-card {
+  background: #ffffff;
+  border: 1px solid #e6eef2;
+  border-radius: 8px;
+  padding: 18px;
+}
+
+.artifact-title {
+  color: #0abfbc;
+  font-weight: 700;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.artifact-subtitle {
+  color: #0f172a;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.artifact-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.artifact-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.artifact-gene {
+  font-weight: 700;
+}
+
+.artifact-id {
+  color: #64748b;
+  font-weight: 600;
+  margin-left: 6px;
+}
+
+.artifact-note {
+  color: #64748b;
+  font-size: 12px;
+}
+
+.artifact-score {
+  color: #0f172a;
+  font-weight: 700;
+}
+
+.artifact-recommendation {
+  margin-top: 12px;
+}
+
+.artifact-rec-title {
+  color: #0abfbc;
+  font-weight: 700;
+}
+
+.artifact-rec-body {
+  color: #0f172a;
+}
+
+.artifact-doc-input input {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: 1px solid #e6eef2;
+  font-family: Inter, sans-serif;
+}
