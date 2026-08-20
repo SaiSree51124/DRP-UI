@@ -1,0 +1,474 @@
+/* =====================================================
+   PAGE
+===================================================== */
+
+.lineage-page {
+  min-height: 100vh;
+  width: 100%;
+  background: #f8fafc;
+  box-sizing: border-box;
+  padding: 30px 24px 50px;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.lineage-page *,
+.lineage-page *::before,
+.lineage-page *::after {
+  box-sizing: border-box;
+}
+
+.lineage-container {
+  width: 100%;
+  max-width: 710px;
+  margin: 0 auto;
+}
+
+
+/* =====================================================
+   SECTION HEADER
+===================================================== */
+
+.lineage-section-label {
+  color: #00a8c6;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  line-height: 14px;
+}
+
+.lineage-section-label--steps {
+  margin-top: 34px;
+}
+
+.lineage-description {
+  color: #788ba1;
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 17px;
+  margin-top: 6px;
+}
+
+
+/* =====================================================
+   TOP ACTIONS
+===================================================== */
+
+.lineage-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  margin-bottom: 12px;
+}
+
+.lineage-outline-button,
+.lineage-delete-button {
+  min-height: 30px !important;
+  padding: 4px 10px !important;
+  border-radius: 6px !important;
+  background: #ffffff !important;
+  box-shadow: none !important;
+  font-size: 10px !important;
+  font-weight: 500 !important;
+  text-transform: none !important;
+}
+
+.lineage-outline-button {
+  color: #42566b !important;
+  border-color: #d7e0e9 !important;
+}
+
+.lineage-delete-button {
+  color: #d94c4c !important;
+  border-color: #d7e0e9 !important;
+}
+
+.lineage-outline-button:hover,
+.lineage-delete-button:hover {
+  background: #f8fafc !important;
+}
+
+
+/* =====================================================
+   BREADCRUMB CARD
+===================================================== */
+
+.lineage-breadcrumb-card {
+  width: 100%;
+  min-height: 58px;
+  padding: 13px 14px !important;
+
+  background: #ffffff !important;
+
+  border: 1px solid #e3e9ef !important;
+  border-radius: 10px !important;
+
+  box-shadow: 0 2px 6px rgba(31, 55, 78, 0.04) !important;
+}
+
+.lineage-breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 9px;
+}
+
+.lineage-breadcrumb-main {
+  color: #20364f;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.lineage-breadcrumb-secondary {
+  color: #788ba1;
+  font-size: 11px;
+  font-weight: 400;
+}
+
+.lineage-breadcrumb-arrow {
+  color: #a6b4c2;
+  font-size: 12px;
+}
+
+.lineage-branch-chip {
+  height: 22px !important;
+  margin-top: 9px !important;
+
+  color: #00a9c0 !important;
+  background: #e1f9fc !important;
+
+  font-size: 9px !important;
+  font-weight: 500 !important;
+}
+
+
+/* =====================================================
+   STEPPER
+===================================================== */
+
+.lineage-stepper {
+  margin-top: 10px;
+}
+
+.lineage-step-label {
+  padding: 0 !important;
+}
+
+.lineage-step-label .MuiStepLabel-iconContainer {
+  padding-right: 10px !important;
+  padding-top: 0 !important;
+}
+
+.lineage-step-label .MuiStepLabel-labelContainer {
+  width: 100% !important;
+}
+
+.lineage-step-label .MuiStepLabel-label {
+  width: 100%;
+  margin: 0 !important;
+}
+
+
+/* =====================================================
+   CUSTOM STEP ICON
+===================================================== */
+
+.lineage-step-icon {
+  width: 22px;
+  height: 22px;
+
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 11px;
+  font-weight: 600;
+
+  flex-shrink: 0;
+}
+
+.lineage-step-icon--completed {
+  background: #0fc58a;
+  color: #ffffff;
+}
+
+.lineage-step-icon--active {
+  background: #08bcd4;
+  color: #ffffff;
+}
+
+.lineage-step-icon--pending {
+  background: #e8eef5;
+  color: #7b8da3;
+}
+
+.lineage-check-icon {
+  font-size: 15px !important;
+}
+
+
+/* =====================================================
+   CONNECTOR
+===================================================== */
+
+.lineage-connector {
+  left: 11px !important;
+}
+
+.lineage-connector .MuiStepConnector-line {
+  /* reduced height to tighten spacing between steps */
+  min-height: 52px;
+  border-left-width: 2px !important;
+  border-left-style: solid !important;
+  border-left-color: #d9e2ec !important;
+
+  border-top: 0 !important;
+  border-right: 0 !important;
+  border-bottom: 0 !important;
+}
+
+.lineage-connector.Mui-active
+  .MuiStepConnector-line {
+  border-left-color: #08bcd4 !important;
+}
+
+.lineage-connector.Mui-completed
+  .MuiStepConnector-line {
+  border-left-color: #08bcd4 !important;
+}
+
+
+/* =====================================================
+   STEP CARD
+===================================================== */
+
+.lineage-step-card {
+  width: 100%;
+
+  padding: 10px !important;
+
+  background: #ffffff !important;
+
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 10px !important;
+
+  cursor: pointer;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+
+  box-shadow: none !important;
+}
+
+.lineage-stepper .MuiStep-root {
+  margin-bottom: 8px !important;
+}
+
+.lineage-step-card:hover {
+  border-color: #08bcd4 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important;
+}
+
+.lineage-step-card--active {
+  border-left: 3px solid #08bcd4 !important;
+}
+
+
+/* =====================================================
+   STEP CARD HEADER
+===================================================== */
+
+.lineage-step-card__header {
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 12px;
+}
+
+.lineage-step-number {
+  color: #8da0b5;
+  font-size: 9px;
+  font-weight: 500;
+  line-height: 12px;
+  text-transform: uppercase;
+}
+
+.lineage-step-title {
+  color: #19324d;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 18px;
+  margin-top: 1px;
+}
+
+
+/* =====================================================
+   STATUS CHIPS
+===================================================== */
+
+.status-chip {
+  height: 22px !important;
+  border-radius: 12px !important;
+
+  flex-shrink: 0;
+
+  font-size: 9px !important;
+  font-weight: 700 !important;
+}
+
+.status-chip .MuiChip-label {
+  padding-left: 9px !important;
+  padding-right: 9px !important;
+}
+
+.status-chip--accepted {
+  color: #0b9b67 !important;
+  background: #d9f8e9 !important;
+}
+
+.status-chip--awaiting {
+  color: #08a9c0 !important;
+  background: #dff8fc !important;
+}
+
+.status-chip--pending {
+  color: #8ba0b8 !important;
+  background: #eef2f6 !important;
+}
+
+
+/* =====================================================
+   SELECTION BOX
+===================================================== */
+
+.lineage-selection-box {
+  margin-top: 10px;
+
+  padding: 7px 10px;
+
+  background: #f6f9fc;
+
+  border: 1px solid #e2e8ef;
+  border-radius: 7px;
+}
+
+.lineage-selection-label {
+  color: #00a9c0;
+
+  font-size: 8px;
+  font-weight: 700;
+  line-height: 11px;
+}
+
+.lineage-selection-value {
+  color: #243b53;
+
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 15px;
+
+  margin-top: 2px;
+}
+
+
+/* =====================================================
+   NO SELECTION
+===================================================== */
+
+.lineage-no-selection {
+  color: #9aabba;
+
+  font-size: 10px;
+  font-weight: 400;
+  line-height: 15px;
+
+  margin-top: 8px;
+}
+
+
+/* =====================================================
+   FOOTER ACTION
+===================================================== */
+
+.lineage-footer-actions {
+  display: flex;
+  justify-content: flex-end;
+
+  margin-top: 20px;
+}
+
+.lineage-accept-button {
+  min-height: 34px !important;
+
+  padding: 6px 16px !important;
+
+  color: #ffffff !important;
+  background: #08bcd4 !important;
+
+  border-radius: 7px !important;
+
+  box-shadow: none !important;
+
+  font-size: 11px !important;
+  font-weight: 600 !important;
+
+  text-transform: none !important;
+}
+
+.lineage-accept-button:hover {
+  background: #079fb4 !important;
+  box-shadow: none !important;
+}
+
+.lineage-accept-button:disabled {
+  color: #ffffff !important;
+  background: #b9c8d5 !important;
+}
+
+
+/* =====================================================
+   OTHER BRANCHES
+===================================================== */
+
+.lineage-other-branches {
+  margin-top: 34px;
+  padding-bottom: 30px;
+}
+
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media (max-width: 600px) {
+  .lineage-page {
+    padding: 20px 12px 40px;
+  }
+
+  .lineage-container {
+    max-width: 100%;
+  }
+
+  .lineage-step-card__header {
+    align-items: flex-start;
+  }
+
+  .lineage-step-title {
+    font-size: 12px;
+  }
+
+  .status-chip {
+    font-size: 8px !important;
+  }
+
+  .lineage-breadcrumb {
+    gap: 6px;
+  }
+}
