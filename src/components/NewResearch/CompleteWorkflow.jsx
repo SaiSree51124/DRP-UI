@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import ArtifactsPage from "./ArtifactsPage";
 import LineagePage from "./LineagePage";
+import ShareModal from "../ShareModal/ShareModal";
 import { useLocation, useNavigate } from "react-router-dom";
 import { 
   Box, Typography, Button, Tabs, Tab, Checkbox,
@@ -59,6 +60,7 @@ const CompleteWorkflow = () => {
   const [branchOpen, setBranchOpen] = useState(false);
   const [selectedBranch, setSelectedBranch] = useState("main");
   const [viewMode, setViewMode] = useState("chat"); // 'chat' | 'artifacts'
+  const [showShareDialog, setShowShareDialog] = useState(false);
 
   const [profileData, setProfileData] = useState({
     indication: "Type 2 Diabetes",
@@ -202,7 +204,7 @@ const CompleteWorkflow = () => {
   );
 
   // TopNavBar — top-nav row (breadcrumb + saved) + app-toolbar row (44px, tab-group, result summary, branch dropdown)
-  const TopNavBar = ({ viewMode, setViewMode }) => {
+  const TopNavBar = ({ viewMode, setViewMode, setShowShareDialog }) => {
     const isLoading = workflowPhase.endsWith("-loading");
     const TOTAL_TARGETS = 10;
     const getTabInfo = () => {
@@ -426,7 +428,7 @@ const CompleteWorkflow = () => {
             </div>
 
             {/* share-btn */}
-            <button className="share-btn" style={{ cursor: "pointer" }}>
+            <button className="share-btn" onClick={() => setShowShareDialog(true)} style={{ cursor: "pointer" }}>
               <svg className="icon" width="14" height="14" viewBox="0 0 14 14" fill="none">
                 <circle cx="11" cy="3" r="2" stroke="#475569" strokeWidth="1.5"/>
                 <circle cx="3" cy="7" r="2" stroke="#475569" strokeWidth="1.5"/>
@@ -2308,7 +2310,7 @@ const CompleteWorkflow = () => {
 
       {/* Right of sidebar: top nav + (stepper + content) */}
       <Box sx={{ display: "flex", flexDirection: "column", flex: 1, overflow: "hidden" }}>
-        <TopNavBar viewMode={viewMode} setViewMode={setViewMode} />
+        <TopNavBar viewMode={viewMode} setViewMode={setViewMode} setShowShareDialog={setShowShareDialog} />
 
         {/* content-with-stepper: horizontal, fill remaining height */}
         <Box sx={{ display: "flex", flex: 1, overflow: "hidden" }}>
@@ -2325,6 +2327,7 @@ const CompleteWorkflow = () => {
 
       <ArticleDetailPanel />
       <CompoundDetailDialog />
+      <ShareModal open={showShareDialog} onClose={() => setShowShareDialog(false)} />
     </Box>
   );
 };
