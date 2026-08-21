@@ -165,13 +165,13 @@ const CompleteWorkflow = () => {
         return (
           <React.Fragment key={step.id}>
             {isCompleted ? (
-              /* Completed: dash + teal circle with ✓ checkmark */
+              /* Completed: dark dash + circle with checkmark */
               <Box sx={{ display: "flex", alignItems: "center", height: "42px", width: "180px" }}>
-                <Box sx={{ width: "20px", height: 0, borderTop: "1.5px solid #00BCD4", flexShrink: 0 }} />
-                <Box sx={{ width: 24, height: 24, borderRadius: "50%", bgcolor: "#00BCD4", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                <Box sx={{ width: "20px", height: 0, borderTop: "1.5px solid #1A2E44", flexShrink: 0 }} />
+                <Box sx={{ width: 24, height: 24, borderRadius: "50%", bgcolor: "#1A2E44", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                   <Typography sx={{ fontFamily: "'Geist',sans-serif", fontSize: "13px", fontWeight: 700, color: "#FFFFFF", lineHeight: 1 }}>✓</Typography>
                 </Box>
-                <Typography sx={{ fontFamily: "'Geist',sans-serif", fontSize: "15px", fontWeight: 700, color: "#00BCD4", ml: "10px", lineHeight: 1 }}>
+                <Typography sx={{ fontFamily: "'Geist',sans-serif", fontSize: "15px", fontWeight: 700, color: "#1A2E44", ml: "10px", lineHeight: 1 }}>
                   {step.label}
                 </Typography>
               </Box>
