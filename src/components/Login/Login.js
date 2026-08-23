@@ -1,13 +1,16 @@
 ﻿import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./Login.css";
 
 import molecularBg from "../assets/inovapath-loginbg.webp";
 import inovapathLogo from "../assets/inovapath-logo.png";
 
 const Login = () => {
+  const navigate = useNavigate();
+
   const [showPassword, setShowPassword] = useState(false);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [username, setUsername] = useState("Admin");
+  const [password, setPassword] = useState("Admin");
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = (e) => {
@@ -15,9 +18,16 @@ const Login = () => {
 
     setIsLoading(true);
 
-    // Replace this with your actual login API
+    // TEMP: hardcoded Admin/Admin, no real validation yet.
+    // Replace this with your actual login API once the
+    // backend auth endpoint is ready — for now, Admin/Admin
+    // redirects straight to the Splash screen.
     setTimeout(() => {
       setIsLoading(false);
+
+      if (username === "Admin" && password === "Admin") {
+        navigate("/splash");
+      }
     }, 1200);
   };
 
@@ -127,11 +137,6 @@ const Login = () => {
           {/* Login Header */}
           <div className="login-header">
 
-            <div className="welcome-badge">
-              <span />
-              Secure Research Workspace
-            </div>
-
             <h2>
               Sign in to continue
             </h2>
@@ -151,33 +156,21 @@ const Login = () => {
             {/* Email */}
             <div className="field">
 
-              <label htmlFor="email">
-                Email address
+              <label htmlFor="username">
+                Username
               </label>
 
               <div className="input-wrapper">
 
-                <svg
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                >
-                  <path
-                    d="M4 5h16c1.1 0 2 .9 2 2v10c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V7c0-1.1.9-2 2-2Z"
-                  />
-
-                  <path d="m4 7 8 6 8-6" />
-                </svg>
-
                 <input
-                  id="email"
-                  type="email"
-                  placeholder="researcher@novapath.ai"
-                  value={email}
+                  id="username"
+                  type="text"
+                  placeholder="Admin"
+                  value={username}
                   onChange={(e) =>
-                    setEmail(e.target.value)
+                    setUsername(e.target.value)
                   }
-                  autoComplete="email"
-                  required
+                  autoComplete="username"
                 />
 
               </div>
@@ -187,32 +180,11 @@ const Login = () => {
             {/* Password */}
             <div className="field">
 
-              <div className="label-row">
-
-                <label htmlFor="password">
-                  Password
-                </label>
-
-              </div>
+              <label htmlFor="password">
+                Password
+              </label>
 
               <div className="input-wrapper">
-
-                <svg
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                >
-                  <rect
-                    x="4"
-                    y="10"
-                    width="16"
-                    height="11"
-                    rx="2"
-                  />
-
-                  <path
-                    d="M8 10V7a4 4 0 0 1 8 0v3"
-                  />
-                </svg>
 
                 <input
                   id="password"
@@ -227,7 +199,6 @@ const Login = () => {
                     setPassword(e.target.value)
                   }
                   autoComplete="current-password"
-                  required
                 />
 
                 <button
@@ -332,17 +303,7 @@ const Login = () => {
 
               ) : (
 
-                <>
-                  Sign In
-
-                  <svg
-                    viewBox="0 0 24 24"
-                    aria-hidden="true"
-                  >
-                    <path d="M5 12h14" />
-                    <path d="m13 6 6 6-6 6" />
-                  </svg>
-                </>
+                "Sign In"
 
               )}
 
@@ -350,47 +311,11 @@ const Login = () => {
 
           </form>
 
-          {/* Demo credentials */}
-          <div className="demo-card">
-
-            <div className="demo-icon">
-
-              <svg
-                viewBox="0 0 24 24"
-                aria-hidden="true"
-              >
-
-                <path
-                  d="M12 3 4 7v5c0 5 3.4 8.8 8 10 4.6-1.2 8-5 8-10V7l-8-4Z"
-                />
-
-                <path d="m9 12 2 2 4-4" />
-
-              </svg>
-
-            </div>
-
-            <div>
-
-              <span className="demo-title">
-                Demo workspace
-              </span>
-
-              <span className="demo-credentials">
-                researcher@novapath.ai
-                <span>•</span>
-                demo1234
-              </span>
-
-            </div>
-
-          </div>
-
         </div>
 
         {/* =====================================================
             FOOTER
-            Sits below the login card, not inside it.
+            Sits below the login card, centered under the panel.
             ===================================================== */}
 
         <div className="login-footer">
