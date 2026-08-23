@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import {
   Box,
   Typography,
@@ -10,7 +10,6 @@ import {
   AddOutlined,
   DeleteOutlineOutlined,
 } from "@mui/icons-material";
-
 import {
   FONT,
   TEAL,
@@ -20,1821 +19,1092 @@ import {
   TEXT_DARK,
   TEXT_MUTED,
 } from "../workflowConstants";
-
 import AgentHeader from "../AgentHeader";
+import "./CuratexPhase.css";
 
-/* ============================================================================
-   DEFAULT PROFILE WEIGHTS
-   Figma values:
-   Indication              15%
-   Mechanism of Action     10%
-   Route of Administration 15%
-   Molecular Weight        10%
-   Bioavailability         20%
-   Half-life               15%
-   LogP                    10%
-   Solubility              15%
-============================================================================ */
-
+// Default weight allocation per property — matches Figma "Target Product
+// Profile - JAK2" card (weight-field values shown next to each row).
 const DEFAULT_WEIGHTS = {
-  indication: "15%",
-  mechanismOfAction: "10%",
-  routeOfAdministration: "15%",
-  molecularWeight: "10%",
-  bioavailability: "20%",
-  halfLife: "15%",
-  logP: "10%",
-  solubility: "15%",
+  indication: "15",
+  moa: "10",
+  route: "15",
+  molecularWeight: "10",
+  bioavailability: "20",
+  halfLife: "15",
+  logP: "10",
+  solubility: "15",
+  plasmaProteinBinding: "10",
 };
 
-const PROPERTY_LABELS = {
-  indication: "Indication",
-  mechanismOfAction: "Mechanism of Action",
-  routeOfAdministration: "Route of Administration",
-  molecularWeight: "Molecular Weight",
-  bioavailability: "Bioavailability",
-  halfLife: "Half-life",
-  logP: "LogP",
-  solubility: "Solubility",
-};
-
-/* ============================================================================
-   DEFAULT COMPOUND DATA
-============================================================================ */
-
-const DEFAULT_COMPOUNDS = [
-  {
-    rank: 1,
-    name: "Metformin",
-    matchedProps: "MW, Bioavail, Route, Half-life, LogP",
-    mismatchedProps: "Solubility",
-    target: "JAK2",
-    score: "94%",
-    detail: {
-      molecularWeight: "129.16 Da",
-      bioavailability: "50–60%",
-      route: "Oral",
-      halfLife: "6.2 hours",
-      logP: "-1.43",
-      solubility: "> 300 mg/mL",
-    },
-  },
-  {
-    rank: 2,
-    name: "Pioglitazone",
-    matchedProps: "MW, Route, Half-life, LogP, Solubility",
-    mismatchedProps: "Bioavailability",
-    target: "JAK2",
-    score: "91%",
-    detail: {
-      molecularWeight: "356.44 Da",
-      bioavailability: "80%",
-      route: "Oral",
-      halfLife: "3–7 hours",
-      logP: "2.3",
-      solubility: "Low",
-    },
-  },
-  {
-    rank: 3,
-    name: "Canagliflozin",
-    matchedProps: "MW, Route, Bioavail, LogP",
-    mismatchedProps: "Half-life, Solubility",
-    target: "JAK2",
-    score: "87%",
-  },
-  {
-    rank: 4,
-    name: "Empagliflozin",
-    matchedProps: "MW, Route, Bioavail, Half-life",
-    mismatchedProps: "LogP, Solubility",
-    target: "JAK2",
-    score: "84%",
-  },
-  {
-    rank: 5,
-    name: "Liraglutide",
-    matchedProps: "MW, Bioavail, Half-life",
-    mismatchedProps: "Route, LogP, Solubility",
-    target: "JAK2",
-    score: "78%",
-  },
-  {
-    rank: 6,
-    name: "Sitagliptin",
-    matchedProps: "MW, Route, LogP",
-    mismatchedProps: "Bioavail, Half-life, Solubility",
-    target: "JAK2",
-    score: "74%",
-  },
+// Match-detail breakdown shown when the first CurateX results row is
+// expanded — mirrors the Figma "row-1-expanded" spec exactly (property,
+// target criterion, arrow, matched source value, status icon).
+const MATCH_DETAILS = [
+  { label: "Molecular Weight", target: "< 500 Da", value: "129.16 Da", status: "match" },
+  { label: "Bioavailability", target: "> 60%", value: "50-60%", status: "partial" },
+  { label: "Route", target: "Oral", value: "Oral", status: "match" },
+  { label: "Half-life", target: "8-12 hours", value: "6.2 hours", status: "match" },
+  { label: "LogP", target: "1.5-3.5", value: "-1.43", status: "match" },
+  { label: "Solubility", target: "> 10 mg/mL", value: "> 300 mg/mL", status: "match" },
 ];
-
-/* ============================================================================
-   SHARED STYLES
-============================================================================ */
-
-const buttonStyle = {
-  minHeight: "34px",
-  height: "34px",
-  px: "16px",
-  borderRadius: "8px",
-  fontFamily: FONT,
-  fontSize: "13px",
-  fontWeight: 500,
-  textTransform: "none",
-  borderColor: BORDER,
-  color: TEXT_DARK,
-  boxShadow: "none",
-  whiteSpace: "nowrap",
-
-  "&:hover": {
-    borderColor: "#CBD5E1",
-    backgroundColor: "#F8FAFC",
-    boxShadow: "none",
-  },
-};
-
-const primaryButtonStyle = {
-  ...buttonStyle,
-  backgroundColor: TEAL,
-  color: "#FFFFFF",
-  borderColor: TEAL,
-  fontWeight: 600,
-
-  "&:hover": {
-    backgroundColor: "#00A7BC",
-    borderColor: "#00A7BC",
-  },
-};
-
-/* ============================================================================
-   HELPERS
-============================================================================ */
-
-const prettifyPropertyName = (key) => {
-  if (PROPERTY_LABELS[key]) {
-    return PROPERTY_LABELS[key];
-  }
-
-  return key
-    .replace(/([A-Z])/g, " $1")
-    .replace(/^./, (char) => char.toUpperCase())
-    .trim();
-};
-
-const normalizeProfileRows = (profileData = {}) => {
-  return Object.entries(profileData).map(([key, value]) => ({
-    id: `${key}-${Math.random().toString(36).slice(2, 9)}`,
-    key,
-    property: PROPERTY_LABELS[key] || prettifyPropertyName(key),
-    criterion: value ?? "",
-    weight: DEFAULT_WEIGHTS[key] || "10%",
-  }));
-};
-
-/* ============================================================================
-   USER MESSAGE
-============================================================================ */
-
-const UserMessage = ({ children }) => (
-  <Box
-    sx={{
-      display: "flex",
-      justifyContent: "flex-end",
-      width: "100%",
-      px: 0,
-      py: "8px",
-      boxSizing: "border-box",
-    }}
-  >
-    <Box
-      sx={{
-        maxWidth: "548px",
-        minWidth: "280px",
-        backgroundColor: USER_MSG_BG,
-        border: "1px solid rgba(226,232,240,0.3)",
-        boxShadow: "0px 4px 12px rgba(0,0,0,0.03)",
-        borderRadius: "12px",
-        p: "16px",
-      }}
-    >
-      <Typography
-        sx={{
-          fontFamily: FONT,
-          fontSize: "11px",
-          lineHeight: "13px",
-          fontWeight: 700,
-          color: TEAL,
-          textTransform: "uppercase",
-          letterSpacing: "0.5px",
-          mb: "8px",
-        }}
-      >
-        DR. PRIYA (YOU)
-      </Typography>
-
-      <Typography
-        sx={{
-          fontFamily: FONT,
-          fontSize: "15px",
-          lineHeight: "22px",
-          fontWeight: 400,
-          color: TEXT_DARK,
-        }}
-      >
-        {children}
-      </Typography>
-    </Box>
-  </Box>
-);
-
-/* ============================================================================
-   PROFILE ROW
-============================================================================ */
-
-const ProfileRow = ({
-  row,
-  editMode,
-  onChangeProperty,
-  onChangeCriterion,
-  onChangeWeight,
-  onDelete,
-}) => {
-  return (
-    <Box
-      sx={{
-        display: "grid",
-        gridTemplateColumns: "220px minmax(250px, 400px) 70px 28px",
-        columnGap: "8px",
-        alignItems: "center",
-        minHeight: "28px",
-        width: "100%",
-
-        "@media (max-width: 800px)": {
-          gridTemplateColumns: "1fr",
-          rowGap: "6px",
-          py: "8px",
-          borderBottom: `1px solid ${BORDER}`,
-        },
-      }}
-    >
-      {/* Property */}
-      {editMode ? (
-        <TextField
-          value={row.property}
-          onChange={(event) =>
-            onChangeProperty(row.id, event.target.value)
-          }
-          size="small"
-          placeholder="Parameter name..."
-          fullWidth
-          sx={{
-            "& .MuiOutlinedInput-root": {
-              height: "32px",
-              fontFamily: FONT,
-              fontSize: "12px",
-              borderRadius: "5px",
-
-              "& fieldset": {
-                borderColor: "#7DD3FC",
-              },
-
-              "&:hover fieldset": {
-                borderColor: "#38BDF8",
-              },
-            },
-
-            "& input": {
-              padding: "7px 9px",
-            },
-          }}
-        />
-      ) : (
-        <Typography
-          sx={{
-            fontFamily: FONT,
-            fontSize: "13px",
-            lineHeight: "16px",
-            fontWeight: 600,
-            color: "#374151",
-          }}
-        >
-          {row.property}
-        </Typography>
-      )}
-
-      {/* Target Criterion */}
-      {editMode ? (
-        <TextField
-          value={row.criterion}
-          onChange={(event) =>
-            onChangeCriterion(row.id, event.target.value)
-          }
-          size="small"
-          placeholder="Enter value or range..."
-          fullWidth
-          sx={{
-            "& .MuiOutlinedInput-root": {
-              height: "32px",
-              fontFamily: FONT,
-              fontSize: "12px",
-              borderRadius: "5px",
-
-              "& fieldset": {
-                borderColor: "#7DD3FC",
-              },
-
-              "&:hover fieldset": {
-                borderColor: "#38BDF8",
-              },
-            },
-
-            "& input": {
-              padding: "7px 9px",
-            },
-          }}
-        />
-      ) : (
-        <Typography
-          sx={{
-            fontFamily: FONT,
-            fontSize: "13px",
-            lineHeight: "16px",
-            color: "#111827",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
-          }}
-        >
-          {row.criterion}
-        </Typography>
-      )}
-
-      {/* Weight */}
-      {editMode ? (
-        <TextField
-          value={row.weight}
-          onChange={(event) =>
-            onChangeWeight(row.id, event.target.value)
-          }
-          size="small"
-          placeholder="%"
-          sx={{
-            width: "70px",
-
-            "& .MuiOutlinedInput-root": {
-              height: "32px",
-              fontFamily: FONT,
-              fontSize: "12px",
-              borderRadius: "6px",
-
-              "& fieldset": {
-                borderColor: "#E2E8F0",
-              },
-            },
-
-            "& input": {
-              padding: "7px 8px",
-              textAlign: "center",
-            },
-          }}
-        />
-      ) : (
-        <Box
-          sx={{
-            width: "70px",
-            height: "28px",
-            boxSizing: "border-box",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            border: `1px solid ${BORDER}`,
-            borderRadius: "6px",
-            backgroundColor: "#FFFFFF",
-          }}
-        >
-          <Typography
-            sx={{
-              fontFamily: FONT,
-              fontSize: "13px",
-              lineHeight: "16px",
-              color: "#262E38",
-            }}
-          >
-            {row.weight}
-          </Typography>
-        </Box>
-      )}
-
-      {/* Delete */}
-      {editMode ? (
-        <IconButton
-          size="small"
-          onClick={() => onDelete(row.id)}
-          aria-label={`Delete ${row.property}`}
-          sx={{
-            width: "28px",
-            height: "28px",
-            color: "#94A3B8",
-
-            "&:hover": {
-              color: "#EF4444",
-              backgroundColor: "#FEF2F2",
-            },
-          }}
-        >
-          <DeleteOutlineOutlined sx={{ fontSize: 17 }} />
-        </IconButton>
-      ) : (
-        <Box sx={{ width: "28px" }} />
-      )}
-    </Box>
-  );
-};
-
-/* ============================================================================
-   PROFILE CARD
-============================================================================ */
-
-const TargetProfileCard = ({
-  rows,
-  editMode,
-  onAddParameter,
-  onDelete,
-  onChangeProperty,
-  onChangeCriterion,
-  onChangeWeight,
-}) => {
-  return (
-    <Box
-      sx={{
-        width: "100%",
-        boxSizing: "border-box",
-        backgroundColor: "#FFFFFF",
-        border: `1px solid ${BORDER}`,
-        borderRadius: "12px",
-        p: "20px",
-      }}
-    >
-      <Typography
-        sx={{
-          fontFamily: FONT,
-          fontSize: "16px",
-          lineHeight: "19px",
-          fontWeight: 700,
-          color: "#111827",
-          mb: "4px",
-        }}
-      >
-        Target Product Profile - JAK2
-      </Typography>
-
-      <Typography
-        sx={{
-          fontFamily: FONT,
-          fontSize: "13px",
-          lineHeight: "16px",
-          color: TEXT_MUTED,
-          mb: "18px",
-        }}
-      >
-        {editMode
-          ? "Editing mode — modify values below, then save changes"
-          : "Parameter added successfully. Review and submit to find matching candidates."}
-      </Typography>
-
-      {/* Header */}
-      <Box
-        sx={{
-          display: "grid",
-          gridTemplateColumns: "220px minmax(250px, 400px) 70px 28px",
-          columnGap: "8px",
-          alignItems: "center",
-          mb: "8px",
-
-          "@media (max-width: 800px)": {
-            display: "none",
-          },
-        }}
-      >
-        <Typography
-          sx={{
-            fontFamily: FONT,
-            fontSize: "13px",
-            lineHeight: "16px",
-            fontWeight: 800,
-            color: "#404752",
-          }}
-        >
-          Property
-        </Typography>
-
-        <Typography
-          sx={{
-            fontFamily: FONT,
-            fontSize: "13px",
-            lineHeight: "16px",
-            fontWeight: 800,
-            color: "#404752",
-          }}
-        >
-          Target Criterion
-        </Typography>
-
-        <Typography
-          sx={{
-            fontFamily: FONT,
-            fontSize: "13px",
-            lineHeight: "16px",
-            fontWeight: 800,
-            color: "#404752",
-          }}
-        >
-          Weight
-        </Typography>
-      </Box>
-
-      {/* Rows */}
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          gap: "12px",
-        }}
-      >
-        {rows.map((row) => (
-          <ProfileRow
-            key={row.id}
-            row={row}
-            editMode={editMode}
-            onChangeProperty={onChangeProperty}
-            onChangeCriterion={onChangeCriterion}
-            onChangeWeight={onChangeWeight}
-            onDelete={onDelete}
-          />
-        ))}
-      </Box>
-
-      {/* Add parameter */}
-      {editMode && (
-        <Button
-          startIcon={<AddOutlined />}
-          onClick={onAddParameter}
-          sx={{
-            minHeight: "32px",
-            mt: "10px",
-            px: 0,
-            fontFamily: FONT,
-            fontSize: "13px",
-            fontWeight: 500,
-            color: TEAL,
-            textTransform: "none",
-
-            "&:hover": {
-              backgroundColor: "transparent",
-            },
-
-            "& .MuiButton-startIcon": {
-              marginRight: "2px",
-            },
-          }}
-        >
-          Add Parameter
-        </Button>
-      )}
-    </Box>
-  );
-};
-
-/* ============================================================================
-   PROFILE SCREEN
-============================================================================ */
-
-const ProfileScreen = ({
-  profileRows,
-  editMode,
-  onEdit,
-  onSave,
-  onCancel,
-  onSubmit,
-  onAddParameter,
-  onDelete,
-  onChangeProperty,
-  onChangeCriterion,
-  onChangeWeight,
-}) => {
-  return (
-    <>
-      <UserMessage>
-        {editMode
-          ? "Please generate a Target Candidate Profile for JAK2."
-          : "Please generate a Target Candidate Profile for JAK2."}
-      </UserMessage>
-
-      <Box
-        sx={{
-          width: "100%",
-          backgroundColor: "#FFFFFF",
-          border: `1px solid ${BORDER}`,
-          boxShadow: "0px 4px 12px rgba(0,0,0,0.03)",
-          borderRadius: "16px",
-          p: "16px",
-          boxSizing: "border-box",
-        }}
-      >
-        <AgentHeader label="INOVAPATH CURATEX AGENT" />
-
-        <Typography
-          sx={{
-            fontFamily: FONT,
-            fontSize: "15px",
-            lineHeight: "22px",
-            color: TEXT_DARK,
-            mt: "12px",
-            mb: "12px",
-          }}
-        >
-          I've generated a Target Product Profile for JAK2. Review and adjust
-          the parameters below, then submit to find matching candidates.
-        </Typography>
-
-        <TargetProfileCard
-          rows={profileRows}
-          editMode={editMode}
-          onAddParameter={onAddParameter}
-          onDelete={onDelete}
-          onChangeProperty={onChangeProperty}
-          onChangeCriterion={onChangeCriterion}
-          onChangeWeight={onChangeWeight}
-        />
-
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            gap: "12px",
-            mt: "12px",
-            flexWrap: "wrap",
-          }}
-        >
-          {editMode ? (
-            <>
-              <Button
-                variant="contained"
-                onClick={onSave}
-                sx={primaryButtonStyle}
-              >
-                Save Changes
-              </Button>
-
-              <Button
-                variant="outlined"
-                onClick={onCancel}
-                sx={buttonStyle}
-              >
-                Cancel
-              </Button>
-            </>
-          ) : (
-            <>
-              <Button
-                variant="contained"
-                onClick={onSubmit}
-                sx={primaryButtonStyle}
-              >
-                Submit Profile
-              </Button>
-
-              <Button
-                variant="outlined"
-                onClick={onEdit}
-                sx={{
-                  ...buttonStyle,
-                  color: "#404754",
-                }}
-              >
-                Edit Values
-              </Button>
-            </>
-          )}
-        </Box>
-      </Box>
-    </>
-  );
-};
-
-/* ============================================================================
-   RESULTS SCREEN
-============================================================================ */
-
-const ResultsScreen = ({
-  compounds,
-  onCompoundClick,
-  onNext,
-}) => {
-  return (
-    <>
-      <UserMessage>Submit Profile</UserMessage>
-
-      <Box
-        sx={{
-          width: "100%",
-          backgroundColor: "#FFFFFF",
-          border: `1px solid ${BORDER}`,
-          boxShadow: "0px 4px 12px rgba(0,0,0,0.03)",
-          borderRadius: "12px",
-          p: "16px",
-          boxSizing: "border-box",
-        }}
-      >
-        <AgentHeader label="INOVAPATH CURATEX AGENT" />
-
-        <Typography
-          sx={{
-            fontFamily: FONT,
-            fontSize: "15px",
-            lineHeight: "22px",
-            color: TEXT_DARK,
-            mt: "12px",
-            mb: "16px",
-          }}
-        >
-          Profile submitted. Scoring 124 compounds against your JAK2 target
-          product profile. Here are the top candidates:
-        </Typography>
-
-        {/* Results table */}
-        <Box
-          sx={{
-            width: "100%",
-            border: `1px solid ${BORDER}`,
-            borderRadius: "8px",
-            overflow: "hidden",
-          }}
-        >
-          {/* Header */}
-          <Box
-            sx={{
-              display: "grid",
-              gridTemplateColumns: "60px 1fr 2fr 1fr 24px",
-              gap: "16px",
-              px: "16px",
-              py: "12px",
-              backgroundColor: "#F8FAFC",
-              borderBottom: `1px solid ${BORDER}`,
-
-              "@media (max-width: 800px)": {
-                gridTemplateColumns: "45px 1fr 1fr",
-              },
-            }}
-          >
-            {["RANK", "COMPOUND", "MATCHED PROPERTIES", "MISMATCHED"].map(
-              (header) => (
-                <Typography
-                  key={header}
-                  sx={{
-                    fontFamily: FONT,
-                    fontSize: "10px",
-                    lineHeight: "12px",
-                    fontWeight: 700,
-                    color: TEXT_MUTED,
-                  }}
-                >
-                  {header}
-                </Typography>
-              )
-            )}
-          </Box>
-
-          {/* Rows */}
-          {compounds.map((compound, index) => (
-            <Box
-              key={compound.rank}
-              onClick={() => onCompoundClick(compound)}
-              sx={{
-                display: "grid",
-                gridTemplateColumns: "60px 1fr 2fr 1fr 24px",
-                gap: "16px",
-                px: "16px",
-                py: "12px",
-                minHeight: "48px",
-                boxSizing: "border-box",
-                alignItems: "center",
-                cursor: "pointer",
-                backgroundColor:
-                  index === 0 ? "#F0FDFC" : "#FFFFFF",
-                borderBottom:
-                  index < compounds.length - 1
-                    ? `1px solid ${BORDER}`
-                    : "none",
-
-                "&:hover": {
-                  backgroundColor: "#F8FAFC",
-                },
-
-                "@media (max-width: 800px)": {
-                  gridTemplateColumns: "45px 1fr 1fr",
-                },
-              }}
-            >
-              <Typography
-                sx={{
-                  fontFamily: FONT,
-                  fontSize: "13px",
-                  fontWeight: 700,
-                  color: TEXT_DARK,
-                }}
-              >
-                {compound.rank}
-              </Typography>
-
-              <Typography
-                sx={{
-                  fontFamily: FONT,
-                  fontSize: "13px",
-                  fontWeight: 600,
-                  color: TEAL,
-                }}
-              >
-                {compound.name}
-              </Typography>
-
-              <Typography
-                sx={{
-                  fontFamily: FONT,
-                  fontSize: "12px",
-                  color: TEXT_DARK,
-                }}
-              >
-                {compound.matchedProps}
-              </Typography>
-
-              <Typography
-                sx={{
-                  fontFamily: FONT,
-                  fontSize: "12px",
-                  color: "#EF4444",
-                }}
-              >
-                {compound.mismatchedProps}
-              </Typography>
-
-              <Typography
-                sx={{
-                  fontFamily: FONT,
-                  fontSize: "14px",
-                  color: "#94A3B8",
-                }}
-              >
-                ›
-              </Typography>
-            </Box>
-          ))}
-        </Box>
-
-        {/* Pagination */}
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            gap: "8px",
-            mt: "14px",
-          }}
-        >
-          {["‹", "1", "2", "3", "...", "12", "›"].map(
-            (item, index) => (
-              <Box
-                key={`${item}-${index}`}
-                sx={{
-                  minWidth: "28px",
-                  height: "28px",
-                  px: "7px",
-                  borderRadius: "5px",
-                  border:
-                    item === "1"
-                      ? `1px solid ${TEAL}`
-                      : `1px solid ${BORDER}`,
-                  backgroundColor:
-                    item === "1" ? "#F0FDFC" : "#FFFFFF",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  boxSizing: "border-box",
-                }}
-              >
-                <Typography
-                  sx={{
-                    fontFamily: FONT,
-                    fontSize: "11px",
-                    color: item === "1" ? TEAL : TEXT_MUTED,
-                  }}
-                >
-                  {item}
-                </Typography>
-              </Box>
-            )
-          )}
-        </Box>
-
-        <Typography
-          sx={{
-            fontFamily: FONT,
-            fontSize: "11px",
-            color: TEXT_MUTED,
-            textAlign: "center",
-            mt: "6px",
-          }}
-        >
-          Showing 1-6 of 124 compounds
-        </Typography>
-
-        {/* Recommendation */}
-        <Box
-          sx={{
-            mt: "16px",
-            p: "14px",
-            border: `1px solid ${BORDER}`,
-            borderRadius: "8px",
-            backgroundColor: "#FFFFFF",
-          }}
-        >
-          <Typography
-            sx={{
-              fontFamily: FONT,
-              fontSize: "13px",
-              fontWeight: 700,
-              color: TEXT_DARK,
-              mb: "5px",
-            }}
-          >
-            Recommendation
-          </Typography>
-
-          <Typography
-            sx={{
-              fontFamily: FONT,
-              fontSize: "12px",
-              lineHeight: "17px",
-              color: "#475569",
-            }}
-          >
-            Metformin and Pioglitazone are the strongest candidates. Both
-            match on molecular weight, route of administration, and
-            half-life. Metformin scores highest due to superior
-            bioavailability alignment. Recommend carrying both forward to
-            screening.
-          </Typography>
-        </Box>
-
-        {/* Actions */}
-        <Box
-          sx={{
-            display: "flex",
-            gap: "12px",
-            mt: "16px",
-          }}
-        >
-          <Button variant="outlined" sx={buttonStyle}>
-            Branch
-          </Button>
-
-          <Button variant="outlined" sx={buttonStyle}>
-            Rerun
-          </Button>
-
-          <Button
-            variant="outlined"
-            onClick={onNext}
-            sx={{
-              ...buttonStyle,
-              ml: 0,
-            }}
-          >
-            Next
-          </Button>
-        </Box>
-      </Box>
-    </>
-  );
-};
-
-/* ============================================================================
-   COMPOUND EXPLORATION SCREEN
-============================================================================ */
-
-const CompoundExplorationScreen = ({
-  compound,
-  onBack,
-  onNext,
-}) => {
-  const selectedCompound = compound || DEFAULT_COMPOUNDS[0];
-
-  return (
-    <>
-      <UserMessage>
-        Tell me more about {selectedCompound.name} - mechanism of action,
-        current uses, and patent status.
-      </UserMessage>
-
-      <Box
-        sx={{
-          width: "100%",
-          backgroundColor: "#FFFFFF",
-          border: `1px solid ${BORDER}`,
-          borderRadius: "12px",
-          p: "16px",
-          boxSizing: "border-box",
-        }}
-      >
-        <AgentHeader label="INOVAPATH CURATEX AGENT" />
-
-        <Typography
-          sx={{
-            fontFamily: FONT,
-            fontSize: "15px",
-            lineHeight: "22px",
-            color: TEXT_DARK,
-            mt: "12px",
-            mb: "12px",
-          }}
-        >
-          Here is the detailed compound profile for{" "}
-          {selectedCompound.name}:
-        </Typography>
-
-        <Box
-          sx={{
-            border: `1px solid ${BORDER}`,
-            borderRadius: "10px",
-            p: "16px",
-          }}
-        >
-          <Typography
-            sx={{
-              fontFamily: FONT,
-              fontSize: "15px",
-              fontWeight: 700,
-              color: TEXT_DARK,
-              mb: "4px",
-            }}
-          >
-            {selectedCompound.name} - Compound Detail
-          </Typography>
-
-          <Typography
-            sx={{
-              fontFamily: FONT,
-              fontSize: "12px",
-              color: TEXT_MUTED,
-              mb: "12px",
-            }}
-          >
-            Summary of mechanism, clinical use, and IP status.
-          </Typography>
-
-          <DetailSection
-            title="Mechanism of Action"
-            text="Metformin activates AMP-activated protein kinase (AMPK), reducing hepatic glucose production and improving insulin sensitivity. In the context of JAK2 inhibition, recent studies suggest metformin may modulate JAK-STAT signaling indirectly through AMPK activation."
-          />
-
-          <DetailSection
-            title="Current Uses"
-            text="First-line therapy for Type 2 Diabetes. Also used off-label for PCOS, weight management, and under investigation for additional applications."
-          />
-
-          <DetailSection
-            title="Patent Status"
-            text="Original patents expired. Generic formulations widely available. Novel formulations and combination therapies may carry active IP."
-          />
-
-          <DetailSection
-            title="Match Score"
-            text={`${selectedCompound.score || "94%"} - Strong alignment with target profile properties.`}
-            last
-          />
-        </Box>
-
-        <Typography
-          sx={{
-            fontFamily: FONT,
-            fontSize: "11px",
-            color: TEXT_MUTED,
-            mt: "8px",
-          }}
-        >
-          Source: PubMed, DrugBank, USPTO via NovSearch
-        </Typography>
-
-        <Box
-          sx={{
-            display: "flex",
-            gap: "10px",
-            mt: "12px",
-          }}
-        >
-          <Button
-            variant="outlined"
-            onClick={onBack}
-            sx={buttonStyle}
-          >
-            Back to Results
-          </Button>
-
-          <Button
-            variant="contained"
-            onClick={onNext}
-            sx={primaryButtonStyle}
-          >
-            Next
-          </Button>
-        </Box>
-      </Box>
-    </>
-  );
-};
-
-/* ============================================================================
-   DETAIL SECTION
-============================================================================ */
-
-const DetailSection = ({ title, text, last = false }) => (
-  <Box
-    sx={{
-      pb: last ? 0 : "12px",
-      mb: last ? 0 : "12px",
-      borderBottom: last ? "none" : `1px solid ${BORDER}`,
-    }}
-  >
-    <Typography
-      sx={{
-        fontFamily: FONT,
-        fontSize: "12px",
-        lineHeight: "15px",
-        fontWeight: 700,
-        color: TEXT_DARK,
-        mb: "5px",
-      }}
-    >
-      {title}
-    </Typography>
-
-    <Typography
-      sx={{
-        fontFamily: FONT,
-        fontSize: "12px",
-        lineHeight: "17px",
-        color: "#475569",
-      }}
-    >
-      {text}
-    </Typography>
-  </Box>
-);
-
-/* ============================================================================
-   CANDIDATE SELECTION SCREEN
-============================================================================ */
-
-const CandidateSelectionScreen = ({
-  onBack,
-  onScreen,
-}) => {
-  return (
-    <>
-      <Box
-        sx={{
-          width: "100%",
-          backgroundColor: "#FFFFFF",
-          border: `1px solid ${BORDER}`,
-          borderRadius: "12px",
-          p: "16px",
-          boxSizing: "border-box",
-        }}
-      >
-        <AgentHeader label="INOVAPATH CURATEX AGENT" />
-
-        <Typography
-          sx={{
-            fontFamily: FONT,
-            fontSize: "15px",
-            lineHeight: "22px",
-            color: TEXT_DARK,
-            mt: "12px",
-            mb: "16px",
-          }}
-        >
-          Would you like to select specific candidates for screening, or
-          should I proceed with the top-ranked compounds (Metformin and
-          Pioglitazone) automatically?
-        </Typography>
-
-        <UserMessage>
-          Go with the top two - Metformin and Pioglitazone. Send them to
-          ScreenSuite for docking.
-        </UserMessage>
-
-        <Typography
-          sx={{
-            fontFamily: FONT,
-            fontSize: "13px",
-            fontWeight: 600,
-            color: TEXT_DARK,
-            mb: "10px",
-          }}
-        >
-          Selected candidates forwarded to ScreenSuite for molecular docking:
-        </Typography>
-
-        {["Metformin", "Pioglitazone"].map((compound) => (
-          <Box
-            key={compound}
-            sx={{
-              border: `1px solid ${BORDER}`,
-              borderRadius: "8px",
-              p: "12px",
-              mb: "8px",
-              backgroundColor: "#FAFAFA",
-            }}
-          >
-            <Typography
-              sx={{
-                fontFamily: FONT,
-                fontSize: "13px",
-                fontWeight: 600,
-                color: TEXT_DARK,
-              }}
-            >
-              {compound}
-            </Typography>
-
-            <Typography
-              sx={{
-                fontFamily: FONT,
-                fontSize: "11px",
-                color: "#94A3B8",
-                mt: "2px",
-              }}
-            >
-              Target: JAK2
-            </Typography>
-          </Box>
-        ))}
-
-        <Typography
-          sx={{
-            fontFamily: FONT,
-            fontSize: "12px",
-            fontWeight: 600,
-            color: TEXT_DARK,
-            mt: "12px",
-            mb: "12px",
-          }}
-        >
-          ScreenSuite is now running PLP docking simulations. Estimated
-          completion: ~5 minutes.
-        </Typography>
-
-        <Box
-          sx={{
-            display: "flex",
-            gap: "10px",
-          }}
-        >
-          <Button
-            variant="contained"
-            onClick={onScreen}
-            sx={primaryButtonStyle}
-          >
-            View in ScreenSuite
-          </Button>
-
-          <Button
-            variant="outlined"
-            onClick={onBack}
-            sx={buttonStyle}
-          >
-            Back to Results
-          </Button>
-        </Box>
-      </Box>
-    </>
-  );
-};
-
-/* ============================================================================
-   MAIN CURATEX COMPONENT
-============================================================================ */
 
 const CuratexPhase = ({
   workflowPhase,
   setWorkflowPhase,
-
   chatMessages = [],
-  setChatMessages,
-
   profileData = {},
   setProfileData,
-
-  profileEditMode = false,
+  profileEditMode,
   setProfileEditMode,
-
-  curateXResults = DEFAULT_COMPOUNDS,
-
+  curateXResults = [],
+  setCurateXResults,
+  selectedCompound,
   setSelectedCompound,
   setShowCompoundDetail,
-
   setActiveStep,
 }) => {
-  /* --------------------------------------------------------------------------
-     Profile rows
-  -------------------------------------------------------------------------- */
+  const activeCompound = selectedCompound || curateXResults?.[0];
 
-  const initialRows = useMemo(
-    () => normalizeProfileRows(profileData),
-    [profileData]
-  );
+  // Local state — weights per property, and the "Adding new parameter"
+  // sub-state inside edit mode (Figma: field-row-new with Parameter
+  // name.../Enter value or range... inputs + Save Changes/Cancel).
+  const [weights, setWeights] = useState(DEFAULT_WEIGHTS);
+  const [isAddingParameter, setIsAddingParameter] = useState(false);
+  const [newParamName, setNewParamName] = useState("");
+  const [newParamValue, setNewParamValue] = useState("");
+  const [newParamWeight, setNewParamWeight] = useState("");
+  const [expandedRow, setExpandedRow] = useState(0);
 
-  const [profileRows, setProfileRows] = useState(initialRows);
-
-  const [selectedCompoundLocal, setSelectedCompoundLocal] =
-    useState(DEFAULT_COMPOUNDS[0]);
-
-  const compounds =
-    curateXResults && curateXResults.length > 0
-      ? curateXResults
-      : DEFAULT_COMPOUNDS;
-
-  /* --------------------------------------------------------------------------
-     Keep profile rows synchronized if profileData changes externally.
-  -------------------------------------------------------------------------- */
-
-  React.useEffect(() => {
-    if (!profileEditMode) {
-      setProfileRows((currentRows) => {
-        if (currentRows.length === 0) {
-          return normalizeProfileRows(profileData);
-        }
-
-        return currentRows;
-      });
+  const closeLegacyCompoundDetail = () => {
+    if (typeof setShowCompoundDetail === "function") {
+      setShowCompoundDetail(false);
     }
-  }, [profileData, profileEditMode]);
-
-  /* --------------------------------------------------------------------------
-     EDIT VALUES
-  -------------------------------------------------------------------------- */
-
-  const handleEditValues = () => {
-    setProfileEditMode?.(true);
   };
 
-  /* --------------------------------------------------------------------------
-     CANCEL
-  -------------------------------------------------------------------------- */
-
-  const handleCancelEdit = () => {
-    setProfileRows(normalizeProfileRows(profileData));
-    setProfileEditMode?.(false);
+  const handleViewDataSource = (compound) => {
+    setSelectedCompound?.(compound);
+    closeLegacyCompoundDetail();
+    setWorkflowPhase("curatex-data-source");
   };
 
-  /* --------------------------------------------------------------------------
-     SAVE CHANGES
-  -------------------------------------------------------------------------- */
+  const handleNextFromResults = () => {
+    const compound = activeCompound || curateXResults?.[0];
 
-  const handleSaveChanges = () => {
-    const updatedProfile = {};
-
-    profileRows.forEach((row) => {
-      const key =
-        row.key ||
-        row.property
-          .replace(/\s+/g, "")
-          .replace(/^./, (char) => char.toLowerCase());
-
-      updatedProfile[key] = row.criterion;
-    });
-
-    setProfileData?.(updatedProfile);
-    setProfileEditMode?.(false);
-  };
-
-  /* --------------------------------------------------------------------------
-     EDIT PROPERTY NAME
-  -------------------------------------------------------------------------- */
-
-  const handleChangeProperty = (id, value) => {
-    setProfileRows((current) =>
-      current.map((row) =>
-        row.id === id
-          ? {
-              ...row,
-              property: value,
-            }
-          : row
-      )
-    );
-  };
-
-  /* --------------------------------------------------------------------------
-     EDIT CRITERION
-  -------------------------------------------------------------------------- */
-
-  const handleChangeCriterion = (id, value) => {
-    setProfileRows((current) =>
-      current.map((row) =>
-        row.id === id
-          ? {
-              ...row,
-              criterion: value,
-            }
-          : row
-      )
-    );
-  };
-
-  /* --------------------------------------------------------------------------
-     EDIT WEIGHT
-  -------------------------------------------------------------------------- */
-
-  const handleChangeWeight = (id, value) => {
-    setProfileRows((current) =>
-      current.map((row) =>
-        row.id === id
-          ? {
-              ...row,
-              weight: value,
-            }
-          : row
-      )
-    );
-  };
-
-  /* --------------------------------------------------------------------------
-     ADD PARAMETER
-  -------------------------------------------------------------------------- */
-
-  const handleAddParameter = () => {
-    setProfileRows((current) => [
-      ...current,
-      {
-        id: `custom-${Date.now()}`,
-        key: `customParameter${current.length + 1}`,
-        property: "",
-        criterion: "",
-        weight: "10%",
-        isNew: true,
-      },
-    ]);
-
-    setProfileEditMode?.(true);
-  };
-
-  /* --------------------------------------------------------------------------
-     DELETE PARAMETER
-  -------------------------------------------------------------------------- */
-
-  const handleDeleteParameter = (id) => {
-    setProfileRows((current) =>
-      current.filter((row) => row.id !== id)
-    );
-  };
-
-  /* --------------------------------------------------------------------------
-     ADD USER MESSAGE
-     
-     IMPORTANT:
-     Submit Profile is treated as a real chat/user action.
-  -------------------------------------------------------------------------- */
-
-  const appendUserMessage = (text) => {
-    if (!setChatMessages) {
-      return;
+    if (compound) {
+      setSelectedCompound?.(compound);
     }
 
-    setChatMessages((currentMessages = []) => [
-      ...currentMessages,
-      {
-        id: `user-${Date.now()}`,
-        role: "user",
-        text,
-        timestamp: new Date().toISOString(),
-      },
-    ]);
+    closeLegacyCompoundDetail();
+    setWorkflowPhase("curatex-compound-exploration");
   };
 
-  /* --------------------------------------------------------------------------
-     SUBMIT PROFILE
-  -------------------------------------------------------------------------- */
-
-  const handleSubmitProfile = () => {
-    const query = "Submit Profile";
-
-    /*
-     * Add the action to the actual conversation history.
-     * This makes the action appear as:
-     *
-     * DR. PRIYA (YOU)
-     * Submit Profile
-     */
-    appendUserMessage(query);
-
-    /*
-     * Store the submitted profile so the next phase uses the edited values.
-     */
-    const submittedProfile = {};
-
-    profileRows.forEach((row) => {
-      const key =
-        row.key ||
-        row.property
-          .replace(/\s+/g, "")
-          .replace(/^./, (char) => char.toLowerCase());
-
-      submittedProfile[key] = row.criterion;
-    });
-
-    setProfileData?.(submittedProfile);
-
-    setProfileEditMode?.(false);
-
-    /*
-     * Move directly to the CurateX result state.
-     */
+  const handleBackToResults = () => {
+    closeLegacyCompoundDetail();
     setWorkflowPhase("curatex-results");
   };
 
-  /* --------------------------------------------------------------------------
-     SELECT COMPOUND
-  -------------------------------------------------------------------------- */
-
-  const handleCompoundClick = (compound) => {
-    setSelectedCompoundLocal(compound);
-
-    setSelectedCompound?.(compound);
-
-    /*
-     * If the parent already controls a compound-detail overlay,
-     * use the existing mechanism.
-     */
-    if (setShowCompoundDetail) {
-      setShowCompoundDetail(true);
-    }
-  };
-
-  /* --------------------------------------------------------------------------
-     NEXT FROM RESULTS
-     
-     User requested:
-     Results -> Next -> Compound Exploration
-  -------------------------------------------------------------------------- */
-
-  const handleNextFromResults = () => {
-    const compound =
-      compounds[0] || DEFAULT_COMPOUNDS[0];
-
-    setSelectedCompoundLocal(compound);
-    setSelectedCompound?.(compound);
-
-    /*
-     * Prefer an explicit workflow phase so the next screen is
-     * a real CurateX screen instead of only opening a modal.
-     */
-    setWorkflowPhase("curatex-compound-detail");
-  };
-
-  /* --------------------------------------------------------------------------
-     NEXT FROM COMPOUND DETAIL
-     
-     Compound Exploration -> Next -> Candidate Selection
-  -------------------------------------------------------------------------- */
-
-  const handleNextFromCompoundDetail = () => {
+  const handleNextFromCompoundExploration = () => {
     setWorkflowPhase("curatex-candidate-selection");
   };
 
-  /* --------------------------------------------------------------------------
-     VIEW IN SCREENSUITE
-  -------------------------------------------------------------------------- */
-
-  const handleViewScreenSuite = () => {
+  const handleViewInScreenSuite = () => {
     setActiveStep?.(3);
     setWorkflowPhase("screensuite-loading");
   };
 
-  /* ==========================================================================
-     LOADING
-  ========================================================================== */
+  const handleAddParameterClick = () => {
+    setIsAddingParameter(true);
+  };
 
+  const handleDeleteParameter = (key) => {
+    if (!profileData || !setProfileData) return;
+    const next = { ...profileData };
+    delete next[key];
+    setProfileData(next);
+    setWeights((prev) => {
+      const nextWeights = { ...prev };
+      delete nextWeights[key];
+      return nextWeights;
+    });
+  };
+
+  const handleCancelEdit = () => {
+    setIsAddingParameter(false);
+    setNewParamName("");
+    setNewParamValue("");
+    setNewParamWeight("");
+    setProfileEditMode?.(false);
+  };
+
+  const handleSaveChanges = () => {
+    if (isAddingParameter && newParamName.trim() && newParamValue.trim()) {
+      const key = newParamName
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9]+(.)/g, (_, c) => c.toUpperCase());
+
+      setProfileData?.({ ...profileData, [key]: newParamValue.trim() });
+      setWeights((prev) => ({
+        ...prev,
+        [key]: newParamWeight.trim() || "10",
+      }));
+    }
+
+    setIsAddingParameter(false);
+    setNewParamName("");
+    setNewParamValue("");
+    setNewParamWeight("");
+    setProfileEditMode?.(false);
+  };
+
+  const propertyLabel = (key) =>
+    key
+      .replace(/([A-Z])/g, " $1")
+      .replace(/^./, (s) => s.toUpperCase())
+      .trim();
+
+  // ---------------------------------------------------------------------------
+  // CurateX Loading
+  // ---------------------------------------------------------------------------
   if (workflowPhase === "curatex-loading") {
-    const lastUserMessage =
-      chatMessages
-        ?.filter((message) => message.role === "user")
-        ?.slice(-1)[0]?.text ||
-      "Please generate a Target Candidate Profile for JAK2.";
+    const curatexQuery = "Generate a target candidate profile for JAK2";
 
     return (
-      <Box
-        sx={{
-          p: "24px 40px 40px",
-          backgroundColor: GRAY_BG,
-          minHeight: "100%",
-          boxSizing: "border-box",
-        }}
-      >
-        <UserMessage>{lastUserMessage}</UserMessage>
+      <Box className="curatex-page">
+        <div className="curatex-user-row">
+          <div className="curatex-user-bubble">
+            <Typography className="curatex-user-name">
+              DR. PRIYA (YOU)
+            </Typography>
 
-        <Box
-          sx={{
-            backgroundColor: "#FFFFFF",
-            border: `1px solid ${BORDER}`,
-            borderRadius: "12px",
-            p: "24px",
-          }}
-        >
+            <Typography className="curatex-user-text">
+              {curatexQuery}
+            </Typography>
+          </div>
+        </div>
+
+        <div className="curatex-agent-card">
           <AgentHeader label="INOVAPATH CURATEX AGENT" />
 
-          <Typography
-            sx={{
-              fontFamily: FONT,
-              fontSize: "14px",
-              color: TEXT_DARK,
-              mt: "12px",
-              mb: "20px",
-            }}
-          >
+          <Typography className="curatex-body-text curatex-loading-description">
             Searching for candidate compounds matching your JAK2 Target
             Profile...
           </Typography>
 
-          <Box
-            sx={{
-              backgroundColor: "#F1F5F9",
-              borderRadius: "4px",
-              height: "8px",
-              overflow: "hidden",
-              mb: "20px",
-            }}
-          >
-            <Box
-              sx={{
-                backgroundColor: TEAL,
-                height: "100%",
-                width: "65%",
-                borderRadius: "4px",
-              }}
-            />
-          </Box>
+          <div className="curatex-progress-track">
+            <div className="curatex-progress-fill" />
+          </div>
 
-          {[
-            {
-              label: "Analyzing target profile parameters...",
-              done: true,
-            },
-            {
-              label: "Scanning compound databases...",
-              done: true,
-            },
-            {
-              label: "Matching candidates against criteria...",
-              done: false,
-            },
-          ].map((step, index) => (
-            <Box
-              key={index}
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: "10px",
-                mb: "12px",
-              }}
-            >
-              <Typography
-                sx={{
-                  fontFamily: FONT,
-                  fontSize: "14px",
-                  color: TEAL,
-                }}
-              >
-                {step.done ? "✓" : "○"}
-              </Typography>
+          <div className="curatex-loading-steps">
+            {[
+              { label: "Analyzing target profile parameters...", state: "done" },
+              { label: "Scanning compound databases...", state: "done" },
+              { label: "Matching candidates against criteria...", state: "active" },
+            ].map((step, index) => (
+              <div className="curatex-loading-step" key={index}>
+                {step.state === "done" ? (
+                  <span className="curatex-step-dot curatex-step-dot--done">✓</span>
+                ) : (
+                  <span className="curatex-step-dot curatex-step-dot--active">
+                    <span className="curatex-spinner" />
+                  </span>
+                )}
 
-              <Typography
-                sx={{
-                  fontFamily: FONT,
-                  fontSize: "13px",
-                  color: step.done ? TEAL : TEXT_DARK,
-                }}
-              >
-                {step.label}
-              </Typography>
-            </Box>
-          ))}
-        </Box>
+                <Typography
+                  className={`curatex-loading-step-text ${
+                    step.state === "done" ? "is-done" : "is-active"
+                  }`}
+                >
+                  {step.label}
+                </Typography>
+              </div>
+            ))}
+          </div>
+        </div>
       </Box>
     );
   }
 
-  /* ==========================================================================
-     PROFILE
-  ========================================================================== */
-
+  // ---------------------------------------------------------------------------
+  // CurateX Target Product Profile (view / edit / add-parameter)
+  // ---------------------------------------------------------------------------
   if (workflowPhase === "curatex-profile") {
+    const subtitle = isAddingParameter
+      ? "Adding new parameter — fill in the name and value below"
+      : profileEditMode
+      ? "Editing mode — modify values below, then save changes"
+      : "Parameter added successfully. Review and submit to find matching candidates.";
+
+    const showInputs = profileEditMode || isAddingParameter;
+
     return (
-      <Box
-        sx={{
-          p: "24px 40px 40px",
-          backgroundColor: GRAY_BG,
-          minHeight: "100%",
-          boxSizing: "border-box",
-        }}
-      >
-        <ProfileScreen
-          profileRows={profileRows}
-          editMode={profileEditMode}
-          onEdit={handleEditValues}
-          onSave={handleSaveChanges}
-          onCancel={handleCancelEdit}
-          onSubmit={handleSubmitProfile}
-          onAddParameter={handleAddParameter}
-          onDelete={handleDeleteParameter}
-          onChangeProperty={handleChangeProperty}
-          onChangeCriterion={handleChangeCriterion}
-          onChangeWeight={handleChangeWeight}
-        />
+      <Box className="curatex-page">
+        <div className="curatex-user-row">
+          <div className="curatex-user-bubble">
+            <Typography className="curatex-user-name">
+              DR. PRIYA (YOU)
+            </Typography>
+
+            <Typography className="curatex-user-text">
+              {profileEditMode || isAddingParameter
+                ? "Please generate a Target Candidate Profile for JAK2."
+                : "Generate a target candidate profile for JAK2."}
+            </Typography>
+          </div>
+        </div>
+
+        <div className="curatex-agent-card">
+          <AgentHeader label="INOVAPATH CURATEX AGENT" />
+
+          <Typography className="curatex-body-text curatex-profile-intro">
+            I've generated a Target Product Profile for JAK2. Review and
+            adjust the parameters below, then submit to find matching
+            candidates.
+          </Typography>
+
+          <div className="curatex-profile-card">
+            <Typography className="curatex-profile-title">
+              Target Product Profile - JAK2
+            </Typography>
+
+            <Typography className="curatex-profile-subtitle">
+              {subtitle}
+            </Typography>
+
+            <div className="curatex-profile-grid curatex-profile-grid-header">
+              {["Property", "Target Criterion", "Weight"].map((header) => (
+                <Typography
+                  key={header}
+                  className={`curatex-table-header-text ${
+                    showInputs ? "is-edit" : ""
+                  }`}
+                >
+                  {header}
+                </Typography>
+              ))}
+              <span />
+            </div>
+
+            <div className="curatex-profile-grid">
+              {Object.entries(profileData).map(([key, value]) => (
+                <React.Fragment key={key}>
+                  <Typography className="curatex-profile-property">
+                    {propertyLabel(key)}
+                  </Typography>
+
+                  {profileEditMode ? (
+                    <TextField
+                      value={value}
+                      onChange={(event) =>
+                        setProfileData?.({
+                          ...profileData,
+                          [key]: event.target.value,
+                        })
+                      }
+                      size="small"
+                      fullWidth
+                      className="curatex-profile-input"
+                    />
+                  ) : (
+                    <Typography className="curatex-profile-value">
+                      {value}
+                    </Typography>
+                  )}
+
+                  <div className="curatex-weight-field">
+                    <Typography className="curatex-profile-weight">
+                      {weights[key] || "10"}%
+                    </Typography>
+                  </div>
+
+                  <IconButton
+                    size="small"
+                    className="curatex-profile-delete"
+                    onClick={() => handleDeleteParameter(key)}
+                  >
+                    <DeleteOutlineOutlined className="curatex-trash-icon" />
+                  </IconButton>
+                </React.Fragment>
+              ))}
+
+              {isAddingParameter && (
+                <>
+                  <TextField
+                    value={newParamName}
+                    onChange={(e) => setNewParamName(e.target.value)}
+                    placeholder="Parameter name..."
+                    size="small"
+                    fullWidth
+                    className="curatex-profile-input curatex-new-param-input"
+                  />
+
+                  <TextField
+                    value={newParamValue}
+                    onChange={(e) => setNewParamValue(e.target.value)}
+                    placeholder="Enter value or range..."
+                    size="small"
+                    fullWidth
+                    className="curatex-profile-input curatex-new-param-input"
+                  />
+
+                  <div className="curatex-weight-field curatex-weight-field--new">
+                    <TextField
+                      value={newParamWeight}
+                      onChange={(e) => setNewParamWeight(e.target.value)}
+                      placeholder="%"
+                      size="small"
+                      variant="standard"
+                      className="curatex-new-weight-input"
+                      InputProps={{ disableUnderline: true }}
+                    />
+                  </div>
+
+                  <IconButton size="small" className="curatex-profile-delete">
+                    <DeleteOutlineOutlined className="curatex-trash-icon" />
+                  </IconButton>
+                </>
+              )}
+            </div>
+
+            {profileEditMode && !isAddingParameter && (
+              <Button
+                startIcon={<AddOutlined />}
+                onClick={handleAddParameterClick}
+                className="curatex-add-parameter"
+              >
+                Add Parameter
+              </Button>
+            )}
+          </div>
+
+          <div className="curatex-action-row">
+            {profileEditMode || isAddingParameter ? (
+              <>
+                <Button
+                  variant="contained"
+                  onClick={handleSaveChanges}
+                  className="curatex-primary-button"
+                >
+                  Save Changes
+                </Button>
+
+                <Button
+                  variant="outlined"
+                  onClick={handleCancelEdit}
+                  className="curatex-secondary-button"
+                >
+                  Cancel
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  variant="contained"
+                  onClick={() => {
+                    setCurateXResults?.([
+                      { rank: 1, name: "Metformin", matchedProps: "MW, Bioavail, Route, Half-life, LogP", mismatchedProps: "Solubility", score: "93.5" },
+                      { rank: 2, name: "Pioglitazone", matchedProps: "MW, Route, Half-life, LogP, Solubility", mismatchedProps: "Bioavail", score: "89.2" },
+                      { rank: 3, name: "Canagliflozin", matchedProps: "MW, Route, Bioavail, LogP", mismatchedProps: "Half-life, Solubility", score: "85.7" },
+                      { rank: 4, name: "Empagliflozin", matchedProps: "MW, Route, Bioavail, Half-life", mismatchedProps: "LogP, Solubility", score: "82.4" },
+                      { rank: 5, name: "Liragluide", matchedProps: "MW, Bioavail, Half-life", mismatchedProps: "Route, LogP, Solubility", score: "78.1" },
+                      { rank: 6, name: "Sitagliptin", matchedProps: "MW, Route, LogP, Solubility", mismatchedProps: "Bioavail, Half-life, Solubility", score: "74.6" },
+                    ]);
+                    setWorkflowPhase("curatex-results");
+                  }}
+                  className="curatex-primary-button"
+                >
+                  Submit Profile
+                </Button>
+
+                <Button
+                  variant="outlined"
+                  onClick={() => setProfileEditMode?.(true)}
+                  className="curatex-secondary-button curatex-edit-button"
+                >
+                  Edit Values
+                </Button>
+              </>
+            )}
+          </div>
+        </div>
       </Box>
     );
   }
 
-  /* ==========================================================================
-     RESULTS
-  ========================================================================== */
+  // ---------------------------------------------------------------------------
+  // CurateX Submitted / Scoring
+  // ---------------------------------------------------------------------------
+  if (workflowPhase === "curatex-submitted") {
+    return (
+      <Box className="curatex-page curatex-submitted-page">
+        <div className="curatex-agent-card curatex-submitted-card">
+          <AgentHeader label="INOVAPATH CURATEX AGENT" />
+          <Typography className="curatex-body-text curatex-results-intro">
+            Profile submitted. Scoring compounds against your JAK2 target product profile...
+          </Typography>
+          <div className="curatex-progress-track">
+            <div className="curatex-progress-fill" />
+          </div>
+          <Typography className="curatex-loading-step-text is-active">
+            Matching candidates against target criteria...
+          </Typography>
+        </div>
+      </Box>
+    );
+  }
 
+  // ---------------------------------------------------------------------------
+  // CurateX Results
+  // ---------------------------------------------------------------------------
   if (workflowPhase === "curatex-results") {
     return (
-      <Box
-        sx={{
-          p: "24px 40px 40px",
-          backgroundColor: GRAY_BG,
-          minHeight: "100%",
-          boxSizing: "border-box",
-        }}
-      >
-        <ResultsScreen
-          compounds={compounds}
-          onCompoundClick={handleCompoundClick}
-          onNext={handleNextFromResults}
-        />
+      <Box className="curatex-page">
+        <div className="curatex-user-row">
+          <div className="curatex-user-bubble">
+            <Typography className="curatex-user-name">
+              DR. PRIYA (YOU)
+            </Typography>
+
+            <Typography className="curatex-user-text">
+              Submit Profile
+            </Typography>
+          </div>
+        </div>
+
+        <div className="curatex-agent-card curatex-results-card">
+          <AgentHeader label="INOVAPATH CURATEX AGENT" />
+
+          <Typography className="curatex-body-text curatex-results-intro">
+            Profile submitted. Scoring 124 compounds against your JAK2 target
+            product profile. Here are the top candidates:
+          </Typography>
+
+          <div className="curatex-results-table">
+            <div className="curatex-results-header">
+              <Typography className="curatex-results-header-cell">
+                RANK
+              </Typography>
+              <Typography className="curatex-results-header-cell">
+                COMPOUND
+              </Typography>
+              <Typography className="curatex-results-header-cell">
+                MATCHED PROPERTIES
+              </Typography>
+              <Typography className="curatex-results-header-cell">
+                MISMATCHED
+              </Typography>
+              <span />
+            </div>
+
+            {curateXResults.map((compound, index) => {
+              const isExpanded = expandedRow === index;
+
+              return (
+                <React.Fragment key={compound.rank ?? compound.name ?? index}>
+                  <div
+                    className={`curatex-result-row ${
+                      isExpanded ? "is-expanded" : ""
+                    }`}
+                    onClick={() => {
+                      setSelectedCompound?.(compound);
+                      setExpandedRow(isExpanded ? -1 : index);
+                    }}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter" || event.key === " ") {
+                        setSelectedCompound?.(compound);
+                        setExpandedRow(isExpanded ? -1 : index);
+                      }
+                    }}
+                  >
+                    <Typography className="curatex-rank">
+                      {compound.rank}
+                    </Typography>
+
+                    <Typography className="curatex-compound-name">
+                      {compound.name}
+                    </Typography>
+
+                    <Typography className="curatex-matched-properties">
+                      {compound.matchedProps}
+                    </Typography>
+
+                    <Typography className="curatex-mismatched-properties">
+                      {compound.mismatchedProps}
+                    </Typography>
+
+                    <Typography className="curatex-row-chevron">
+                      {isExpanded ? "⌃" : "›"}
+                    </Typography>
+                  </div>
+
+                  {isExpanded && (
+                    <div className="curatex-match-details">
+                      <div className="curatex-match-details-heading">
+                        <Typography className="curatex-match-details-title">
+                          Match Details — {compound.name} vs JAK2 Target
+                          Profile
+                        </Typography>
+
+                        <Button
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            handleViewDataSource(compound);
+                          }}
+                          className="curatex-view-source-button"
+                        >
+                          View Data Source ↗
+                        </Button>
+                      </div>
+
+                      <div className="curatex-match-detail-list">
+                        {MATCH_DETAILS.map((detail) => (
+                          <div className="curatex-match-detail-row" key={detail.label}>
+                            <Typography className="curatex-match-detail-label">
+                              {detail.label}
+                            </Typography>
+                            <Typography className="curatex-match-detail-target">
+                              {detail.target}
+                            </Typography>
+                            <Typography className="curatex-match-detail-arrow">
+                              →
+                            </Typography>
+                            <Typography className="curatex-match-detail-value">
+                              {detail.value}
+                            </Typography>
+                            <Typography
+                              className={`curatex-match-detail-status ${
+                                detail.status === "partial" ? "is-partial" : "is-match"
+                              }`}
+                            >
+                              {detail.status === "partial" ? "~" : "✓"}
+                            </Typography>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </React.Fragment>
+              );
+            })}
+          </div>
+
+          <div className="curatex-pagination">
+            <button type="button" className="curatex-page-button disabled">
+              ‹
+            </button>
+            <button type="button" className="curatex-page-button active">
+              1
+            </button>
+            <button type="button" className="curatex-page-button">2</button>
+            <button type="button" className="curatex-page-button">3</button>
+            <button type="button" className="curatex-page-button">…</button>
+            <button type="button" className="curatex-page-button">12</button>
+            <button type="button" className="curatex-page-button">›</button>
+
+            <Typography className="curatex-pagination-text">
+              Showing 1-6 of 124 compounds
+            </Typography>
+          </div>
+
+          <div className="curatex-recommendation-card">
+            <Typography className="curatex-recommendation-title">
+              Recommendation
+            </Typography>
+
+            <Typography className="curatex-recommendation-text">
+              Metformin and Pioglitazone are the strongest candidates. Both
+              match on molecular weight, route of administration, and
+              half-life. Metformin scores highest due to superior
+              bioavailability alignment. Recommend carrying both forward to
+              screening.
+            </Typography>
+          </div>
+
+          <div className="curatex-results-actions">
+            <Button
+              variant="outlined"
+              className="curatex-secondary-button"
+            >
+              Branch
+            </Button>
+
+            <Button
+              variant="outlined"
+              className="curatex-secondary-button"
+            >
+              Rerun
+            </Button>
+
+            <Button
+              variant="contained"
+              onClick={handleNextFromResults}
+              className="curatex-primary-button curatex-next-button"
+            >
+              Next
+            </Button>
+          </div>
+        </div>
       </Box>
     );
   }
 
-  /* ==========================================================================
-     COMPOUND EXPLORATION
-  ========================================================================== */
+  // ---------------------------------------------------------------------------
+  // Data Source Screen
+  // ---------------------------------------------------------------------------
+  if (workflowPhase === "curatex-data-source") {
+    const compound = activeCompound;
 
-  if (workflowPhase === "curatex-compound-detail") {
     return (
-      <Box
-        sx={{
-          p: "24px 40px 40px",
-          backgroundColor: GRAY_BG,
-          minHeight: "100%",
-          boxSizing: "border-box",
-        }}
-      >
-        <CompoundExplorationScreen
-          compound={selectedCompoundLocal}
-          onBack={() => setWorkflowPhase("curatex-results")}
-          onNext={handleNextFromCompoundDetail}
-        />
+      <Box className="curatex-data-source-page">
+        <Button
+          onClick={handleBackToResults}
+          className="curatex-back-link"
+        >
+          ← Back to Results
+        </Button>
+
+        <Typography className="curatex-data-source-title">
+          Data Source: {compound?.name || "Metformin"} — JAK2 Match
+        </Typography>
+
+        <div className="curatex-source-summary-card">
+          <SourceSummary
+            label="Compound Name"
+            value={compound?.name || "Metformin"}
+            accent
+          />
+
+          <SourceSummary label="CAS Number" value="657-24-9" />
+
+          <SourceSummary label="Molecular Formula" value="C₄H₁₁N₅" />
+
+          <SourceSummary label="DrugBank ID" value="DB00331" />
+
+          <div className="curatex-source-summary-field">
+            <Typography className="curatex-source-label">
+              Overall Match Score
+            </Typography>
+
+            <div className="curatex-score-badge">94%</div>
+          </div>
+        </div>
+
+        <Typography className="curatex-source-section-title">
+          Source Data Comparison
+        </Typography>
+
+        <div className="curatex-source-table">
+          <SourceTableHeader />
+
+          <SourceRow
+            parameter="Molecular Weight"
+            target="< 500 Da"
+            value="129.16 Da"
+            source="DrugBank"
+            status="✓ Match"
+            statusType="match"
+            confidence="High"
+          />
+
+          <SourceRow
+            parameter="Bioavailability"
+            target="> 60%"
+            value="50-60%"
+            source="FDA Label"
+            status="⚠ Partial"
+            statusType="partial"
+            confidence="Medium"
+          />
+
+          <SourceRow
+            parameter="Half-life"
+            target="8-12 hours"
+            value="6.2 hours"
+            source="PubChem"
+            status="✕ Mismatch"
+            statusType="mismatch"
+            confidence="High"
+          />
+
+          <SourceRow
+            parameter="LogP"
+            target="1.5-3.5"
+            value="-1.43"
+            source="ChEMBL"
+            status="✕ Mismatch"
+            statusType="mismatch"
+            confidence="High"
+          />
+
+          <SourceRow
+            parameter="Solubility"
+            target="> 10 mg/mL"
+            value=">300 mg/mL"
+            source="DrugBank"
+            status="✓ Match"
+            statusType="match"
+            confidence="High"
+          />
+
+          <SourceRow
+            parameter="Route of Administration"
+            target="Oral"
+            value="Oral"
+            source="FDA Label"
+            status="✓ Match"
+            statusType="match"
+            confidence="High"
+          />
+
+          <SourceRow
+            parameter="Mechanism of Action"
+            target="JAK2 Inhibition"
+            value="AMPK Activation"
+            source="PubMed"
+            status="⚠ Partial"
+            statusType="partial"
+            confidence="Medium"
+          />
+
+          <SourceRow
+            parameter="Indication"
+            target="Type 2 Diabetes"
+            value="Type 2 Diabetes"
+            source="DailyMed"
+            status="✓ Match"
+            statusType="match"
+            confidence="High"
+          />
+
+          <SourceRow
+            parameter="Plasma Protein Binding"
+            target="< 90%"
+            value="Negligible"
+            source="DrugBank"
+            status="✓ Match"
+            statusType="match"
+            confidence="High"
+          />
+        </div>
+
+        <Typography className="curatex-source-section-title">
+          Source References
+        </Typography>
+
+        <div className="curatex-source-references">
+          <SourceReference
+            number="1"
+            title="DrugBank (DB00331)"
+            updated="Last updated: Jan 2024"
+            url="drugbank.ca/drugs/DB00331"
+          />
+
+          <SourceReference
+            number="2"
+            title="PubChem (CID 4091)"
+            updated="Last updated: Mar 2024"
+            url="pubchem.ncbi.nlm.nih.gov"
+          />
+
+          <SourceReference
+            number="3"
+            title="ChEMBL (CHEMBL1431)"
+            updated="Last updated: Feb 2024"
+            url="ebi.ac.uk/chembl"
+          />
+
+          <SourceReference
+            number="4"
+            title="FDA Label"
+            updated="Approval: 1995"
+            url="accessdata.fda.gov"
+          />
+
+          <SourceReference
+            number="5"
+            title="PubMed"
+            updated="3 relevant articles cited"
+            url="pubmed.ncbi.nlm.nih.gov"
+          />
+        </div>
       </Box>
     );
   }
 
-  /* ==========================================================================
-     CANDIDATE SELECTION
-  ========================================================================== */
+  // ---------------------------------------------------------------------------
+  // Compound Exploration Screen
+  // ---------------------------------------------------------------------------
+  if (workflowPhase === "curatex-compound-exploration") {
+    const compound = activeCompound;
 
+    return (
+      <Box className="curatex-page curatex-exploration-page">
+        <div className="curatex-user-row">
+          <div className="curatex-user-bubble curatex-user-bubble--wide">
+            <Typography className="curatex-user-name">
+              DR. PRIYA (YOU)
+            </Typography>
+
+            <Typography className="curatex-user-text">
+              Tell me more about {compound?.name || "Metformin"} - mechanism
+              of action, current uses, and patent status.
+            </Typography>
+          </div>
+        </div>
+
+        <div className="curatex-agent-card curatex-exploration-card">
+          <AgentHeader label="INOVAPATH CURATEX AGENT" />
+
+          <Typography className="curatex-body-text curatex-exploration-intro">
+            Here is the detailed compound profile for{" "}
+            {compound?.name || "Metformin"}:
+          </Typography>
+
+          <div className="curatex-compound-detail-card">
+            <Typography className="curatex-compound-detail-title">
+              {compound?.name || "Metformin"} - Compound Detail
+            </Typography>
+
+            <Typography className="curatex-compound-detail-subtitle">
+              Summary of mechanism, clinical use, and IP status.
+            </Typography>
+
+            <CompoundSection
+              title="Mechanism of Action"
+              text="Metformin activates AMP-activated protein kinase (AMPK), reducing hepatic glucose production and improving insulin sensitivity. In the context of JAK2 inhibition, recent studies suggest Metformin may modulate JAK-STAT signaling indirectly through AMPK activation."
+            />
+
+            <CompoundSection
+              title="Current Uses"
+              text="First-line therapy for Type 2 Diabetes. Also used off-label for PCOS, weight management, and under investigation for anti-aging and oncology applications."
+            />
+
+            <CompoundSection
+              title="Patent Status"
+              text="Original patents expired. Generic formulations widely available. Novel formulations and combination therapies may carry active IP - 3 relevant patents identified by NovSearch."
+            />
+
+            <CompoundSection
+              title="Match Score"
+              text="94% - Strong alignment on 5 of 6 target profile properties."
+              last
+            />
+          </div>
+
+          <Typography className="curatex-source-note">
+            Source: PubMed, DrugBank, USPTO via NovSearch
+          </Typography>
+
+          <div className="curatex-exploration-actions">
+            <Button
+              variant="outlined"
+              onClick={handleBackToResults}
+              className="curatex-secondary-button"
+            >
+              Back to Results
+            </Button>
+
+            <Button
+              variant="contained"
+              onClick={handleNextFromCompoundExploration}
+              className="curatex-primary-button"
+            >
+              Next
+            </Button>
+          </div>
+        </div>
+      </Box>
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Candidate Selection Screen
+  // ---------------------------------------------------------------------------
   if (workflowPhase === "curatex-candidate-selection") {
     return (
-      <Box
-        sx={{
-          p: "24px 40px 40px",
-          backgroundColor: GRAY_BG,
-          minHeight: "100%",
-          boxSizing: "border-box",
-        }}
-      >
-        <CandidateSelectionScreen
-          onBack={() => setWorkflowPhase("curatex-results")}
-          onScreen={handleViewScreenSuite}
-        />
+      <Box className="curatex-page curatex-candidate-page">
+        <div className="curatex-agent-card curatex-candidate-question-card">
+          <AgentHeader label="INOVAPATH CURATEX AGENT" />
+
+          <Typography className="curatex-body-text curatex-candidate-question">
+            Would you like to select specific candidates for screening, or
+            should I proceed with the top-ranked compounds (Metformin and
+            Pioglitazone) automatically?
+          </Typography>
+        </div>
+
+        <div className="curatex-user-row">
+          <div className="curatex-user-bubble curatex-user-bubble--wide">
+            <Typography className="curatex-user-name">
+              DR. PRIYA (YOU)
+            </Typography>
+
+            <Typography className="curatex-user-text">
+              Go with the top two - Metformin and Pioglitazone. Send them to
+              ScreenSuite for docking.
+            </Typography>
+          </div>
+        </div>
+
+        <div className="curatex-agent-card curatex-candidate-card">
+          <AgentHeader label="INOVAPATH CURATEX AGENT" />
+
+          <Typography className="curatex-body-text curatex-candidate-intro">
+            Selected candidates forwarded to ScreenSuite for molecular
+            docking:
+          </Typography>
+
+          {["Metformin", "Pioglitazone"].map((compoundName) => (
+            <div className="curatex-candidate-compound" key={compoundName}>
+              <Typography className="curatex-candidate-name">
+                {compoundName}
+              </Typography>
+
+              <Typography className="curatex-candidate-target">
+                Target: JAK2
+              </Typography>
+            </div>
+          ))}
+
+          <Typography className="curatex-candidate-status">
+            ScreenSuite is now running PLP docking simulations. Estimated
+            completion: ~5 minutes.
+          </Typography>
+
+          <div className="curatex-candidate-actions">
+            <Button
+              variant="contained"
+              onClick={handleViewInScreenSuite}
+              className="curatex-primary-button"
+            >
+              View in ScreenSuite
+            </Button>
+
+            <Button
+              variant="outlined"
+              onClick={handleBackToResults}
+              className="curatex-secondary-button"
+            >
+              Back to Results
+            </Button>
+          </div>
+        </div>
       </Box>
     );
   }
 
   return null;
 };
+
+// -----------------------------------------------------------------------------
+// Reusable components
+// -----------------------------------------------------------------------------
+
+const SourceSummary = ({ label, value, accent = false }) => (
+  <div className="curatex-source-summary-field">
+    <Typography className="curatex-source-label">{label}</Typography>
+
+    <Typography
+      className={`curatex-source-summary-value ${
+        accent ? "is-accent" : ""
+      }`}
+    >
+      {value}
+    </Typography>
+  </div>
+);
+
+const SourceTableHeader = () => (
+  <div className="curatex-source-table-header">
+    {[
+      "PARAMETER",
+      "TARGET CRITERION",
+      "SOURCE VALUE",
+      "SOURCE",
+      "MATCH STATUS",
+      "CONFIDENCE",
+    ].map((header) => (
+      <Typography key={header} className="curatex-source-table-header-cell">
+        {header}
+      </Typography>
+    ))}
+  </div>
+);
+
+const SourceRow = ({
+  parameter,
+  target,
+  value,
+  source,
+  status,
+  statusType,
+  confidence,
+}) => (
+  <div className="curatex-source-table-row">
+    <Typography className="curatex-source-cell strong">
+      {parameter}
+    </Typography>
+
+    <Typography className="curatex-source-cell">{target}</Typography>
+
+    <Typography className="curatex-source-cell strong">
+      {value}
+    </Typography>
+
+    <Typography className="curatex-source-cell">{source}</Typography>
+
+    <div>
+      <span
+        className={`curatex-status-badge curatex-status-${statusType}`}
+      >
+        {status}
+      </span>
+    </div>
+
+    <div>
+      <span
+        className={`curatex-confidence-badge ${
+          confidence === "High" ? "is-high" : "is-medium"
+        }`}
+      >
+        {confidence}
+      </span>
+    </div>
+  </div>
+);
+
+const SourceReference = ({ number, title, updated, url }) => (
+  <div className="curatex-source-reference">
+    <div className="curatex-source-reference-left">
+      <div className="curatex-source-reference-number">{number}</div>
+
+      <div>
+        <Typography className="curatex-source-reference-title">
+          {title}
+        </Typography>
+
+        <Typography className="curatex-source-reference-updated">
+          {updated}
+        </Typography>
+      </div>
+    </div>
+
+    <Typography className="curatex-source-reference-url">{url}</Typography>
+  </div>
+);
+
+const CompoundSection = ({ title, text, last = false }) => (
+  <div className={`curatex-compound-section ${last ? "is-last" : ""}`}>
+    <Typography className="curatex-compound-section-title">
+      {title}
+    </Typography>
+
+    <Typography className="curatex-compound-section-text">
+      {text}
+    </Typography>
+  </div>
+);
 
 export default CuratexPhase;

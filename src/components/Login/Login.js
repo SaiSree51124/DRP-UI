@@ -1,8 +1,8 @@
 ﻿import React, { useState } from "react";
 import "./Login.css";
 
-import molecularBg from "./assets/inovapath-loginbg.webp";
-import inovapathLogo from "./assets/inovapath-logo.png";
+import molecularBg from "../assets/inovapath-loginbg.webp";
+import inovapathLogo from "../assets/inovapath-logo.png";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);

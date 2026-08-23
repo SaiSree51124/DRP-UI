@@ -1482,10 +1482,10 @@
 }
 
 .user-message-text {
-  font-family: 'Geist';
+  font-family: 'Inter';
   font-style: normal;
   font-weight: 400;
-  font-size: 18px;
+  font-size: 15px;
   line-height: 22px;
   letter-spacing: 0;
   color: #1E293B;

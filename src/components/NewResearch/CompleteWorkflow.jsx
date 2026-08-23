@@ -62,6 +62,16 @@ const CompleteWorkflow = () => {
   const [viewMode, setViewMode] = useState("chat"); // 'chat' | 'artifacts'
   const [showShareDialog, setShowShareDialog] = useState(false);
 
+  // Share Research Session modal
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [shareEmail, setShareEmail] = useState("");
+  const [sharePermission, setSharePermission] = useState("can view");
+  const [sharePeople, setSharePeople] = useState([
+    { initials: "PS", name: "Dr. Priya Sharma", email: "priya@inovapath.com", role: "Owner", color: "#00BCD4" },
+    { initials: "RM", name: "Dr. Rahul Menon", email: "rahul.m@inovapath.com", role: "Editor", color: "#00C2B5" },
+    { initials: "SC", name: "Sarah Chen", email: "sarah.c@inovapath.com", role: "Viewer", color: "#8C4DBF" },
+  ]);
+
   const [profileData, setProfileData] = useState({
     indication: "Type 2 Diabetes",
     moa: "JAK2 Inhibition",
@@ -107,6 +117,15 @@ const CompleteWorkflow = () => {
     if (workflowPhase === "curatex-loading") {
       const timer = setTimeout(() => setWorkflowPhase("curatex-profile"), 2000);
       return () => clearTimeout(timer);
+    }
+    if (workflowPhase === "screensuite-loading") {
+      const timer = setTimeout(() => {
+        setWorkflowPhase("screensuite-results");
+      }, 8000);
+      return () => clearTimeout(timer);
+    }
+    if (workflowPhase === "screensuite-results") {
+      return undefined;
     }
     if (workflowPhase === "curatex-submitted") {
       const timer = setTimeout(() => {
@@ -218,8 +237,10 @@ const CompleteWorkflow = () => {
         case 'curatex-profile':  return { badge: 3, title: "Target profile",            count: "",      dotColor: "#00BCD4", statusText: "Profile ready" };
         case 'curatex-submitted':return { badge: 3, title: "Compound screening",        count: "/ ...", dotColor: "#FFC107", statusText: "Scoring compounds..." };
         case 'curatex-results':  return { badge: 3, title: "Compound screening",        count: "/ 124", dotColor: "#00BCD4", statusText: "6 matches found" };
+        case 'screensuite-loading': return { badge: 4, title: "Docking initialization", count: "/ 2", dotColor: "#FFC107", statusText: "Pipeline starting" };
+        case 'screensuite-results': return { badge: 4, title: "Docking results", count: "/ 2", dotColor: "#00BCD4", statusText: "Docking complete" };
         default:
-          if (workflowPhase.startsWith('screensuite')) return { badge: 4, title: "Screening suite", count: "", dotColor: "#FFC107", statusText: "Processing..." };
+          if (workflowPhase.startsWith('screensuite')) return { badge: 4, title: "Docking initialization", count: "/ 2", dotColor: "#FFC107", statusText: "Pipeline starting" };
           if (workflowPhase.startsWith('novelty'))     return { badge: 5, title: "Novelty search",   count: "", dotColor: "#FFC107", statusText: "Processing..." };
           return { badge: activeStep + 1, title: WORKFLOW_STEPS[activeStep]?.label || "", count: "", dotColor: "#00BCD4", statusText: "" };
       }
@@ -446,6 +467,462 @@ const CompleteWorkflow = () => {
 
 
   // Phase rendering is handled by TXKGPhase, LiteminexPhase, CuratexPhase components
+
+  // Share Research Session Dialog — Figma-aligned 520 × 393px
+  const ShareResearchDialog = () => {
+    const handleSendInvite = () => {
+      const email = shareEmail.trim();
+      if (!email) return;
+
+      const namePart = email.split("@")[0].replace(/[._-]+/g, " ");
+      const name = namePart
+        .split(" ")
+        .filter(Boolean)
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(" ") || "New member";
+      const initials = name
+        .split(" ")
+        .filter(Boolean)
+        .slice(0, 2)
+        .map(word => word.charAt(0))
+        .join("")
+        .toUpperCase();
+
+      setSharePeople(current => [
+        ...current,
+        {
+          initials,
+          name,
+          email,
+          role: sharePermission === "can edit" ? "Editor" : "Viewer",
+          color: "#64748B",
+        },
+      ]);
+      setShareEmail("");
+    };
+
+    const handleCopyLink = async () => {
+      const link = window.location.href;
+      try {
+        await navigator.clipboard.writeText(link);
+      } catch (error) {
+        const textArea = document.createElement("textarea");
+        textArea.value = link;
+        textArea.style.position = "fixed";
+        textArea.style.opacity = "0";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textArea);
+      }
+    };
+
+    return (
+      <Dialog
+        open={showShareModal}
+        onClose={() => setShowShareModal(false)}
+        maxWidth={false}
+        PaperProps={{
+          sx: {
+            width: "520px",
+            height: "393px",
+            maxWidth: "calc(100vw - 32px)",
+            maxHeight: "calc(100vh - 32px)",
+            m: 0,
+            p: "24px",
+            boxSizing: "border-box",
+            bgcolor: "#FFFFFF",
+            border: "1px solid #E2E8F0",
+            borderRadius: "12px",
+            boxShadow: "0px 10px 24px -8px rgba(0, 0, 0, 0.0784314)",
+            overflow: "hidden",
+          },
+        }}
+        sx={{
+          "& .MuiDialog-container": {
+            p: "16px",
+          },
+        }}
+      >
+        <Box
+          sx={{
+            width: "100%",
+            height: "100%",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "stretch",
+            gap: "16px",
+            fontFamily: "'Inter', sans-serif",
+          }}
+        >
+          {/* Header */}
+          <Box
+            sx={{
+              width: "100%",
+              height: "32px",
+              flex: "0 0 32px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
+            <Typography
+              sx={{
+                fontFamily: "'Inter', sans-serif",
+                fontSize: "16px",
+                lineHeight: "19px",
+                fontWeight: 600,
+                color: "#1E293B",
+              }}
+            >
+              Share Research Session
+            </Typography>
+
+            <IconButton
+              aria-label="Close share dialog"
+              onClick={() => setShowShareModal(false)}
+              sx={{
+                width: "32px",
+                height: "32px",
+                p: 0,
+                bgcolor: "#F1F5F9",
+                borderRadius: "8px",
+                "&:hover": { bgcolor: "#E2E8F0" },
+              }}
+            >
+              <CloseOutlined sx={{ fontSize: "16px", color: "#64748B" }} />
+            </IconButton>
+          </Box>
+
+          {/* Invite row */}
+          <Box
+            sx={{
+              width: "100%",
+              height: "40px",
+              flex: "0 0 40px",
+              display: "flex",
+              alignItems: "center",
+              gap: "12px",
+            }}
+          >
+            <Box
+              component="input"
+              value={shareEmail}
+              onChange={(event) => setShareEmail(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") handleSendInvite();
+              }}
+              placeholder="Add people by name or email..."
+              sx={{
+                boxSizing: "border-box",
+                minWidth: 0,
+                flex: 1,
+                width: "308px",
+                height: "40px",
+                px: "12px",
+                border: "1px solid #E2E8F0",
+                borderRadius: "8px",
+                outline: "none",
+                bgcolor: "#FFFFFF",
+                color: "#1E293B",
+                fontFamily: "'Inter', sans-serif",
+                fontSize: "13px",
+                lineHeight: "16px",
+                "&::placeholder": {
+                  color: "#94A3B8",
+                  opacity: 1,
+                },
+                "&:focus": {
+                  borderColor: "#00BCD4",
+                  boxShadow: "0 0 0 2px rgba(0,188,212,0.10)",
+                },
+              }}
+            />
+
+            <Button
+              onClick={handleSendInvite}
+              disabled={!shareEmail.trim()}
+              sx={{
+                flex: "0 0 65px",
+                width: "65px",
+                minWidth: "65px",
+                height: "40px",
+                p: "0 16px",
+                borderRadius: "8px",
+                bgcolor: "#00BCD4",
+                color: "#FFFFFF",
+                textTransform: "none",
+                fontFamily: "'Inter', sans-serif",
+                fontSize: "13px",
+                lineHeight: "16px",
+                fontWeight: 600,
+                "&:hover": { bgcolor: "#00ABC1" },
+                "&.Mui-disabled": {
+                  bgcolor: "#9EDFE8",
+                  color: "#FFFFFF",
+                },
+              }}
+            >
+              Send
+            </Button>
+
+            {/* Permission selector */}
+            <Box sx={{ position: "relative", flex: "0 0 75px", width: "75px" }}>
+              <Box
+                component="button"
+                type="button"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  setSharePermission(current => current === "can view" ? "can edit" : "can view");
+                }}
+                sx={{
+                  width: "75px",
+                  height: "16px",
+                  p: 0,
+                  border: 0,
+                  bgcolor: "transparent",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  cursor: "pointer",
+                  color: "#64748B",
+                  fontFamily: "'Inter', sans-serif",
+                  fontSize: "13px",
+                  lineHeight: "16px",
+                  textTransform: "none",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                <span>{sharePermission}</span>
+                <ExpandMoreOutlined sx={{ fontSize: "14px", color: "#64748B" }} />
+              </Box>
+            </Box>
+          </Box>
+
+          {/* Divider */}
+          <Box sx={{ width: "100%", height: "1px", flex: "0 0 1px", bgcolor: "#E2E8F0" }} />
+
+          {/* People with access */}
+          <Box
+            sx={{
+              width: "100%",
+              height: "151px",
+              flex: "0 0 151px",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "stretch",
+              gap: "12px",
+              overflow: "hidden",
+            }}
+          >
+            <Typography
+              sx={{
+                height: "16px",
+                fontFamily: "'Inter', sans-serif",
+                fontSize: "13px",
+                lineHeight: "16px",
+                fontWeight: 600,
+                color: "#1E293B",
+              }}
+            >
+              People with access
+            </Typography>
+
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "10px",
+                overflowY: "auto",
+                pr: "2px",
+                "&::-webkit-scrollbar": { width: "4px" },
+                "&::-webkit-scrollbar-thumb": { background: "#CBD5E1", borderRadius: "4px" },
+              }}
+            >
+              {sharePeople.map((person, index) => (
+                <Box
+                  key={`${person.email}-${index}`}
+                  sx={{
+                    width: "100%",
+                    minHeight: "33px",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "12px",
+                  }}
+                >
+                  <Box
+                    sx={{
+                      width: "32px",
+                      height: "32px",
+                      flex: "0 0 32px",
+                      borderRadius: "50%",
+                      bgcolor: person.color,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <Typography
+                      sx={{
+                        fontFamily: "'Inter', sans-serif",
+                        fontSize: "12px",
+                        lineHeight: "15px",
+                        fontWeight: 700,
+                        color: "#FFFFFF",
+                      }}
+                    >
+                      {person.initials}
+                    </Typography>
+                  </Box>
+
+                  <Box
+                    sx={{
+                      minWidth: 0,
+                      flex: 1,
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "2px",
+                    }}
+                  >
+                    <Typography
+                      sx={{
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                        fontFamily: "'Inter', sans-serif",
+                        fontSize: "13px",
+                        lineHeight: "16px",
+                        fontWeight: 500,
+                        color: "#1E293B",
+                      }}
+                    >
+                      {person.name}
+                    </Typography>
+                    <Typography
+                      sx={{
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                        fontFamily: "'Inter', sans-serif",
+                        fontSize: "12px",
+                        lineHeight: "15px",
+                        fontWeight: 400,
+                        color: "#64748B",
+                      }}
+                    >
+                      {person.email}
+                    </Typography>
+                  </Box>
+
+                  <Box
+                    sx={{
+                      flexShrink: 0,
+                      minWidth: person.role === "Owner" ? "58px" : person.role === "Editor" ? "54px" : "60px",
+                      height: "23px",
+                      px: "10px",
+                      borderRadius: "999px",
+                      bgcolor: "#F1F5F9",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <Typography
+                      sx={{
+                        fontFamily: "'Inter', sans-serif",
+                        fontSize: "12px",
+                        lineHeight: "15px",
+                        fontWeight: 500,
+                        color: "#64748B",
+                      }}
+                    >
+                      {person.role}
+                    </Typography>
+                  </Box>
+                </Box>
+              ))}
+            </Box>
+          </Box>
+
+          {/* Divider */}
+          <Box sx={{ width: "100%", height: "1px", flex: "0 0 1px", bgcolor: "#E2E8F0" }} />
+
+          {/* Footer */}
+          <Box
+            sx={{
+              width: "100%",
+              height: "40px",
+              flex: "0 0 40px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
+            <Button
+              onClick={handleCopyLink}
+              startIcon={
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <path
+                    d="M6.25 9.75L9.75 6.25M4.75 11.25L3.25 12.75C2.42157 13.5784 1.07843 13.5784 0.25 12.75C-0.578427 11.9216 -0.578427 10.5784 0.25 9.75L3.75 6.25C4.57843 5.42157 5.92157 5.42157 6.75 6.25"
+                    transform="translate(1 0)"
+                    stroke="#00BCD4"
+                    strokeWidth="1.7"
+                    strokeLinecap="round"
+                  />
+                  <path
+                    d="M9.25 4.75L10.75 3.25C11.5784 2.42157 12.9216 2.42157 13.75 3.25C14.5784 4.07843 14.5784 5.42157 13.75 6.25L10.25 9.75C9.42157 10.5784 8.07843 10.5784 7.25 9.75"
+                    transform="translate(-1 0)"
+                    stroke="#00BCD4"
+                    strokeWidth="1.7"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              }
+              sx={{
+                minWidth: "82px",
+                height: "16px",
+                p: 0,
+                color: "#00BCD4",
+                fontFamily: "'Inter', sans-serif",
+                fontSize: "13px",
+                lineHeight: "16px",
+                fontWeight: 500,
+                textTransform: "none",
+                justifyContent: "flex-start",
+                "& .MuiButton-startIcon": { m: 0, mr: "8px" },
+                "&:hover": { bgcolor: "transparent", color: "#00ABC1" },
+              }}
+            >
+              Copy link
+            </Button>
+
+            <Button
+              onClick={() => setShowShareModal(false)}
+              sx={{
+                flex: "0 0 65px",
+                width: "65px",
+                minWidth: "65px",
+                height: "40px",
+                p: "0 16px",
+                borderRadius: "8px",
+                bgcolor: "#00BCD4",
+                color: "#FFFFFF",
+                textTransform: "none",
+                fontFamily: "'Inter', sans-serif",
+                fontSize: "13px",
+                lineHeight: "16px",
+                fontWeight: 600,
+                "&:hover": { bgcolor: "#00ABC1" },
+              }}
+            >
+              Done
+            </Button>
+          </Box>
+        </Box>
+      </Dialog>
+    );
+  };
 
   // Compound Detail Dialog (Figma Image 15)
 
@@ -2193,7 +2670,16 @@ const CompleteWorkflow = () => {
         />
       );
     }
-    if (["curatex-loading", "curatex-profile", "curatex-results"].includes(workflowPhase)) {
+    if ([
+      "curatex-loading",
+      "curatex-profile",
+      "curatex-submitted",
+      "curatex-results",
+      "curatex-data-source",
+      "curatex-compound-exploration",
+      "curatex-compound-detail",
+      "curatex-candidate-selection",
+    ].includes(workflowPhase)) {
       return (
         <CuratexPhase
           workflowPhase={workflowPhase}
@@ -2204,6 +2690,7 @@ const CompleteWorkflow = () => {
           profileEditMode={profileEditMode}
           setProfileEditMode={setProfileEditMode}
           curateXResults={curateXResults}
+          setCurateXResults={setCurateXResults}
           setSelectedCompound={setSelectedCompound}
           setShowCompoundDetail={setShowCompoundDetail}
           setActiveStep={setActiveStep}
@@ -2233,6 +2720,19 @@ const CompleteWorkflow = () => {
     if (!chatInputValue.trim()) return;
     const userMsg = { role: "user", text: chatInputValue.trim() };
     const lc = chatInputValue.toLowerCase();
+
+    // ScreenSuite hands the conversation to NovSearch when the next request
+    // asks for patent or novelty analysis.
+    if (
+      workflowPhase.startsWith("screensuite") &&
+      (lc.includes("patent") || lc.includes("novelty"))
+    ) {
+      setActiveStep(4);
+      setWorkflowPhase("novelty-results");
+      setChatInputValue("");
+      return;
+    }
+
     // Navigate to CurateX when user signals they're done with LitMineX chat
     if (lc.includes("target candidate profile") || lc.includes("done with the chat") || (lc.includes("generate") && lc.includes("jak2"))) {
       setChatMessages(prev => [...prev, userMsg]);
@@ -2320,7 +2820,9 @@ const CompleteWorkflow = () => {
             <Box sx={{ flex: 1, overflow: "auto" }}>
               {renderContent()}
             </Box>
-            {viewMode === "chat" && <ChatInputBar />}
+            {viewMode === "chat" && !workflowPhase.startsWith("novelty") && (
+              <ChatInputBar />
+            )}
           </Box>
         </Box>
       </Box>

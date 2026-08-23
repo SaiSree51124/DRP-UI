@@ -1,23 +1,4 @@
 /* =========================================================
-   GLOBAL
-   ========================================================= */
-
-* {
-  box-sizing: border-box;
-}
-
-.txkg-section,
-.subgraph-section,
-.metapath-section {
-  font-family: "Inter", sans-serif;
-}
-
-button {
-  font-family: "Inter", sans-serif;
-}
-
-
-/* =========================================================
    TXKG SECTION
    ========================================================= */
 
@@ -2241,3 +2222,200 @@ button {
 
 /* Do not force flex sizing on result rows/cards. The existing
    JSX/MUI Accordion controls the expanded content height. */
+
+/* =========================================================
+   TXKG LOADING SCREEN - FINAL TEXT VISIBILITY FIX
+   ---------------------------------------------------------
+   This is intentionally scoped ONLY to the loading screen.
+   It does not modify TXKG results, Subgraph, MetaPath,
+   or any other workflow screen.
+   ========================================================= */
+
+.txkg-loading-content {
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+
+  padding: 24px 40px;
+  gap: 16px;
+
+  background: #f8fafc;
+
+  /* Do not clip the final letter of the agent name. */
+  overflow: visible;
+}
+
+.txkg-loading-content .user-message-row,
+.txkg-loading-content .agent-thinking-row {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+  flex: 0 0 auto;
+}
+
+.txkg-loading-content .user-message-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: flex-start;
+  padding: 8px 0;
+}
+
+.txkg-loading-content .agent-thinking-row {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  padding: 8px 0;
+}
+
+.txkg-loading-content .thinking-bubble {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+  overflow: visible;
+}
+
+.txkg-loading-content .bubble-header {
+  display: flex !important;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+
+  /*
+   * Do not use a fixed 180px width here.
+   * 32px avatar + 10px gap + actual Inter text width
+   * is slightly wider than 138px at this rendering scale.
+   */
+  width: max-content !important;
+  min-width: max-content !important;
+  max-width: none !important;
+
+  flex: 0 0 auto !important;
+  overflow: visible !important;
+}
+
+.txkg-loading-content .agent-avatar {
+  flex: 0 0 32px !important;
+  width: 32px !important;
+  min-width: 32px !important;
+  max-width: 32px !important;
+  height: 32px !important;
+  min-height: 32px !important;
+  max-height: 32px !important;
+}
+
+.txkg-loading-content .agent-name {
+  display: inline-block !important;
+
+  /*
+   * Let the browser use the actual text width.
+   * This is the key fix for the clipped T.
+   */
+  width: max-content !important;
+  min-width: max-content !important;
+  max-width: none !important;
+
+  flex: 0 0 auto !important;
+  flex-shrink: 0 !important;
+
+  white-space: nowrap !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+
+  box-sizing: border-box;
+}
+
+/* =========================================================
+   TXKG RESULTS SCREEN — FIGMA ALIGNMENT (container spacing + fonts)
+   ---------------------------------------------------------
+   Additive-only: does not modify any rule above. Uses higher
+   specificity / later cascade order to bring the results screen
+   in line with the Figma "Content-drp-full-results-expanded"
+   frame (24px 40px outer padding, 8px vertical rhythm between
+   rows, user bubble typography matching the results frame spec).
+   Nothing above this block was changed or removed.
+   ========================================================= */
+
+.txkg-results-content {
+  box-sizing: border-box;
+  padding: 24px 40px;      /* matches chat-flow-container inset in Figma */
+}
+
+/* Neutralize the earlier 16px side padding on agent rows now that the
+   parent container itself carries the 40px inset (Figma: 980px/988px
+   content column centered inside the wider chat frame). */
+.txkg-results-content .agent-message-row.result-row {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+/* Give the user row the same vertical rhythm/inset as the loading
+   screen so it never sits flush against the container edge. */
+.txkg-results-content .user-message-row {
+  padding: 8px 0;
+  margin: 0;
+}
+
+/* DR. PRIYA (YOU) header — Figma results frame spec: 12px/15px, 700 */
+.txkg-results-content .user-name {
+  font-family: 'Inter';
+  font-weight: 700;
+  font-size: 12px;
+  line-height: 15px;
+  text-transform: uppercase;
+  color: #00BCD4;
+}
+
+/* User message body text — Figma results frame spec: 15px/22px, 400 */
+.txkg-results-content .user-message-text {
+  font-family: 'Inter';
+  font-weight: 400;
+  font-size: 15px;
+  line-height: 22px;
+  color: #0F172A;
+}
+
+.txkg-results-content .user-message-bubble {
+  box-sizing: border-box;
+  padding: 16px;
+  gap: 12px;
+  background: #F0FDF9;
+  border: 1px solid rgba(226, 232, 240, 0.3);
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.03);
+  border-radius: 12px;
+}
+
+/* Consistent 8px rhythm between the user row and the first agent
+   card, and between stacked agent cards, per Figma's messages-list
+   gap value. */
+.txkg-results-content .user-message-row + .agent-message-row {
+  margin-top: 8px;
+}
+.txkg-results-content .agent-message-row.result-row + .agent-message-row.result-row {
+  margin-top: 8px;
+}
+
+/* Section header typography (TXKG / SUBGRAPH / METAPATH ANALYSIS)
+   confirmed against Figma results frame: 12px/15px, 700, uppercase. */
+.txkg-results-content .result-card .MuiAccordionSummary-root .MuiTypography-root {
+  font-family: 'Inter';
+}
+
+/* Loading screen thinking-dot opacities per Figma (not explicitly
+   defined elsewhere): full / 50% / 20%. */
+.txkg-loading-content .spinner-dot:nth-child(1) {
+  opacity: 1;
+}
+.txkg-loading-content .spinner-dot:nth-child(2) {
+  opacity: 0.5;
+}
+.txkg-loading-content .spinner-dot:nth-child(3) {
+  opacity: 0.2;
+}

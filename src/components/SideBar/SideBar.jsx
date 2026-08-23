@@ -158,9 +158,9 @@ const SideBar = ({
   onNewResearch,
   onLogout = () => {},
   user = {
-    name: "Alex Rivera",
+    name: "DR. Priya",
     email: "researcher@novapath.ai",
-    initials: "AR",
+    initials: "PR",
   },
   activePath,
 }) => {

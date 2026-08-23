@@ -100,6 +100,7 @@ const LitMineXAgentHeader = ({
       gap: '10px',
       width: '100%',
       minHeight: '32px',
+      mb: '12px',
     }}
   >
     <Box
@@ -405,9 +406,10 @@ const LiteminexPhase = ({
             <Typography
               sx={{
                 fontFamily: FONT,
-                fontSize: '14px',
+                fontSize: '15px',
+                fontWeight: 400,
                 color: TEXT_DARK,
-                lineHeight: '20px',
+                lineHeight: '22px',
               }}
             >
               {firstUserMsg.text}

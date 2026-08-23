@@ -296,7 +296,7 @@ const UserMessage = () => (
   >
     <Box
       sx={{
-        width: "548px",
+        width: "534px",
         maxWidth: "100%",
         background: "#F0FDF9",
         borderRadius: "12px",
@@ -327,8 +327,8 @@ const UserMessage = () => (
           color: "#334155",
         }}
       >
-        Run molecular docking on Metformin and Pioglitazone for Type 2 Diabetes
-        targets
+        View ScreenSuite docking status for Metformin and Pioglitazone against
+        JAK2
       </Typography>
     </Box>
   </Box>
@@ -1225,93 +1225,120 @@ const OverallRecommendation = () => {
 };
 
 /* ============================================================================
-   CHAT INPUT
-============================================================================ */
-
-const ChatInput = () => {
-  return (
-    <Box
-      sx={{
-        width: "100%",
-        minHeight: "104px",
-        marginTop: "12px",
-        padding: "16px 20px",
-        boxSizing: "border-box",
-        background: "#FFFFFF",
-        border: "1px solid #E2E8F0",
-        borderRadius: "12px",
-      }}
-    >
-      <Typography
-        sx={{
-          ...baseText,
-          fontSize: "14px",
-          lineHeight: "20px",
-          color: "#94A3B8",
-        }}
-      >
-        Type @ for modules or ask a research question...
-      </Typography>
-
-      <Box
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          marginTop: "20px",
-        }}
-      >
-        <Box
-          sx={{
-            width: "28px",
-            height: "28px",
-            borderRadius: "6px",
-            background: "#F1F5F9",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <Typography
-            sx={{
-              fontFamily: FONT,
-              fontSize: "20px",
-              lineHeight: "20px",
-              color: "#64748B",
-            }}
-          >
-            +
-          </Typography>
-        </Box>
-
-        <Box
-          sx={{
-            width: "34px",
-            height: "34px",
-            borderRadius: "50%",
-            background: TEAL,
-            color: "#FFFFFF",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontFamily: FONT,
-            fontSize: "19px",
-            cursor: "pointer",
-          }}
-        >
-          ↑
-        </Box>
-      </Box>
-    </Box>
-  );
-};
-
-/* ============================================================================
    MAIN COMPONENT
 ============================================================================ */
 
 const ScreeningSuitePhase = ({ workflowPhase }) => {
   const [selectedReport, setSelectedReport] = useState(null);
+
+  if (workflowPhase === "screensuite-loading") {
+    return (
+      <Box
+        sx={{
+          flex: 1,
+          width: "100%",
+          minWidth: 0,
+          height: "100%",
+          background: GRAY_BG,
+          overflowY: "auto",
+          overflowX: "hidden",
+          boxSizing: "border-box",
+        }}
+      >
+        <Box
+          sx={{
+            width: "100%",
+            maxWidth: "none",
+            margin: 0,
+            padding: "24px 40px 40px",
+            boxSizing: "border-box",
+
+            "@media (max-width: 700px)": {
+              paddingLeft: "16px",
+              paddingRight: "16px",
+              paddingTop: "16px",
+            },
+          }}
+        >
+          <UserMessage />
+
+          <Box
+            sx={{
+              width: "100%",
+              background: "#FFFFFF",
+              border: "1px solid #E2E8F0",
+              borderRadius: "10px",
+              padding: "16px",
+              boxSizing: "border-box",
+            }}
+          >
+            <AgentHeader />
+
+            <Typography
+              sx={{
+                ...baseText,
+                fontSize: "14px",
+                lineHeight: "22px",
+                fontWeight: 400,
+                color: "#334155",
+                marginBottom: "12px",
+              }}
+            >
+              Received 2 candidates from CurateX. Initializing molecular docking pipeline...
+            </Typography>
+
+            <Box
+              sx={{
+                border: "1px solid #F1F5F9",
+                borderRadius: "8px",
+                padding: "12px",
+              }}
+            >
+              <Typography
+                sx={{
+                  ...baseText,
+                  fontSize: "13px",
+                  lineHeight: "16px",
+                  fontWeight: 700,
+                  color: "#334155",
+                  marginBottom: "12px",
+                }}
+              >
+                ⚡ ScreenSuite - Docking Initialization
+              </Typography>
+
+              <Box sx={{ display: "flex", justifyContent: "space-between", ...baseText, fontSize: "11px", color: "#94A3B8", marginBottom: "6px" }}>
+                <span>Setting up docking environment...</span>
+                <span style={{ color: TEAL, fontWeight: 700 }}>12%</span>
+              </Box>
+
+              <Box sx={{ height: "5px", background: "#F1F5F9", borderRadius: "4px", marginBottom: "12px" }}>
+                <Box sx={{ width: "12%", height: "100%", background: TEAL, borderRadius: "4px" }} />
+              </Box>
+
+              {[
+                ["✓", "Candidates received - Metformin (94%), Pioglitazone (91%)", "#00BCD4"],
+                ["✓", "Target validated - JAK2 (UniProt: O60674)", "#00BCD4"],
+                ["◉", "Preparing receptor structure & binding site grid...", "#00BCD4"],
+                ["○", "Run PLP docking simulations", "#CBD5E1"],
+              ].map(([icon, label, color]) => (
+                <Box key={label} sx={{ display: "flex", gap: "8px", alignItems: "center", marginBottom: "7px" }}>
+                  <span style={{ color, fontSize: "11px", width: "10px" }}>{icon}</span>
+                  <Typography sx={{ ...baseText, fontSize: "12px", lineHeight: "15px", fontWeight: 500, color: "#334155" }}>
+                    {label}
+                  </Typography>
+                </Box>
+              ))}
+
+              <Typography sx={{ ...baseText, fontSize: "11px", lineHeight: "14px", color: "#94A3B8", marginTop: "10px" }}>
+                Estimated time remaining: ~8 min
+              </Typography>
+            </Box>
+          </Box>
+        </Box>
+      </Box>
+    );
+  }
 
   return (
     <Box
@@ -1329,15 +1356,10 @@ const ScreeningSuitePhase = ({ workflowPhase }) => {
       <Box
         sx={{
           width: "100%",
-          maxWidth: "1020px",
-          margin: "0 auto",
+          maxWidth: "none",
+          margin: 0,
           padding: "24px 40px 40px",
           boxSizing: "border-box",
-
-          "@media (max-width: 1100px)": {
-            paddingLeft: "24px",
-            paddingRight: "24px",
-          },
 
           "@media (max-width: 700px)": {
             paddingLeft: "16px",
@@ -1411,11 +1433,6 @@ const ScreeningSuitePhase = ({ workflowPhase }) => {
           <OverallRecommendation />
         </Box>
 
-        {/* ================================================================
-            CHAT INPUT
-        ================================================================= */}
-
-        <ChatInput />
       </Box>
     </Box>
   );

@@ -1,6 +1,8 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Box, Button, Typography } from "@mui/material";
-import { FONT, TEAL, GRAY_BG } from "../workflowConstants";
+import { TEAL, GRAY_BG } from "../workflowConstants";
+
+const NOVSEARCH_FONT = "'Inter', sans-serif";
 
 /* ============================================================================
    DATA
@@ -85,7 +87,7 @@ const comparisonPatents = [
 ============================================================================ */
 
 const text = {
-  fontFamily: FONT,
+  fontFamily: NOVSEARCH_FONT,
   color: "#1E293B",
 };
 
@@ -97,7 +99,7 @@ const buttonBase = {
   border: "1px solid #DCE3EA",
   background: "#FFFFFF",
   color: "#1E293B",
-  fontFamily: FONT,
+  fontFamily: NOVSEARCH_FONT,
   fontSize: "13px",
   fontWeight: 500,
   textTransform: "none",
@@ -191,7 +193,7 @@ const PlusIcon = () => (
   <Typography
     component="span"
     sx={{
-      fontFamily: FONT,
+      fontFamily: NOVSEARCH_FONT,
       fontSize: "22px",
       lineHeight: "22px",
       color: "#64748B",
@@ -206,7 +208,7 @@ const ArrowUpIcon = () => (
   <Typography
     component="span"
     sx={{
-      fontFamily: FONT,
+      fontFamily: NOVSEARCH_FONT,
       fontSize: "21px",
       lineHeight: "21px",
       color: "#FFFFFF",
@@ -306,11 +308,11 @@ const UserMessage = ({ children }) => (
   >
     <Box
       sx={{
-        width: "488px",
+        width: "490px",
         maxWidth: "100%",
-        minHeight: "69px",
+        minHeight: "81px",
         boxSizing: "border-box",
-        padding: "13px 16px",
+        padding: "16px",
         background: "#F0FDFA",
         borderRadius: "12px",
       }}
@@ -322,7 +324,7 @@ const UserMessage = ({ children }) => (
           lineHeight: "14px",
           fontWeight: 700,
           color: TEAL,
-          mb: "6px",
+          mb: "12px",
         }}
       >
         DR. PRIYA (YOU)
@@ -332,7 +334,7 @@ const UserMessage = ({ children }) => (
         sx={{
           ...text,
           fontSize: "15px",
-          lineHeight: "20px",
+          lineHeight: "22px",
           fontWeight: 400,
           color: "#1E293B",
         }}
@@ -641,7 +643,7 @@ const ResultsScreen = ({ onCompare }) => (
    COMPARISON SCREEN
 ============================================================================ */
 
-const ComparisonScreen = ({ onCompile }) => (
+const ComparisonScreen = () => (
   <>
     <Box
       sx={{
@@ -749,11 +751,6 @@ const ComparisonScreen = ({ onCompile }) => (
           flexWrap: "wrap",
         }}
       >
-        <Button onClick={onCompile} sx={primaryButton}>
-          Generate Final Summary
-        </Button>
-
-        <Button sx={buttonBase}>Branch</Button>
       </Box>
     </Box>
   </>
@@ -763,7 +760,7 @@ const ComparisonScreen = ({ onCompile }) => (
    COMPILING SCREEN
 ============================================================================ */
 
-const CompilingScreen = ({ onComplete }) => (
+const DecisionScreen = ({ onContinue, onEndTask }) => (
   <>
     <UserMessage>
       Complete this research task. Generate a final summary report for the
@@ -817,15 +814,20 @@ const CompilingScreen = ({ onComplete }) => (
         }}
       >
         <Button
-          onClick={onComplete}
+          onClick={onContinue}
           sx={primaryButton}
         >
           Continue Research
         </Button>
 
-        <Button sx={buttonBase}>End Task</Button>
+        <Button onClick={onEndTask} sx={buttonBase}>End Task</Button>
       </Box>
     </Box>
+  </>
+);
+
+const CompilingScreen = () => (
+  <>
 
     <UserMessage>End Task</UserMessage>
 
@@ -1054,16 +1056,16 @@ const ChatInput = ({ value, onChange, onSubmit, disabled = false }) => (
   <Box
     sx={{
       width: "100%",
-      minHeight: "104px",
+      height: "98px",
       boxSizing: "border-box",
-      border: "1px solid #DCE3EA",
-      borderRadius: "12px",
+      border: "1.5px solid #E2E8F0",
+      borderRadius: "16px",
       background: "#FFFFFF",
-      padding: "14px 16px",
-      mt: "12px",
+      padding: "16px",
       display: "flex",
       flexDirection: "column",
       justifyContent: "space-between",
+      gap: "12px",
     }}
   >
     <Box
@@ -1083,7 +1085,7 @@ const ChatInput = ({ value, onChange, onSubmit, disabled = false }) => (
         border: "none",
         outline: "none",
         background: "transparent",
-        fontFamily: FONT,
+        fontFamily: NOVSEARCH_FONT,
         fontSize: "14px",
         lineHeight: "20px",
         color: "#1E293B",
@@ -1105,8 +1107,8 @@ const ChatInput = ({ value, onChange, onSubmit, disabled = false }) => (
     >
       <Box
         sx={{
-          width: "28px",
-          height: "28px",
+          width: "26px",
+          height: "26px",
           borderRadius: "6px",
           background: "#F1F5F9",
           display: "flex",
@@ -1130,8 +1132,8 @@ const ChatInput = ({ value, onChange, onSubmit, disabled = false }) => (
         <Box
           onClick={disabled ? undefined : onSubmit}
           sx={{
-            width: "34px",
-            height: "34px",
+            width: "32px",
+            height: "32px",
             borderRadius: "50%",
             background: disabled ? "#CBD5E1" : "#08B8D0",
             display: "flex",
@@ -1172,6 +1174,10 @@ const getInitialStage = (workflowPhase) => {
     return "compiling";
   }
 
+  if (value.includes("decision") || value.includes("endtask")) {
+    return "decision";
+  }
+
   if (
     value.includes("comparison") ||
     value.includes("compare")
@@ -1192,6 +1198,15 @@ const NoveltySearchPhase = ({ workflowPhase }) => {
   );
 
   const [inputValue, setInputValue] = useState("");
+
+  useEffect(() => {
+    if (stage !== "compiling") {
+      return undefined;
+    }
+
+    const timer = setTimeout(() => setStage("summary"), 2500);
+    return () => clearTimeout(timer);
+  }, [stage]);
 
   /*
    * Keep externally supplied workflowPhase useful if the parent changes it.
@@ -1224,7 +1239,7 @@ const NoveltySearchPhase = ({ workflowPhase }) => {
       normalized.includes("final report") ||
       normalized.includes("complete")
     ) {
-      setStage("compiling");
+      setStage("decision");
     }
 
     setInputValue("");
@@ -1239,18 +1254,23 @@ const NoveltySearchPhase = ({ workflowPhase }) => {
         height: "100%",
         minHeight: 0,
         background: GRAY_BG,
-        overflowY: "auto",
-        overflowX: "hidden",
+        display: "flex",
+        flexDirection: "column",
+        overflow: "hidden",
         boxSizing: "border-box",
       }}
     >
       <Box
         sx={{
           width: "100%",
-          maxWidth: "1088px",
+          maxWidth: "none",
           margin: "0 auto",
+          flex: 1,
+          minHeight: 0,
+          overflowY: "auto",
+          overflowX: "hidden",
           boxSizing: "border-box",
-          padding: "34px 40px 40px",
+          padding: "24px 40px 40px",
 
           "@media (max-width: 1100px)": {
             padding: "28px 28px 36px",
@@ -1276,20 +1296,21 @@ const NoveltySearchPhase = ({ workflowPhase }) => {
         ================================================================= */}
 
         {stage === "comparison" && (
-          <ComparisonScreen
-            onCompile={() => setStage("compiling")}
-          />
+          <ComparisonScreen />
         )}
 
         {/* ================================================================
             COMPILING / RESEARCH REPORT
         ================================================================= */}
 
-        {stage === "compiling" && (
-          <CompilingScreen
-            onComplete={() => setStage("summary")}
+        {stage === "decision" && (
+          <DecisionScreen
+            onContinue={() => setStage("results")}
+            onEndTask={() => setStage("compiling")}
           />
         )}
+
+        {stage === "compiling" && <CompilingScreen />}
 
         {/* ================================================================
             FINAL SUMMARY
@@ -1297,10 +1318,27 @@ const NoveltySearchPhase = ({ workflowPhase }) => {
 
         {stage === "summary" && <SummaryScreen />}
 
-        {/* ================================================================
-            CHAT INPUT
-        ================================================================= */}
+      </Box>
 
+      {/* Keep the composer fixed to the NovSearch viewport across every stage. */}
+      <Box
+        sx={{
+          flexShrink: 0,
+          width: "100%",
+          background: GRAY_BG,
+          borderTop: "1px solid #E2E8F0",
+          padding: "12px 16px",
+          boxSizing: "border-box",
+
+          "@media (max-width: 1100px)": {
+            padding: "12px 16px",
+          },
+
+          "@media (max-width: 700px)": {
+            padding: "12px 16px",
+          },
+        }}
+      >
         <ChatInput
           value={inputValue}
           onChange={setInputValue}

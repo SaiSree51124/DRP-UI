@@ -271,7 +271,7 @@ const ResearchStepHeader = ({
   activeBranchId = "main",
   onSelectBranch = () => {},
   onRenameBranch = () => {},
-  owner = { name: "Alex Rivera", email: "researcher@novapath.ai" },
+  owner = { name: "DR. Priya", email: "researcher@novapath.ai" },
   reviewers = [],
   onInvite = () => {},
 }) => {

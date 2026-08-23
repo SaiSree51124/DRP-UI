@@ -5,7 +5,7 @@ import HomePage from "./components/HomePage/HomePage";
 import ProjectsPage from "./components/Projects/ProjectsPage";
 import ProjectDetails from "./components/ProjectDetails/ProjectDetails";
 
-import Login from "./components/Login";
+import Login from "./components/Login/Login";
 import SplashScreen from "./components/SplashScreen";
 import WelcomeScreen from "./components/WelcomeScreen";
 
