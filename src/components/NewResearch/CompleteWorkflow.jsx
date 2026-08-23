@@ -59,6 +59,10 @@ const CompleteWorkflow = () => {
   const [selectedArticle, setSelectedArticle] = useState(null);
   const [branchOpen, setBranchOpen] = useState(false);
   const [selectedBranch, setSelectedBranch] = useState("main");
+  const [showBranchDialog, setShowBranchDialog] = useState(false);
+  const [branchCreated, setBranchCreated] = useState(false);
+  const [branchName, setBranchName] = useState("JAK2-alternative-targets");
+  const [branchDescription, setBranchDescription] = useState("Saving therapeutic target prediction results for Type 2 Diabetes disease pathway analysis.");
   const [viewMode, setViewMode] = useState("chat"); // 'chat' | 'artifacts'
   const [showShareDialog, setShowShareDialog] = useState(false);
 
@@ -924,6 +928,71 @@ const CompleteWorkflow = () => {
     );
   };
 
+  const BranchDialog = () => (
+    <Dialog
+      open={showBranchDialog}
+      onClose={() => { setShowBranchDialog(false); setBranchCreated(false); }}
+      maxWidth={false}
+      PaperProps={{
+        sx: {
+          width: "640px",
+          height: "524px",
+          maxWidth: "calc(100vw - 32px)",
+          borderRadius: "16px",
+          boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.03)",
+        },
+      }}
+    >
+      <DialogTitle sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", px: "24px", py: "24px", borderBottom: "1px solid #E3E8F0" }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          <Box sx={{ width: "40px", height: "40px", display: "flex", alignItems: "center", justifyContent: "center", bgcolor: TEAL, borderRadius: "8px", color: "#FFFFFF", fontSize: "20px" }}>⑂</Box>
+          <Box>
+            <Typography sx={{ fontFamily: "'Inter', sans-serif", fontSize: "16px", lineHeight: "19px", fontWeight: 600, color: "#262E38" }}>
+              {branchCreated ? "Branch Created" : "Branch Research"}
+            </Typography>
+            <Typography sx={{ fontFamily: "'Inter', sans-serif", fontSize: "12px", lineHeight: "15px", color: "#737D8C" }}>
+              {branchCreated ? "Your new branch has been created successfully" : "Create a new branch from current results"}
+            </Typography>
+          </Box>
+        </Box>
+        <IconButton onClick={() => { setShowBranchDialog(false); setBranchCreated(false); }} sx={{ color: "#737D8C" }}>×</IconButton>
+      </DialogTitle>
+
+      {branchCreated ? (
+        <DialogContent sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "16px", px: "24px", py: "32px" }}>
+          <Box sx={{ width: "64px", height: "64px", display: "flex", alignItems: "center", justifyContent: "center", bgcolor: "#E0F7F5", borderRadius: "50%", color: TEAL, fontSize: "32px", fontWeight: 700 }}>✓</Box>
+          <Typography sx={{ fontFamily: "'Inter', sans-serif", fontSize: "18px", lineHeight: "22px", fontWeight: 600, color: "#1A2E44" }}>Branch created successfully!</Typography>
+          <Typography sx={{ fontFamily: "'Inter', sans-serif", fontSize: "14px", lineHeight: "17px", fontWeight: 600, color: TEAL }}>{branchName}</Typography>
+          <Typography sx={{ fontFamily: "'Inter', sans-serif", fontSize: "13px", lineHeight: "16px", color: "#94A3B8" }}>Branched from Main (Step 3: TxKG Results)</Typography>
+        </DialogContent>
+      ) : (
+        <DialogContent sx={{ display: "flex", flexDirection: "column", gap: "16px", px: "24px", py: "24px" }}>
+          <Box>
+            <Typography sx={{ fontFamily: "'Inter', sans-serif", fontSize: "12px", color: "#737D8C", mb: "6px" }}>Branch Name</Typography>
+            <TextField value={branchName} onChange={(event) => setBranchName(event.target.value)} fullWidth size="small" sx={{ "& .MuiOutlinedInput-root": { borderRadius: "8px" } }} />
+          </Box>
+          <Box>
+            <Typography sx={{ fontFamily: "'Inter', sans-serif", fontSize: "12px", color: "#737D8C", mb: "6px" }}>Branch From</Typography>
+            <TextField value="Main (Step 3: TxKG Results)" fullWidth size="small" disabled sx={{ "& .MuiOutlinedInput-root": { borderRadius: "8px" } }} />
+          </Box>
+          <Box>
+            <Typography sx={{ fontFamily: "'Inter', sans-serif", fontSize: "12px", color: "#737D8C", mb: "6px" }}>Description</Typography>
+            <TextField value={branchDescription} onChange={(event) => setBranchDescription(event.target.value)} fullWidth multiline rows={3} sx={{ "& .MuiOutlinedInput-root": { borderRadius: "8px" } }} />
+          </Box>
+        </DialogContent>
+      )}
+
+      <DialogActions sx={{ justifyContent: "flex-end", gap: "12px", px: "24px", py: "24px", bgcolor: "#FAFAFC", borderTop: "1px solid #E3E8F0" }}>
+        <Button onClick={() => { setShowBranchDialog(false); setBranchCreated(false); }} sx={{ minWidth: branchCreated ? "72px" : "81px", height: "35px", px: "16px", border: "1px solid #E3E8F0", borderRadius: "8px", color: "#262E38", fontFamily: "'Inter', sans-serif", fontSize: "14px", textTransform: "none" }}>
+          {branchCreated ? "Close" : "Cancel"}
+        </Button>
+        <Button onClick={() => branchCreated ? setShowBranchDialog(false) : setBranchCreated(true)} sx={{ height: "35px", px: "16px", bgcolor: TEAL, borderRadius: "8px", color: "#FFFFFF", fontFamily: "'Inter', sans-serif", fontSize: "14px", textTransform: "none", "&:hover": { bgcolor: "#00A9BF" } }}>
+          {branchCreated ? "Go to Branch" : "Create & Branch"}
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+
   // Compound Detail Dialog (Figma Image 15)
 
   // TXKG Phase - Results
@@ -1141,7 +1210,7 @@ const CompleteWorkflow = () => {
 
           {/* Action Buttons */}
           <Box sx={{ display: "flex", gap: "12px", mt: "16px" }}>
-            <Button variant="outlined" sx={{ textTransform: "none", fontFamily: FONT, fontSize: "13px", color: TEXT_DARK, borderColor: BORDER, p: "6px 16px" }}>
+            <Button onClick={() => setShowBranchDialog(true)} variant="outlined" sx={{ textTransform: "none", fontFamily: FONT, fontSize: "13px", color: TEXT_DARK, borderColor: BORDER, p: "6px 16px" }}>
               Branch
             </Button>
             <Button variant="outlined" sx={{ textTransform: "none", fontFamily: FONT, fontSize: "13px", color: TEXT_DARK, borderColor: BORDER, p: "6px 16px" }}>
@@ -2656,6 +2725,7 @@ const CompleteWorkflow = () => {
           setSelectedTargets={setSelectedTargets}
           setWorkflowPhase={setWorkflowPhase}
           setActiveStep={setActiveStep}
+          setShowBranchDialog={setShowBranchDialog}
         />
       );
     }
@@ -2829,6 +2899,7 @@ const CompleteWorkflow = () => {
 
       <ArticleDetailPanel />
       <CompoundDetailDialog />
+      <BranchDialog />
       <ShareModal open={showShareDialog} onClose={() => setShowShareDialog(false)} />
     </Box>
   );

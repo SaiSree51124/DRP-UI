@@ -53,6 +53,7 @@ const TXKGPhase = ({
   setSelectedTargets,
   setWorkflowPhase,
   setActiveStep,
+  setShowBranchDialog,
 }) => {
   const mockTargets = MOCK_TARGETS;
 
@@ -205,7 +206,7 @@ const TXKGPhase = ({
                 </Box>
               </Box>
               <Box sx={{ display: "flex", gap: "12px", mt: "16px" }}>
-                <Button variant="outlined" sx={{ textTransform: "none", fontFamily: FONT, fontSize: "13px", color: TEXT_DARK, borderColor: BORDER, p: "6px 16px" }}>Branch</Button>
+                <Button onClick={() => setShowBranchDialog?.(true)} variant="outlined" sx={{ textTransform: "none", fontFamily: FONT, fontSize: "13px", color: TEXT_DARK, borderColor: BORDER, p: "6px 16px" }}>Branch</Button>
                 <Button variant="outlined" sx={{ textTransform: "none", fontFamily: FONT, fontSize: "13px", color: TEXT_DARK, borderColor: BORDER, p: "6px 16px" }}>Rerun</Button>
                 <Button variant="outlined" sx={{ textTransform: "none", fontFamily: FONT, fontSize: "13px", color: TEXT_DARK, borderColor: BORDER, p: "6px 16px" }}>Export</Button>
               </Box>
