@@ -232,8 +232,8 @@ const SideBar = ({
     navigate(path);
   };
 
-  const handleLogout = () => {
-    onLogout();
+  const handleLogout = async () => {
+    await onLogout();
     navigate("/login");
   };
 

@@ -1,13 +1,12 @@
 import React from "react";
-import { useNavigate, Outlet } from "react-router-dom";
+import { Outlet } from "react-router-dom";
+import { signOut } from "@aws-amplify/auth";
 import { Box } from "@mui/material";
 import SideBar from "../SideBar/SideBar";
 
 const MainLayout = ({ children }) => {
-  const navigate = useNavigate();
-
-  const handleLogout = () => {
-    navigate('/login');
+  const handleLogout = async () => {
+    await signOut();
   };
 
   return (

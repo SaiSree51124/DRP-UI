@@ -730,6 +730,29 @@ body {
 }
 
 
+/* =========================================================
+   FORM ERROR
+   ========================================================= */
+
+.form-error {
+  margin: -8px 0 0;
+
+  padding: 10px 14px;
+
+  border: 1px solid rgba(239, 68, 68, 0.3);
+
+  border-radius: 8px;
+
+  background: rgba(239, 68, 68, 0.08);
+
+  color: #dc2626;
+
+  font-size: 13px;
+
+  line-height: 1.4;
+}
+
+
 .checkbox-label {
   position: relative;
 
